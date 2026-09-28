@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/goar.html",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "goarxyz",
+      "hasCanvas": false,
+      "bodyTextLen": 481,
+      "bodyTextHash": "1060cd9ddc1e9a0d3e8a8c98b508a2865bbb753d7107d25e5db8c73074f53e44",
+      "bodyTextPrefix": "goarxyz ○ □ △ ✕ GOARXYZ Watch. Listen. Play. Movies, series, liv",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/hub-home.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "goarxyz",
+      "hasCanvas": false,
+      "bodyTextLen": 481,
+      "bodyTextHash": "1060cd9ddc1e9a0d3e8a8c98b508a2865bbb753d7107d25e5db8c73074f53e44",
+      "bodyTextPrefix": "goarxyz ○ □ △ ✕ GOARXYZ Watch. Listen. Play. Movies, series, liv",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/hub-home-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/hub-home.json"
+}
