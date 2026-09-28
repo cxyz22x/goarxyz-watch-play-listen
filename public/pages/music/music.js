@@ -253,10 +253,10 @@ function pushCand(list, url, mime, title, artist, audioOnly){
 }
 /* Client list mirrors iv-org/invidious src/invidious/yt_backend/youtube_api.cr */
 const YT_CLIENTS = [
+  { name:"IOS", version:"20.11.6", id:"5", ua:"com.google.ios.youtube/20.11.6 (iPhone14,5; U; CPU iOS 18_5 like Mac OS X;)", extra:{ deviceMake:"Apple", deviceModel:"iPhone14,5", osName:"iPhone", osVersion:"18.5.0.22F76", platform:"MOBILE" } },
   { name:"ANDROID", version:"20.10.38", id:"3", ua:"com.google.android.youtube/20.10.38 (Linux; U; Android 14) gzip", extra:{ androidSdkVersion:30 } },
-  { name:"ANDROID", version:"21.03.38", id:"3", ua:"com.google.android.youtube/21.03.38 (Linux; U; Android 14) gzip", extra:{ androidSdkVersion:34 } },
-  { name:"TVHTML5", version:"7.20260311.16.00", id:"7", ua:"Mozilla/5.0 (ChromiumStyle TV)", extra:{} },
-  { name:"MWEB", version:"2.20260722.01.00", id:"2", ua:"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36", extra:{} }
+  { name:"ANDROID", version:"21.29.366", id:"3", ua:"com.google.android.youtube/21.29.366 (Linux; U; Android 16; en_US; SM-S908E Build/TP1A.220624.014) gzip", extra:{ androidSdkVersion:33, osName:"Android", osVersion:"16", platform:"MOBILE" } },
+  { name:"MWEB", version:"2.20260722.01.00", id:"2", ua:"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36", extra:{ osName:"Android", osVersion:"16", platform:"MOBILE" } }
 ];
 const YT_PLAYER_ENDPOINTS = [
   "https://www.youtube.com/youtubei/v1/player?prettyPrint=false&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
@@ -526,7 +526,33 @@ async function playCandidate(c){
   if(c.kind==="hls") await attachHls(c.url);
   else await attachFile(c.url, c.mime);
 }
+async function ytWebSearch(q){
+  const body={ context:{ client:{ clientName:"WEB", clientVersion:"2.20260722.01.00", hl:"en", gl:"US" } }, query:q };
+  try{
+    const r=await fetchAny("https://www.youtube.com/youtubei/v1/search?prettyPrint=false",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(body)
+    },18000);
+    if(!r||!r.ok) return [];
+    const j=await r.json();
+    const songs=[]; const seen=new Set();
+    (function walk(n){
+      if(!n||typeof n!=="object") return;
+      if(Array.isArray(n)){ n.forEach(walk); return; }
+      const vr=n.videoRenderer;
+      if(vr&&vr.videoId&&!seen.has(vr.videoId)){
+        const title=(vr.title&&vr.title.runs&&vr.title.runs[0]&&vr.title.runs[0].text)||(vr.title&&vr.title.simpleText)||"";
+        const artist=(vr.ownerText&&vr.ownerText.runs&&vr.ownerText.runs[0]&&vr.ownerText.runs[0].text)||"";
+        if(title){ seen.add(vr.videoId); songs.push({id:vr.videoId,title,artist}); }
+      }
+      Object.values(n).forEach(walk);
+    })(j);
+    return songs;
+  }catch{ return []; }
+}
 async function searchSongs(q){
+  const web=await ytWebSearch(q); if(web.length) return web.slice(0,24);
   try{ const rows=uniqSongs(await invGet("/api/v1/search?type=video&region=US&q="+encodeURIComponent(q))); if(rows.length) return rows.slice(0,24); }catch{}
   const yt=await ytMusicSearch(q); if(yt.length) return yt.slice(0,24);
   for(const base of PIPED){
@@ -536,10 +562,11 @@ async function searchSongs(q){
 }
 async function loadLiveCatalog(){
   const tops=[], news=[];
+  try{ tops.push(...await ytWebSearch("today's top hits official music video")); }catch{}
+  try{ news.push(...await ytWebSearch("new mainstream songs official music video this week")); }catch{}
   for(const pid of TOP_PLAYLISTS){ const rows=await playlistSongs(pid); tops.push(...rows); if(uniqSongs(tops).length>=16) break; }
   try{ const tr=await invGet("/api/v1/trending?type=music&region=US"); tops.push(...uniqSongs(Array.isArray(tr)?tr:[])); }catch{}
   for(const pid of NEW_PLAYLISTS){ const rows=await playlistSongs(pid); news.push(...rows); }
-  try{ news.push(...await searchSongs("official music video 2026")); }catch{}
   const t=uniqSongs(tops.concat(TOP_SEED));
   const n=uniqSongs(news.concat(NEW_SEED));
   if(t.length){ state.tops=t.slice(0,40); S.set("tops",state.tops); }
@@ -685,6 +712,7 @@ async function playAt(i, auto){
   const song=current(), my=++state.token;
   paintNow();
   setStatus("Loading…");
+  try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(Ctx){ if(!playAt.ctx) playAt.ctx=new Ctx(); playAt.ctx.resume(); } }catch{}
   try{
     if(isLocal(song)){
       destroyEngine();
@@ -695,33 +723,37 @@ async function playAt(i, auto){
       await waitMedia(media, 8000);
       engine.kind="file";
       media.volume=Math.max(0,Math.min(1,(S.prefs().vol||80)/100));
-      if(auto) await media.play();
-      state.playing=!media.paused;
+      await startPlayback(auto);
     } else {
       try{ if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); }catch{}
       try{ media.pause(); }catch{}
-      const sources=await resolveSources(song.id);
+      let sources=[];
+      try{ sources=await resolveSources(song.id); }catch{}
       if(my!==state.token) return;
       if(sources[0]){
         if(sources[0].title) song.title=sources[0].title;
         if(sources[0].artist) song.artist=sources[0].artist;
       }
-      let last=null;
+      let played=false, last=null;
       for(const src of sources){
         try{
           await playCandidate(src);
           if(my!==state.token) return;
           media.volume=Math.max(0,Math.min(1,(S.prefs().vol||80)/100));
-          if(auto) await media.play();
-          state.playing=!media.paused;
-          last=null;
+          await startPlayback(auto);
+          played=true;
           break;
         }catch(e){
           last=e;
           destroyEngine();
         }
       }
-      if(last) throw last;
+      if(!played){
+        await attachYt(song.id, !!auto);
+        if(my!==state.token) return;
+        state.playing=!!auto;
+        if(last && !auto) state.playing=false;
+      }
     }
     state.skip=0;
     setStatus(state.playing?"Playing":"Ready");
@@ -731,6 +763,16 @@ async function playAt(i, auto){
     setStatus("Couldn't play");
     state.playing=false; paintNow();
     toast(e.message||"Playback failed");
+  }
+}
+async function startPlayback(auto){
+  if(!auto){ state.playing=false; return; }
+  try{
+    await media.play();
+    state.playing=!media.paused;
+  }catch(e){
+    if(e && e.name==="NotAllowedError"){ state.playing=false; setStatus("Tap play"); return; }
+    throw e;
   }
 }
 function jump(id, auto){ const idx=state.list.findIndex(x=>x.id===id); if(idx>=0) playAt(idx,auto); }

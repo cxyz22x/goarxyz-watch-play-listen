@@ -80,8 +80,21 @@
       status.textContent = "";
     };
     const url = g.file;
+    let dir = url;
+    try {
+      const u = new URL(url);
+      u.search = ""; u.hash = "";
+      if (!u.pathname.endsWith("/")) u.pathname = u.pathname.replace(/[^/]+$/, "");
+      dir = u.href;
+    } catch (e) {}
+    const base = String(dir).replace(/"/g, "");
     frame.removeAttribute("src");
-    frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"></head><body style="margin:0;background:#000"><script>location.replace(' + JSON.stringify(url) + ')</' + 'script></body></html>';
+    frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">' +
+      '<link rel="stylesheet" href="game.css">' +
+      '<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#ajaxbar,#game{width:100%;height:100%}#canvas{display:block;width:100%;height:100%;touch-action:none}#orientate,#play,[id^="MobileAd"]{display:none!important}</style>' +
+      '</head><body><div id="ajaxbar"><div id="game"><canvas id="canvas"></canvas></div><div id="orientate"></div><div id="play" class="play"></div></div>' +
+      '<script src="game.js"><\/script></body></html>';
   }
   function closeGame(){
     const frame = document.getElementById("gameFrame");

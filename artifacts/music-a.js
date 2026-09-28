@@ -1,0 +1,575 @@
+
+const LIBCURL_SOURCES = [
+  "https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.js",
+  "https://unpkg.com/libcurl.js@0.7.4/libcurl_full.js",
+  "https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.js"
+];
+const DEFAULT_WISP_URLS = [
+  "wss://wisp.mercurywork.shop/",
+  "wss://wisp.mercurywork.shop/wisp/",
+  "wss://wisp.crazymid.dev/",
+  "wss://wisp.terbium.app/"
+];
+const INV = [
+  "https://invidious.f5.si",
+  "https://yt.chocolatemoo53.com",
+  "https://invidious.tiekoetter.com",
+  "https://inv.nadeko.net",
+  "https://invidious.nerdvpn.de",
+  "https://yewtu.be"
+];
+const PIPED = [
+  "https://pipedapi.kavin.rocks",
+  "https://pipedapi.adminforge.de",
+  "https://pipedapi.me.projectsegfau.lt",
+  "https://api.piped.private.coffee"
+];
+const TOP_PLAYLISTS = [
+  "RDCLAK5uy_kmPRjHDECIcuVwnKsx2Ng7fyNgFKWNJFs",
+  "RDCLAK5uy_nrS6tX1-aHomOfpEBSbVYNfM9R58rAlrs",
+  "PL4fGSI1pDJn69On1f-8NAvX_CYlx7QyZc"
+];
+const NEW_PLAYLISTS = [
+  "PL4fGSI1pDJn61unMfmrUSz68RT8IFFnks",
+  "PLNcZGm7R37QHVurZRFwzvcZft7Dfmiv4w"
+];
+const NEW_SEED = [
+  {id:"32si5cfrCNc",title:"new trick",artist:"ROSÉ"},
+  {id:"FyS5dAywkEo",title:"SaWaDiKa",artist:"LISA"},
+  {id:"sf02ugzPFE4",title:"CLICK",artist:"JISOO"},
+  {id:"fcnDmrtj6Sk",title:"Dai Dai",artist:"Shakira & Burna Boy"},
+  {id:"nUsrYVxrDwI",title:"Choosin' Texas",artist:"Ella Langley"},
+  {id:"78wrful9cVU",title:"drop dead",artist:"Olivia Rodrigo"},
+  {id:"6KjVYeQ9SRw",title:"Dracula",artist:"Tame Impala"},
+  {id:"3sur4BmjQt8",title:"So Easy (To Fall In Love)",artist:"Olivia Dean"},
+  {id:"mrV8kK5t0V8",title:"I Just Might",artist:"Bruno Mars"},
+  {id:"aWpw-Ynl0Yc",title:"Bass Persuades",artist:"Miley Cyrus"},
+  {id:"ko70cExuzZM",title:"The Fate of Ophelia",artist:"Taylor Swift"},
+  {id:"b4iVv91Z6lY",title:"SWIM",artist:"BTS"}
+];
+const TOP_SEED = [
+  {id:"nUsrYVxrDwI",title:"Choosin' Texas",artist:"Ella Langley"},
+  {id:"fRIhCiUVaKs",title:"BbY WOW",artist:"KAROL G, Judeline"},
+  {id:"78wrful9cVU",title:"drop dead",artist:"Olivia Rodrigo"},
+  {id:"6KjVYeQ9SRw",title:"Dracula",artist:"Tame Impala"},
+  {id:"3sur4BmjQt8",title:"So Easy (To Fall In Love)",artist:"Olivia Dean"},
+  {id:"fcnDmrtj6Sk",title:"Dai Dai",artist:"Shakira & Burna Boy"},
+  {id:"V9PVRfjEBTI",title:"BIRDS OF A FEATHER",artist:"Billie Eilish"},
+  {id:"FyS5dAywkEo",title:"SaWaDiKa",artist:"LISA"}
+];
+
+const STORE="gxm5_";
+const S={
+  get(k,f){ try{ const v=JSON.parse(localStorage.getItem(STORE+k)); return v==null?f:v;}catch{return f;} },
+  set(k,v){ try{ localStorage.setItem(STORE+k,JSON.stringify(v)); }catch{} },
+  list(){ return this.get("pl",[]); },
+  save(l){ this.set("pl",l); },
+  prefs(){ return Object.assign({repeat:"off",shuffle:false,vol:80,wisp:DEFAULT_WISP_URLS[0]}, this.get("prefs",{})); },
+  setPrefs(p){ this.set("prefs", Object.assign(this.prefs(),p)); }
+};
+const $=(s,c=document)=>c.querySelector(s);
+const $$=(s,c=document)=>[...c.querySelectorAll(s)];
+const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const phArt="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="8" fill="#17171e"/><text x="40" y="46" text-anchor="middle" fill="#c084fc" font-size="18" font-family="sans-serif">♪</text></svg>');
+const thumb=id=>String(id).startsWith("local_")?phArt:"https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";
+const maxart=id=>String(id).startsWith("local_")?phArt:"https://i.ytimg.com/vi/"+id+"/maxresdefault.jpg";
+const fmt=s=>{s=Math.max(0,Math.floor(s||0)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
+function toast(msg){ $$(".toast").forEach(t=>t.remove()); const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2400); }
+function parseVideoId(input){
+  if(!input) return "";
+  const s=String(input).trim();
+  if(/^[\w-]{11}$/.test(s)) return s;
+  try{ const u=new URL(s); if(u.hostname.includes("youtu.be")) return u.pathname.replace(/^\//,"").slice(0,11); if(u.searchParams.get("v")) return u.searchParams.get("v"); const m=u.pathname.match(/\/(embed|shorts)\/([\w-]{11})/); if(m) return m[2]; }catch{}
+  return "";
+}
+
+function normalizeWispUrl(url){
+  if(!url) return "";
+  let u=String(url).trim();
+  if(u.startsWith("https://")) u="wss://"+u.slice(8);
+  if(u.startsWith("http://")) u="ws://"+u.slice(7);
+  try{ const d=new URL(u.replace(/^wss:/i,"https:").replace(/^ws:/i,"http:")); d.port=""; u=(d.protocol==="https:"?"wss://":"ws://")+d.hostname+(d.pathname||"/")+d.search; }
+  catch{ u=u.replace(/^(wss?:\/\/[^/]+):\d+/i,"$1"); }
+  if(u && !u.endsWith("/")) u+="/";
+  return u;
+}
+function loadSavedWispList(){
+  const extra=[];
+  try{ const c=localStorage.getItem("goar_wisp_custom"); if(c) extra.push(normalizeWispUrl(c)); const l=localStorage.getItem("goar_wisp_url"); if(l) extra.push(normalizeWispUrl(l)); }catch{}
+  extra.push(normalizeWispUrl(S.prefs().wisp));
+  const seen=new Set();
+  return [...extra, ...DEFAULT_WISP_URLS.map(normalizeWispUrl)].filter(u=>{ if(!u||seen.has(u)) return false; seen.add(u); return true; });
+}
+let WISP_URL=loadSavedWispList()[0];
+let tunnelState={status:"boot",url:WISP_URL,error:""};
+let _libcurlReady=null, _httpSession=null;
+function getLibcurl(){
+  if(typeof window.libcurl!=="undefined" && window.libcurl) return window.libcurl;
+  try{ const lc=(0,eval)("typeof libcurl!=='undefined'?libcurl:null"); if(lc){ window.libcurl=lc; return lc; } }catch{}
+  return null;
+}
+function injectLibcurlScript(src){
+  if(getLibcurl()) return Promise.resolve(src);
+  if(document.querySelector('script[src*="libcurl"]')) return waitLibcurlObject(8000).then(()=>src);
+  return new Promise((resolve,reject)=>{ const s=document.createElement("script"); s.src=src; s.async=true; s.onload=()=>resolve(src); s.onerror=()=>reject(new Error(src)); document.head.appendChild(s); });
+}
+function waitLibcurlObject(ms){
+  return new Promise((resolve,reject)=>{
+    const hit=getLibcurl(); if(hit) return resolve(hit);
+    const t0=Date.now(); const iv=setInterval(()=>{ const lc=getLibcurl(); if(lc){ clearInterval(iv); resolve(lc);} else if(Date.now()-t0>ms){ clearInterval(iv); reject(new Error("libcurl missing")); } },50);
+  });
+}
+async function waitLibcurlWasm(lc){
+  if(lc.ready===true) return lc;
+  if(typeof lc.load_wasm==="function"){ try{ await lc.load_wasm(); return lc; }catch{} }
+  await new Promise((resolve,reject)=>{
+    let done=false; const ok=()=>{ if(!done){ done=true; resolve(); } }; const fail=e=>{ if(!done){ done=true; reject(e||new Error("abort")); } };
+    if(typeof lc.onload==="undefined" || lc.onload===null) lc.onload=ok;
+    document.addEventListener("libcurl_load",ok,{once:true});
+    document.addEventListener("libcurl_abort",(ev)=>fail(ev&&ev.error),{once:true});
+    if(lc.events && typeof lc.events.addEventListener==="function") lc.events.addEventListener("load",ok,{once:true});
+    setTimeout(()=>{ if(lc.ready===true||(lc.version&&lc.fetch)) ok(); },200);
+    setTimeout(()=>fail(new Error("wasm timeout")),20000);
+  });
+  return lc;
+}
+function applyWispUrl(lc,url){
+  const u=normalizeWispUrl(url); if(!u) throw new Error("WISP URL required");
+  try{ lc.transport="wisp"; }catch{}
+  lc.set_websocket(u); WISP_URL=u; tunnelState.url=u;
+  try{ localStorage.setItem("goar_wisp_url",u); }catch{}
+}
+async function probeTunnel(lc){
+  const ctrl=typeof AbortController!=="undefined"?new AbortController():null;
+  const timer=setTimeout(()=>{ try{ ctrl&&ctrl.abort(); }catch{} },12000);
+  try{
+    const r=await lc.fetch("https://example.com/", ctrl?{signal:ctrl.signal}:{});
+    const body=await r.text();
+    if(!r.ok && r.status>=500) throw new Error("probe HTTP "+r.status);
+    if(!body) throw new Error("empty probe");
+    return true;
+  } finally{ clearTimeout(timer); }
+}
+function getHttpSession(){
+  if(_httpSession) return _httpSession;
+  const lc=window.libcurl;
+  if(lc&&lc.HTTPSession){ try{ _httpSession=new lc.HTTPSession({enable_cookies:true}); if(_httpSession.set_connections) _httpSession.set_connections(30,20,6);}catch{ _httpSession=null; } }
+  return _httpSession;
+}
+function resetHttpSession(){ if(_httpSession&&_httpSession.close){ try{_httpSession.close();}catch{} } _httpSession=null; }
+async function ensureLibcurl(force){
+  if(_libcurlReady && !force) return _libcurlReady;
+  _libcurlReady=(async()=>{
+    setStatus("Tunnel…");
+    let lc=null;
+    try{ lc=await waitLibcurlObject(1500); }
+    catch(e){
+      let last=e;
+      for(const src of LIBCURL_SOURCES){ try{ await injectLibcurlScript(src); lc=await waitLibcurlObject(8000); break; }catch(err){ last=err; } }
+      if(!lc) throw last;
+    }
+    await waitLibcurlWasm(lc);
+    if(typeof lc.fetch!=="function"||typeof lc.set_websocket!=="function") throw new Error("libcurl incomplete");
+    const urls=loadSavedWispList(); let lastErr=null;
+    for(const url of urls){
+      try{ applyWispUrl(lc,url); resetHttpSession(); await probeTunnel(lc); tunnelState.status="ok"; tunnelState.error=""; window.libcurl=lc; setStatus("Tunnel live"); return lc; }
+      catch(e){ lastErr=e; }
+    }
+    applyWispUrl(lc, urls[0]); tunnelState.status="bad"; tunnelState.error=lastErr&&lastErr.message?lastErr.message:"wisp down"; window.libcurl=lc; setStatus("Local / direct"); return lc;
+  })();
+  try{ return await _libcurlReady; }catch(e){ _libcurlReady=null; tunnelState.status="bad"; throw e; }
+}
+async function wispFetch(url, init){
+  const lc=await ensureLibcurl();
+  const sess=getHttpSession();
+  const fn=(sess&&sess.fetch)?sess.fetch.bind(sess):lc.fetch.bind(lc);
+  return fn(url, init);
+}
+async function fetchAny(url, opts={}, timeout=16000){
+  const tryWisp=async()=>{
+    const lc=getLibcurl();
+    if(!lc || typeof lc.fetch!=="function") return null;
+    return Promise.race([wispFetch(url,opts), new Promise((_,rej)=>setTimeout(()=>rej(new Error("wisp timeout")),timeout))]);
+  };
+  try{ const r=await tryWisp(); if(r) return r; }catch{}
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeout);
+  try{ return await fetch(url, Object.assign({},opts,{signal:ctrl.signal})); } finally{ clearTimeout(t); }
+}
+
+const state={ view:"home", tops:S.get("tops",TOP_SEED.slice()), news:S.get("news",NEW_SEED.slice()), list:S.list().length?S.list():TOP_SEED.slice(), i:0, playing:false, token:0, skip:0 };
+const media=$("#player");
+const engine={ hls:null, blob:null, kind:"" };
+media.volume=Math.max(0,Math.min(1,(S.prefs().vol||80)/100));
+$("#vol").value=S.prefs().vol||80;
+const current=()=>state.list[state.i]||null;
+function setStatus(msg){ const el=$("#playStatus"); if(el) el.textContent=msg; }
+
+function uniqSongs(items){
+  const out=[], seen=new Set();
+  (items||[]).forEach(it=>{
+    if(!it) return;
+    const id=parseVideoId(it.id||it.videoId||it.url||"")||(typeof it.videoId==="string"&&it.videoId.length===11?it.videoId:"");
+    const title=it.title||it.name; if(!id||!title||seen.has(id)||String(id).length!==11) return;
+    seen.add(id); out.push({id,title,artist:String(it.artist||it.author||it.uploaderName||it.uploader||"YouTube").split("•")[0].trim()});
+  });
+  return out;
+}
+async function invGet(path){
+  let last;
+  for(const base of INV){
+    try{ const r=await fetchAny(base.replace(/\/$/,"")+path,{headers:{Accept:"application/json"}}); if(r&&r.ok) return r.json(); last=new Error("HTTP "+(r&&r.status)); }
+    catch(e){ last=e; }
+  }
+  throw last||new Error("catalog down");
+}
+async function playlistRss(pid){
+  const r=await fetchAny("https://www.youtube.com/feeds/videos.xml?playlist_id="+pid);
+  if(!r||!r.ok) return [];
+  const xml=await r.text();
+  const out=[];
+  xml.split("<entry>").slice(1).forEach(block=>{
+    const id=(block.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)||[])[1];
+    const title=(block.match(/<title>([^<]+)<\/title>/)||[])[1];
+    const artist=(block.match(/<name>([^<]+)<\/name>/)||[])[1]||"YouTube";
+    if(id&&title) out.push({id,title,artist});
+  });
+  return uniqSongs(out);
+}
+async function playlistSongs(pid){
+  try{ const pl=await invGet("/api/v1/playlists/"+pid); const rows=uniqSongs(pl.videos||[]); if(rows.length) return rows; }catch{}
+  for(const base of PIPED){
+    try{ const r=await fetchAny(base+"/playlists/"+pid); if(!r||!r.ok) continue; const j=await r.json(); const rows=uniqSongs(j.relatedStreams||j.videos||j); if(rows.length) return rows; }catch{}
+  }
+  try{ return await playlistRss(pid); }catch{ return []; }
+}
+function kindOfUrl(url, mime){
+  const u=String(url||""), m=String(mime||"").toLowerCase();
+  if(/\.m3u8(\?|$)/i.test(u) || m.includes("mpegurl") || m.includes("apple.mpeg")) return "hls";
+  if(/\.mpd(\?|$)/i.test(u) || m.includes("dash+xml") || m.includes("mpd")) return "dash";
+  return "file";
+}
+function pushCand(list, url, mime, title, artist, audioOnly){
+  if(!url || /signatureCipher=|s=/.test(url) && !/[?&]url=/.test(url)) return;
+  list.push({ url, mime:mime||"", kind:kindOfUrl(url, mime), title:title||"", artist:artist||"", audioOnly:!!audioOnly });
+}
+/* Client list mirrors iv-org/invidious src/invidious/yt_backend/youtube_api.cr */
+const YT_CLIENTS = [
+  { name:"ANDROID", version:"21.29.366", id:"3", ua:"com.google.android.youtube/21.29.366 (Linux; U; Android 16; en_US; SM-S908E Build/TP1A.220624.014) gzip", extra:{ androidSdkVersion:33 } },
+  { name:"IOS", version:"20.11.6", id:"5", ua:"com.google.ios.youtube/20.11.6 (iPhone14,5; U; CPU iOS 18_5 like Mac OS X;)", extra:{} },
+  { name:"TVHTML5", version:"7.20260311.16.00", id:"7", ua:"Mozilla/5.0 (ChromiumStyle TV)", extra:{} },
+  { name:"MWEB", version:"2.20260722.01.00", id:"2", ua:"Mozilla/5.0 (Linux; Android 16; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36", extra:{} }
+];
+const YT_PLAYER_ENDPOINTS = [
+  "https://www.youtube.com/youtubei/v1/player?prettyPrint=false&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+  "https://youtubei.googleapis.com/youtubei/v1/player?prettyPrint=false&key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+];
+function harvestPlayer(j, into){
+  if(!j) return into;
+  const d=j.videoDetails||{};
+  if(d.title) into.title=d.title;
+  if(d.author) into.artist=d.author;
+  const sd=j.streamingData||{};
+  if(sd.hlsManifestUrl) into.hls=into.hls||sd.hlsManifestUrl;
+  (sd.adaptiveFormats||[]).forEach(f=>{ if(f&&f.url) into.adaptive.push(f); });
+  (sd.formats||[]).forEach(f=>{ if(f&&f.url) into.muxed.push(f); });
+  return into;
+}
+function hasUsable(bag){
+  return !!(bag.hls || bag.adaptive.some(f=>f.url) || bag.muxed.some(f=>f.url));
+}
+async function ytPlayerClient(id, client){
+  const ctxClient=Object.assign({
+    clientName:client.name,
+    clientVersion:client.version,
+    hl:"en", gl:"US",
+    userAgent:client.ua,
+    utcOffsetMinutes:-new Date().getTimezoneOffset()
+  }, client.extra||{});
+  const body={
+    context:{ client:ctxClient },
+    videoId:id,
+    contentCheckOk:true,
+    racyCheckOk:true,
+    playbackContext:{ contentPlaybackContext:{ html5Preference:"HTML5_PREF_WANTS", vis:0, splay:false, lactMilliseconds:"-1" } }
+  };
+  for(const url of YT_PLAYER_ENDPOINTS){
+    try{
+      const r=await fetchAny(url,{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-YouTube-Client-Name":client.id,
+          "X-YouTube-Client-Version":client.version,
+          "User-Agent":client.ua,
+          "Origin":"https://www.youtube.com",
+          "Referer":"https://www.youtube.com/"
+        },
+        body:JSON.stringify(body)
+      },18000);
+      if(r&&r.ok) return r.json();
+    }catch{}
+  }
+  return null;
+}
+async function ytExtract(id){
+  const bag={ title:"", artist:"", hls:"", adaptive:[], muxed:[] };
+  for(const client of YT_CLIENTS){
+    try{
+      const j=await ytPlayerClient(id, client);
+      harvestPlayer(j, bag);
+      if(hasUsable(bag) && (bag.adaptive.length || bag.muxed.length)) break;
+    }catch{}
+  }
+  return bag;
+}
+async function ytMusicSearch(q){
+  const body={
+    context:{ client:{ clientName:"WEB_REMIX", clientVersion:"1.20260804.16.00", hl:"en", gl:"US" } },
+    query:q
+  };
+  try{
+    const r=await fetchAny("https://music.youtube.com/youtubei/v1/search?prettyPrint=false&key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "X-YouTube-Client-Name":"67", "X-YouTube-Client-Version":"1.20260804.16.00" },
+      body:JSON.stringify(body)
+    },18000);
+    if(!r||!r.ok) return [];
+    const j=await r.json();
+    const songs=[]; const seen=new Set();
+    (function walk(n){
+      if(!n||typeof n!=="object") return;
+      if(Array.isArray(n)){ n.forEach(walk); return; }
+      const item=n.musicResponsiveListItemRenderer;
+      if(item){
+        let id=item.playlistItemData&&item.playlistItemData.videoId;
+        if(!id){ JSON.stringify(item).replace(/"videoId":"([\w-]{11})"/,(_,v)=>id=id||v); }
+        if(id&&!seen.has(id)){
+          const cols=(item.flexColumns||[]).map(c=>{
+            const t=(c.musicResponsiveListItemFlexColumnRenderer||{}).text||{};
+            return t.simpleText||(Array.isArray(t.runs)?t.runs.map(x=>x.text||"").join(""):"");
+          });
+          seen.add(id); songs.push({id,title:cols[0]||id,artist:String(cols[1]||"YouTube").split("•")[0].trim()});
+        }
+      }
+      Object.values(n).forEach(walk);
+    })(j);
+    return uniqSongs(songs);
+  }catch{ return []; }
+}
+async function resolveSources(id){
+  const cands=[]; let title="", artist="";
+  try{
+    const bag=await ytExtract(id);
+    title=bag.title||title; artist=bag.artist||artist;
+    bag.adaptive.filter(f=>/audio/i.test(f.mimeType||f.type||"")).sort((a,b)=>(b.bitrate||0)-(a.bitrate||0)).forEach(f=>pushCand(cands,f.url,f.mimeType||f.type,title,artist,true));
+    bag.muxed.forEach(f=>pushCand(cands,f.url,f.mimeType||f.type,title,artist,false));
+    if(bag.hls) pushCand(cands, bag.hls, "application/vnd.apple.mpegurl", title, artist, false);
+  }catch{}
+  try{
+    const j=await invGet("/api/v1/videos/"+encodeURIComponent(id)+"?region=US");
+    title=j.title||title; artist=j.author||artist;
+    const adaptive=j.adaptiveFormats||[], muxed=j.formatStreams||[];
+    adaptive.filter(f=>/audio/i.test(f.type||f.mimeType||"")&&f.url).sort((a,b)=>(b.bitrate||0)-(a.bitrate||0)).forEach(f=>pushCand(cands,f.url,f.type||f.mimeType,title,artist,true));
+    muxed.filter(f=>f.url).forEach(f=>pushCand(cands,f.url,f.type||f.mimeType,title,artist,false));
+    if(j.hlsUrl) pushCand(cands, j.hlsUrl, "application/vnd.apple.mpegurl", title, artist, false);
+  }catch{}
+  for(const base of PIPED){
+    try{
+      const r=await fetchAny(base+"/streams/"+id); if(!r||!r.ok) continue;
+      const j=await r.json();
+      title=j.title||title; artist=j.uploader||artist;
+      (j.audioStreams||[]).sort((a,b)=>(b.bitrate||0)-(a.bitrate||0)).forEach(f=>pushCand(cands,f.url,f.mimeType||f.codec,title,artist,true));
+      if(j.hls) pushCand(cands, j.hls, "application/vnd.apple.mpegurl", title, artist, false);
+      (j.videoStreams||[]).filter(f=>f.url).slice(0,2).forEach(f=>pushCand(cands,f.url,f.mimeType,title,artist,false));
+      if(cands.length) break;
+    }catch{}
+  }
+  const seen=new Set();
+  const out=cands.filter(c=>{ if(!c.url||seen.has(c.url)) return false; seen.add(c.url); return true; });
+  out.sort((a,b)=>{
+    const rank=x=>x.audioOnly&&x.kind==="file"?0:x.kind==="file"?1:x.kind==="hls"?2:3;
+    return rank(a)-rank(b);
+  });
+  if(!out.length) throw new Error("no playable source");
+  out.forEach(c=>{ c.title=c.title||title; c.artist=c.artist||artist; });
+  return out;
+}
+class WispHlsLoader{
+  constructor(config){ this.config=config; this.stats={aborted:false,loaded:0,retry:0,total:0,chunkCount:0,bwEstimate:0,loading:{start:0,first:0,end:0},buffering:{start:0,first:0,end:0},parsing:{start:0,end:0}}; this._abort=false; }
+  abort(){ this._abort=true; this.stats.aborted=true; }
+  destroy(){ this.abort(); }
+  load(context, config, callbacks){
+    this.stats.loading.start=performance.now();
+    const wantText=context.responseType==="text" || (context.type && String(context.type).indexOf("manifest")>=0);
+    fetchAny(context.url).then(async r=>{
+      if(this._abort) return;
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const data=wantText ? await r.text() : await r.arrayBuffer();
+      this.stats.loaded=typeof data==="string"?data.length:data.byteLength;
+      this.stats.total=this.stats.loaded;
+      this.stats.loading.first=this.stats.loading.end=performance.now();
+      callbacks.onSuccess({url:context.url,data}, this.stats, context, null);
+    }).catch(err=>{
+      if(this._abort) return;
+      callbacks.onError({code:0,text:String(err&&err.message?err.message:err)}, context, null);
+    });
+  }
+}
+function destroyEngine(){
+  if(engine.hls){ try{ engine.hls.destroy(); }catch{} engine.hls=null; }
+  try{ media.pause(); media.removeAttribute("src"); media.load(); }catch{}
+  if(engine.blob){ try{ URL.revokeObjectURL(engine.blob); }catch{} engine.blob=null; }
+  engine.kind="";
+}
+let ytPlayer=null, ytReadyApi=false;
+window.onYouTubeIframeAPIReady=function(){ ytReadyApi=true; };
+function waitYtApi(){
+  if(window.YT && YT.Player){ ytReadyApi=true; return Promise.resolve(); }
+  return new Promise((resolve,reject)=>{
+    const t0=Date.now();
+    const iv=setInterval(()=>{
+      if(window.YT && YT.Player){ clearInterval(iv); ytReadyApi=true; resolve(); }
+      else if(Date.now()-t0>12000){ clearInterval(iv); reject(new Error("YouTube player API missing")); }
+    },50);
+  });
+}
+function ytState(){ try{ return ytPlayer && ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : -1; }catch{ return -1; } }
+function attachYt(id, auto){
+  return waitYtApi().then(()=>new Promise((resolve,reject)=>{
+    const start=()=>{
+      try{
+        if(ytPlayer && ytPlayer.loadVideoById){
+          if(auto) ytPlayer.loadVideoById(id); else ytPlayer.cueVideoById(id);
+          engine.kind="yt";
+          resolve();
+          return;
+        }
+      }catch{}
+      try{ if(ytPlayer && ytPlayer.destroy) ytPlayer.destroy(); }catch{}
+      ytPlayer=new YT.Player("ytMount",{
+        width:1, height:1, videoId:id,
+        playerVars:{ autoplay:auto?1:0, controls:0, disablekb:1, fs:0, rel:0, modestbranding:1, playsinline:1, origin:location.origin },
+        events:{
+          onReady(e){
+            try{ e.target.setVolume(S.prefs().vol||80); }catch{}
+            engine.kind="yt";
+            resolve();
+          },
+          onStateChange(e){
+            if(e.data===YT.PlayerState.PLAYING){ state.playing=true; setStatus("Playing"); paintNow(); }
+            if(e.data===YT.PlayerState.PAUSED){ state.playing=false; paintNow(); }
+            if(e.data===YT.PlayerState.ENDED) next();
+          },
+          onError(){
+            setStatus("Track blocked");
+            if(state.skip<3 && state.list.length>1){ state.skip++; setTimeout(()=>next(), 400); }
+          }
+        }
+      });
+    };
+    start();
+  }));
+}
+async function wispBlobUrl(url, mime){
+  const r=await fetchAny(url, {}, 28000);
+  if(!r || !r.ok) throw new Error("tunnel HTTP "+(r&&r.status));
+  const buf=await r.arrayBuffer();
+  engine.blob=URL.createObjectURL(new Blob([buf], {type: mime||"audio/mp4"}));
+  return engine.blob;
+}
+function waitMedia(el, timeout){
+  return new Promise((resolve,reject)=>{
+    const t=setTimeout(()=>reject(new Error("media timeout")), timeout||12000);
+    const ok=()=>{ clearTimeout(t); cleanup(); resolve(); };
+    const bad=()=>{ clearTimeout(t); cleanup(); reject(new Error("media error")); };
+    const cleanup=()=>{ el.removeEventListener("loadeddata",ok); el.removeEventListener("canplay",ok); el.removeEventListener("error",bad); };
+    el.addEventListener("loadeddata",ok,{once:true});
+    el.addEventListener("canplay",ok,{once:true});
+    el.addEventListener("error",bad,{once:true});
+  });
+}
+async function attachHls(url){
+  if(media.canPlayType && media.canPlayType("application/vnd.apple.mpegurl") && !(window.Hls && Hls.isSupported())){
+    media.src=url; await waitMedia(media); return;
+  }
+  if(typeof Hls==="undefined" || !Hls.isSupported()) throw new Error("hls.js missing");
+  async function go(loader){
+    const opts={enableWorker:false,lowLatencyMode:false,maxBufferLength:18,maxMaxBufferLength:36};
+    if(loader) opts.loader=loader;
+    const hls=new Hls(opts);
+    engine.hls=hls;
+    await new Promise((resolve,reject)=>{
+      const t=setTimeout(()=>reject(new Error("manifest timeout")),16000);
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{ clearTimeout(t); resolve(); });
+      hls.on(Hls.Events.ERROR,(_,data)=>{ if(data&&data.fatal){ clearTimeout(t); reject(new Error(data.details||data.type||"hls fatal")); } });
+      hls.loadSource(url); hls.attachMedia(media);
+    });
+  }
+  try{ await go(WispHlsLoader); }
+  catch(e){ destroyEngine(); await go(null); }
+}
+async function attachFile(url, mime){
+  if(getLibcurl() && typeof getLibcurl().fetch==="function"){
+    try{
+      setStatus("Audio via tunnel…");
+      media.src=await wispBlobUrl(url, mime);
+      await waitMedia(media, 18000);
+      return;
+    }catch{ destroyEngine(); }
+  }
+  media.src=url;
+  await waitMedia(media, 8000);
+}
+async function playCandidate(c){
+  destroyEngine();
+  engine.kind=c.kind==="hls"?"hls":"file";
+  setStatus(c.kind==="hls"?"HLS…":"Audio…");
+  if(c.kind==="hls") await attachHls(c.url);
+  else await attachFile(c.url, c.mime);
+}
+async function searchSongs(q){
+  try{ const rows=uniqSongs(await invGet("/api/v1/search?type=video&region=US&q="+encodeURIComponent(q))); if(rows.length) return rows.slice(0,24); }catch{}
+  const yt=await ytMusicSearch(q); if(yt.length) return yt.slice(0,24);
+  for(const base of PIPED){
+    try{ const r=await fetchAny(base+"/search?q="+encodeURIComponent(q)+"&filter=videos"); if(!r||!r.ok) continue; const j=await r.json(); const rows=uniqSongs(Array.isArray(j)?j:(j.items||[])); if(rows.length) return rows.slice(0,24); }catch{}
+  }
+  return [];
+}
+async function loadLiveCatalog(){
+  const tops=[], news=[];
+  for(const pid of TOP_PLAYLISTS){ const rows=await playlistSongs(pid); tops.push(...rows); if(uniqSongs(tops).length>=16) break; }
+  try{ const tr=await invGet("/api/v1/trending?type=music&region=US"); tops.push(...uniqSongs(Array.isArray(tr)?tr:[])); }catch{}
+  for(const pid of NEW_PLAYLISTS){ const rows=await playlistSongs(pid); news.push(...rows); }
+  try{ news.push(...await searchSongs("official music video 2026")); }catch{}
+  const t=uniqSongs(tops.concat(TOP_SEED));
+  const n=uniqSongs(news.concat(NEW_SEED));
+  if(t.length){ state.tops=t.slice(0,40); S.set("tops",state.tops); }
+  if(n.length){ state.news=n.slice(0,40); S.set("news",state.news); }
+  if(!S.list().length) state.list=state.tops.slice();
+}
+
+const IDB_NAME="goarxyz-music", IDB_STORE="tracks";
+function idbOpen(){ return new Promise((res,rej)=>{ const req=indexedDB.open(IDB_NAME,1); req.onupgradeneeded=()=>req.result.createObjectStore(IDB_STORE); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
+async function idbPut(id,blob){ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction(IDB_STORE,"readwrite"); tx.objectStore(IDB_STORE).put(blob,id); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); }); }
+async function idbGet(id){ const db=await idbOpen(); return new Promise((res,rej)=>{ const tx=db.transaction(IDB_STORE,"readonly"); const req=tx.objectStore(IDB_STORE).get(id); req.onsuccess=()=>res(req.result||null); req.onerror=()=>rej(req.error); }); }
+function isLocal(s){ return !!(s&&(s.local||String(s.id||"").startsWith("local_"))); }
+
+function paintNow(){
+  const s=current(), p=S.prefs();
+  ["#btnShuffle","#npShuffle"].forEach(id=>$(id)&&$(id).classList.toggle("on",!!p.shuffle));
+  ["#btnRepeat","#npRepeat"].forEach(id=>$(id)&&$(id).classList.toggle("on",p.repeat!=="off"));
+  const glyph=state.playing?"❚❚":"▶";
+  $("#btnPlay").textContent=glyph; $("#npPlay").textContent=glyph;
+  if(!s){ $("#nowTitle").textContent="Today's Top Picks"; $("#nowArtist").textContent="Open full player"; return; }
+  $("#nowTitle").textContent=s.title; $("#nowArtist").textContent=s.artist||"";
+  $("#npTitle").textContent=s.title; $("#npArtist").textContent=s.artist||"";
+  $("#nowArt").src=thumb(s.id); $("#npArt").src=maxart(s.id); $("#npBg").style.backgroundImage="url('"+maxart(s.id)+"')";
+  document.title=s.title+" — goarxyz";
+  if(navigator.mediaSession) navigator.mediaSession.metadata=new MediaMetadata({title:s.title,artist:s.artist||"goarxyz",artwork:isLocal(s)?[]:[{src:thumb(s.id),sizes:"480x360",type:"image/jpeg"}]});
+  paintQueue(); paintSide();
+}
+function paintSide(){
+  const rows=state.list.slice(0,24);
+  $("#sideLib").innerHTML=rows.map(s=>`<div class="lib-item ${current()&&current().id===s.id?"on":""}" data-id="${esc(s.id)}"><img src="${thumb(s.id)}" alt=""><div><b>${esc(s.title)}</b><span>${esc(s.artist||"")}</span></div></div>`).join("");
+  $("#sideLib").querySelectorAll(".lib-item").forEach(el=>el.onclick=()=>jump(el.dataset.id,true));
+}

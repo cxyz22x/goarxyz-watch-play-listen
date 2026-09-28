@@ -48,16 +48,36 @@ function paintGames(){
   box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
   box.querySelectorAll(".gcard").forEach((el) => el.onclick = () => openGame(el.dataset.id));
 }
+function gameDir(file){
+  const u = new URL(file);
+  u.search = "";
+  u.hash = "";
+  if (!u.pathname.endsWith("/")) u.pathname = u.pathname.replace(/[^/]+$/, "");
+  return u.href;
+}
+function stageHtml(dir){
+  const base = String(dir).replace(/"/g, "");
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '">' +
+    '<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">' +
+    '<link rel="stylesheet" href="game.css">' +
+    '<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#ajaxbar,#game{width:100%;height:100%}#canvas{display:block;width:100%;height:100%;touch-action:none}#orientate,#play,[id^="MobileAd"]{display:none!important}</style>' +
+    '</head><body><div id="ajaxbar"><div id="game"><canvas id="canvas"></canvas></div><div id="orientate"></div><div id="play" class="play"></div></div>' +
+    '<script src="game.js"><\/script></body></html>';
+}
 function openGame(id){
   const g = games.find((x) => x.id === id);
-  if (!g) return;
+  if (!g || !g.file) return;
   $("#playTitle").textContent = g.title;
-  $("#playFrame").src = g.file;
+  const frame = $("#playFrame");
+  frame.removeAttribute("src");
+  frame.srcdoc = stageHtml(gameDir(g.file));
   $("#play").classList.add("on");
 }
 function closeGame(){
   $("#play").classList.remove("on");
-  $("#playFrame").src = "about:blank";
+  const frame = $("#playFrame");
+  frame.removeAttribute("srcdoc");
+  frame.src = "about:blank";
 }
 $("#playClose").onclick = closeGame;
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeGame(); });

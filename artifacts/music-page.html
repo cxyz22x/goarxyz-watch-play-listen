@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>goarxyz — Music</title>
+<meta name="theme-color" content="#0a0a0d" />
+<meta name="color-scheme" content="dark" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<style>
+:root{
+  --bg:#0a0a0d; --bg-elev:#111116; --card:#17171e; --card-hover:#1e1e27; --line:#232330;
+  --text:#eceef1; --muted:#8b8c98;
+  --accent:#e8b64c; --accent2:#5b8def; --accent3:#e05d5d; --accent4:#5fd6a4;
+  --music:#a855f7; --music-2:#c084fc; --music-dim:rgba(168,85,247,.18);
+  --cta:#fff; --cta-text:#0a0a0d; --ease:cubic-bezier(.22,1,.36,1);
+  --bar:92px; --side:244px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none} button,input{font-family:inherit;color:inherit} img{display:block;max-width:100%}
+body.app{display:grid;grid-template-rows:1fr var(--bar);grid-template-columns:var(--side) 1fr;height:100vh;overflow:hidden}
+.sidebar{padding:14px 10px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.side-card{background:var(--bg-elev);border:1px solid var(--line);border-radius:14px;padding:12px}
+.logo{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:22px;display:flex;align-items:center;gap:8px;padding:4px 8px 12px}
+.logo .marks{display:flex;gap:6px;font-size:13px;letter-spacing:2px}
+.logo .marks span:nth-child(1){color:var(--accent)} .logo .marks span:nth-child(2){color:var(--accent2)}
+.logo .marks span:nth-child(3){color:var(--accent3)} .logo .marks span:nth-child(4){color:var(--accent4)}
+.nav-btn{width:100%;display:flex;align-items:center;gap:12px;background:0;border:0;color:var(--muted);padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}
+.nav-btn:hover,.nav-btn.on{color:#fff;background:var(--card)}
+.lib-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;font-weight:700;padding:2px 6px 10px}
+.lib-head button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;cursor:pointer}
+.lib-list{overflow:auto;max-height:calc(100vh - 360px)}
+.lib-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;cursor:pointer}
+.lib-item:hover,.lib-item.on{background:var(--card)}
+.lib-item img{width:42px;height:42px;border-radius:6px;object-fit:cover;background:#222}
+.lib-item b,.lib-item span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-item b{font-size:13px} .lib-item span{font-size:11px;color:var(--muted)}
+.stage{min-width:0;overflow:auto;background:linear-gradient(180deg,#2a1644 0%,var(--bg) 320px);border-radius:12px 0 0 0;margin:8px 8px 0 0}
+.topbar{position:sticky;top:0;z-index:4;display:flex;gap:10px;align-items:center;padding:14px 22px;background:linear-gradient(#0a0a0db8,transparent)}
+.circle{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#0a0a0db8;cursor:pointer}
+.search{flex:1;max-width:440px;position:relative}
+.search input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:10px 14px 10px 38px;outline:0}
+.search input:focus{border-color:var(--music)}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5}
+.page{padding:6px 28px 36px}
+.hero{display:flex;gap:24px;align-items:flex-end;padding:8px 0 26px}
+.hero-art{width:220px;height:220px;border-radius:8px;object-fit:cover;box-shadow:0 18px 50px #0008;background:var(--card);flex-shrink:0}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--music-2);margin-bottom:8px}
+.hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(36px,5vw,68px);line-height:.95;margin-bottom:10px}
+.hero p{color:#c7c8d0;max-width:560px;margin-bottom:16px}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:700;cursor:pointer}
+.btn-play{background:var(--cta);color:var(--cta-text)}
+.btn-ghost{background:#ffffff14;border:1px solid var(--line);color:var(--text)}
+.section{margin:26px 0}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.section-head h2{font-family:"Space Grotesk",sans-serif;font-size:22px}
+.see{color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.rail{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px}
+.album{flex:0 0 168px;background:var(--card);border-radius:12px;padding:12px;cursor:pointer}
+.album:hover{background:var(--card-hover);transform:translateY(-3px);transition:.2s var(--ease)}
+.album img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:#222;margin-bottom:10px}
+.album b{display:block;font-size:13px;height:2.5em;overflow:hidden} .album span{font-size:12px;color:var(--muted)}
+.tracks{width:100%;border-collapse:collapse}
+.tracks th,.tracks td{text-align:left;padding:10px;border-bottom:1px solid #23233099}
+.tracks th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tracks tr{cursor:pointer} .tracks tr:hover td{background:#ffffff08} .tracks tr.on td{background:var(--music-dim)}
+.num{width:36px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-art{width:40px;height:40px;border-radius:4px;object-fit:cover;background:#222}
+.t-title{font-weight:600} .t-sub{font-size:12px;color:var(--muted)}
+.add{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:#fff;cursor:pointer}
+.dock{grid-column:1/-1;background:#18181f;border-top:1px solid var(--line);display:grid;grid-template-columns:1.1fr 1.6fr 1fr;align-items:center;gap:12px;padding:0 16px;z-index:20}
+.now{display:flex;align-items:center;gap:12px;min-width:0;cursor:pointer}
+.now img{width:58px;height:58px;border-radius:6px;object-fit:cover;background:#222}
+.now b,.now span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now span{color:var(--muted);font-size:12px}
+.controls{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ctrl-row{display:flex;align-items:center;gap:12px}
+.ctrl{width:34px;height:34px;border:0;background:0;color:var(--muted);cursor:pointer;font-size:16px}
+.ctrl.on{color:var(--music-2)}
+.play{width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:#0a0a0d;cursor:pointer;font-size:15px}
+.seek-row{display:flex;align-items:center;gap:8px;width:min(560px,100%);font-size:11px;color:var(--muted)}
+input[type=range]{-webkit-appearance:none;height:4px;background:var(--line);border-radius:4px;width:100%;outline:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff}
+.extra{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.status{font-size:11px;color:var(--muted);max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expand{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;color:#fff}
+.np{position:fixed;inset:0;z-index:80;display:none;background:#0a0a0d;color:#fff}
+.np.open{display:grid;grid-template-rows:auto 1fr auto;animation:rise .42s var(--ease)}
+@keyframes rise{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.np-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(40px) saturate(1.2);transform:scale(1.12);opacity:.35}
+.np-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0a0a0de6 0%,#0a0a0dcc 40%,#0a0a0d 100%)}
+.np-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 22px 8px}
+.np-top button{background:#ffffff12;border:1px solid var(--line);color:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600}
+.np-body{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:36px;padding:12px 6vw 20px;min-height:0}
+.np-artwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.np-art{width:min(420px,70vw);aspect-ratio:1;border-radius:16px;object-fit:cover;box-shadow:0 30px 80px #000a;background:#111}
+.np-meta{text-align:center;margin-top:22px;max-width:520px}
+.np-meta h2{font-family:"Space Grotesk",sans-serif;font-size:clamp(26px,3vw,40px);line-height:1.1}
+.np-meta p{color:#c7c8d0;margin-top:6px}
+.np-queue{background:#111116cc;border:1px solid var(--line);border-radius:16px;overflow:auto;min-height:0;padding:8px}
+.np-queue h3{font-size:13px;color:var(--muted);padding:12px 14px 6px;text-transform:uppercase;letter-spacing:.06em}
+.np-qrow{display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:10px;cursor:pointer}
+.np-qrow.on{background:var(--music-dim)}
+.np-qrow img{width:40px;height:40px;border-radius:5px;object-fit:cover}
+.np-foot{position:relative;padding:8px 6vw calc(18px + env(safe-area-inset-bottom))}
+.np-seek{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin-bottom:12px}
+.np-ctrls{display:flex;justify-content:center;align-items:center;gap:22px}
+.np-ctrls .play{width:64px;height:64px;font-size:22px}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:90;font-weight:600;font-size:13px}
+.tunnel{display:none!important}
+.mnav{display:none}
+.empty{color:var(--muted);padding:36px 0;text-align:center}
+body.np-open .sidebar,body.np-open .stage,body.np-open .dock,body.np-open .mnav{visibility:hidden}
+@media(max-width:980px){
+  body.app{grid-template-columns:1fr;grid-template-rows:1fr var(--bar) 56px}
+  .sidebar{display:none}
+  .stage{margin:0;border-radius:0}
+  .hero{flex-direction:column;align-items:flex-start}
+  .hero-art{width:150px;height:150px}
+  .dock{grid-template-columns:1fr auto}
+  .extra,.seek-row{display:none}
+  .np-body{grid-template-columns:1fr}
+  .np-queue{max-height:28vh}
+  .mnav{display:flex;grid-column:1/-1;background:#111116;border-top:1px solid var(--line);align-items:center;justify-content:space-around;z-index:21}
+  .mnav button{background:0;border:0;color:var(--muted);padding:10px;font-weight:700;font-size:12px}
+  .mnav button.on{color:#fff}
+}
+</style>
+</head>
+<body class="app">
+<aside class="sidebar">
+  <div class="side-card">
+    <div class="logo">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></div>
+    <button class="nav-btn on" data-view="home">Home</button>
+    <button class="nav-btn" data-view="search">Search</button>
+    <button class="nav-btn" data-view="library">Your Library</button>
+    <a class="nav-btn" href="index.html">Hub</a>
+  </div>
+  <div class="side-card" style="flex:1;min-height:0">
+    <div class="lib-head">Queue <button type="button" id="addFiles">+ files</button></div>
+    <div class="lib-list" id="sideLib"></div>
+  </div>
+</aside>
+<main class="stage" id="stage"></main>
+<footer class="dock" id="dock">
+  <div class="now" id="openNow" title="Open player">
+    <img id="nowArt" alt="">
+    <div><b id="nowTitle">Today's Top Picks</b><span id="nowArtist">Open full player</span></div>
+  </div>
+  <div class="controls">
+    <div class="ctrl-row">
+      <button class="ctrl" id="btnShuffle">↝</button>
+      <button class="ctrl" id="btnPrev">⏮</button>
+      <button class="play" id="btnPlay">▶</button>
+      <button class="ctrl" id="btnNext">⏭</button>
+      <button class="ctrl" id="btnRepeat">🔁</button>
+    </div>
+    <div class="seek-row"><span id="curT">0:00</span><input id="seek" type="range" min="0" max="1000" value="0"><span id="durT">0:00</span></div>
+  </div>
+  <div class="extra">
+    <span class="status" id="playStatus">Starting…</span>
+    <input id="vol" type="range" min="0" max="100" value="80" style="width:90px">
+    <button class="expand" id="expandBtn" title="Full player">⛶</button>
+  </div>
+</footer>
+<nav class="mnav">
+  <button type="button" data-view="home" class="on">Home</button>
+  <button type="button" data-view="search">Search</button>
+  <button type="button" data-view="library">Library</button>
+  <button type="button" id="mAdd">+ files</button>
+</nav>
+
+<section class="np" id="nowPlaying" aria-label="Now playing">
+  <div class="np-bg" id="npBg"></div>
+  <div class="np-top">
+    <button type="button" id="npClose">↓  Home</button>
+    <span id="npLabel">Now playing</span>
+    <button type="button" id="npSave">Save</button>
+  </div>
+  <div class="np-body">
+    <div class="np-artwrap">
+      <img class="np-art" id="npArt" alt="">
+      <div class="np-meta"><h2 id="npTitle">—</h2><p id="npArtist">—</p></div>
+    </div>
+    <aside class="np-queue" id="npQueue"></aside>
+  </div>
+  <div class="np-foot">
+    <div class="np-seek"><span id="npCur">0:00</span><input id="npSeek" type="range" min="0" max="1000" value="0"><span id="npDur">0:00</span></div>
+    <div class="np-ctrls">
+      <button class="ctrl" id="npShuffle">↝</button>
+      <button class="ctrl" id="npPrev">⏮</button>
+      <button class="play" id="npPlay">▶</button>
+      <button class="ctrl" id="npNext">⏭</button>
+      <button class="ctrl" id="npRepeat">🔁</button>
+    </div>
+  </div>
+</section>
+
+<video id="player" playsinline webkit-playsinline preload="metadata" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+<div id="ytHost" style="position:fixed;left:-9999px;width:1px;height:1px;overflow:hidden"><div id="ytMount"></div></div>
+<input id="filePick" type="file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.aac,.opus" multiple hidden>
+<div class="tunnel" id="tunnelChip"><span id="tunnelLabel"></span><select id="wispSelect"></select><button id="wispRetry" type="button"></button></div>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script src="music-a.js"></script>
+<script src="music-b.js"></script>
+</body>
+</html>

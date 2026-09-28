@@ -1,0 +1,22 @@
+#goarFloat{
+  position:fixed;z-index:1000;width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:grab;touch-action:none;box-shadow:none;padding:0;opacity:.55;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#goarFloat:hover{opacity:.95;background:rgba(255,255,255,.16)}
+#goarFloat svg{width:20px;height:20px;opacity:.9}
+#goarFloat:active{cursor:grabbing}
+#goarFloat:active{cursor:grabbing}
+#goarFloatMenu{
+  position:fixed;z-index:1000;display:flex;flex-direction:column;gap:2px;
+  min-width:148px;padding:8px;border-radius:16px;background:#101018f2;
+  border:1px solid #262633;box-shadow:0 16px 40px #000a;
+}
+#goarFloatMenu[hidden]{display:none}
+#goarFloatMenu a{
+  color:#c8c9d4;text-decoration:none;font:600 14px Inter,system-ui,sans-serif;
+  padding:10px 12px;border-radius:10px;
+}
+#goarFloatMenu a.on,#goarFloatMenu a:hover{background:#fff;color:#07070c}

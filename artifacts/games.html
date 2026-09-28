@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>goarxyz — Games</title>
+<meta name="theme-color" content="#0a0a0d" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{ --accent:#7dbaa0;--bg:#0a0a0d;--text:#eceef1;--muted:#8b8f9c;--line:rgba(255,255,255,.08);--card:#14141b}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+.top{display:flex;align-items:center;gap:16px;padding:calc(14px + env(safe-area-inset-top,0px)) 5vw 14px}
+.logo{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:24px;display:flex;align-items:center;gap:8px;flex-shrink:0;letter-spacing:-0.02em;color:inherit;text-decoration:none;line-height:1;}
+  .logo .marks{display:flex;gap:6px;font-size:14px;letter-spacing:2px;line-height:1;}
+  .logo .marks span:nth-child(1){color:#e8b64c;}
+  .logo .marks span:nth-child(2){color:#5b8def;}
+  .logo .marks span:nth-child(3){color:#e05d5d;}
+  .logo .marks span:nth-child(4){color:#5fd6a4;}
+.links{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto}
+.links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.links a:hover,.links a.on{color:#fff}
+.stage{height:calc(100vh - 58px)}
+.stage iframe{width:100%;height:100%;border:0;background:#000}
+.fallback{padding:40px 24px;text-align:center;color:var(--muted)}
+.fallback a{color:#fff}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
+  <nav class="links">
+    <a href="index.html">Home</a>
+    <a href="goarxyz.html?tab=movie">Movies</a>
+    <a href="goarxyz.html?tab=tv">TV</a>
+    <a href="music.html">Music</a>
+    <a class="on" href="games.html">Games</a>
+  </nav>
+</header>
+<div class="stage">
+  <iframe title="Games" src="games/" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
+</div>
+<p class="fallback">Arcade not loading? <a href="games/">Open it full page</a> · <a href="index.html">Back home</a></p>
+<script src="site-nav.js" defer></script>
+</body>
+</html>
