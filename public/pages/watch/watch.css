@@ -186,6 +186,9 @@
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   footer{padding:50px 5vw 20px; color:var(--muted); font-size:12px; line-height:1.7; border-top:1px solid var(--line); margin-top:40px;}
+  .legal-links{display:flex; flex-wrap:wrap; gap:14px; margin-top:8px;}
+  .legal-links a{color:var(--muted); text-decoration:none;}
+  .legal-links a:hover{color:var(--text);}
   footer b{color:var(--text);}
 
   .tunnel-chip{display:none !important;}

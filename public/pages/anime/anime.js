@@ -1354,7 +1354,7 @@ function viewLegal(kind) {
       body: `<p>goarxyz runs entirely in your browser. There is no account, no server-side login, and no analytics pixel from this file.</p>
         <h2>What stays on your device</h2>
         <ul><li>My List and watch progress in localStorage</li><li>Continue-watching history</li><li>Cached AniList responses in sessionStorage</li><li>Site directory and MAL ID index after the first refresh</li></ul>
-        <p>Clearing site data for this origin removes that library. The player, AniList, Jikan, and the stream resolver each have their own policies.</p>`
+        <p>Privacy questions: <a href="mailto:admin@goarxyz.com">admin@goarxyz.com</a>. The same address is on the <a href="/legal/privacy.html">site privacy page</a>.</p>`
     },
     terms: {
       title: "Terms of use",
@@ -1366,13 +1366,12 @@ function viewLegal(kind) {
     dmca: {
       title: "Copyright",
       body: `<p>goarxyz does not store, transcode, or serve episode files. If you represent a rights holder, take down requests belong with the embed host or the directory site that is actually serving the stream.</p>
-        <p>For the catalog UI itself (this HTML file), contact the operator who published the copy you are using.</p>`
+        <p>For this interface, write to <a href="mailto:admin@goarxyz.com">admin@goarxyz.com</a> with the page and the title. See the <a href="/legal/copyright.html">copyright page</a>.</p>`
     },
     contact: {
       title: "Contact",
-      body: `<p>This build is a standalone page. There is no support inbox inside the file.</p>
-        <p>Catalog data: AniList GraphQL and Jikan v4. Index and site list: ccguvycu.github.io/animedb-site. Playback is the goarxyz video player.</p>
-        <p>If a source breaks, switch the source pill on the watch page. Dead directory sites drop out on the next hidden refresh.</p>`
+      body: `<p>Email <a href="mailto:admin@goarxyz.com">admin@goarxyz.com</a>.</p>
+        <p>Catalog data: AniList GraphQL and Jikan v4. Playback is the goarxyz player. Site-wide privacy, terms, and copyright notices are on the <a href="/legal/contact.html">contact page</a>.</p>`
     }
   };
   const page = pages[kind];

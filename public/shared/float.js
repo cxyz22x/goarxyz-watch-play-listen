@@ -6,7 +6,9 @@
     ["Music", "/pages/music/index.html"],
     ["Games", "/pages/games/index.html"],
     ["Live", "/pages/live/index.html"],
-    ["Anime", "/pages/anime/index.html"]
+    ["Anime", "/pages/anime/index.html"],
+    ["Privacy", "/legal/privacy.html"],
+    ["Contact", "/legal/contact.html"]
   ];
   const btn = document.createElement("button");
   btn.id = "goarFloat";

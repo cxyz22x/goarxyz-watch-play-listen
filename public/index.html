@@ -116,6 +116,8 @@
     border-bottom: 1px solid var(--line);
   }
   nav a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  .legal-links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; color: var(--muted); font-size: 13px; }
+  .legal-links a { color: var(--muted); }
   nav .k {
     color: var(--muted);
     font-size: 12px;
@@ -163,7 +165,10 @@
     <a href="pages/live/index.html"><span class="k">Live</span><b>Live TV</b><em>Channels</em></a>
     <a href="pages/anime/index.html"><span class="k">Watch</span><b>Anime</b><em>Catalog</em></a>
   </nav>
+  <p class="legal-links"><a href="legal/privacy.html">Privacy</a><a href="legal/terms.html">Terms</a><a href="legal/copyright.html">Copyright</a><a href="legal/contact.html">Contact</a> · <a href="mailto:admin@goarxyz.com">admin@goarxyz.com</a></p>
 </main>
+<script src="shared/aes.js"></script>
+<script src="shared/protect.js"></script>
 <script>
 (function () {
   var origin = location.origin && location.origin !== "null" ? location.origin : "";
