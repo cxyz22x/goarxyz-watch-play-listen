@@ -1,3 +1,0 @@
-alias=goarxyz
-storepass=goarxyz-release
-keypass=goarxyz-release

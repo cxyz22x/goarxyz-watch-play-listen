@@ -3,3 +3,9 @@ node_modules/
 .github_repo
 .env
 .env.*
+artifacts/
+screenshots/
+attachments/
+.grok/
+.vercel/
+probe-game.mjs

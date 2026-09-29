@@ -1,1 +1,0 @@
-/* Native player only. No iframe embeds. */
