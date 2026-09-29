@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>goarxyz — Music</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -79,12 +79,12 @@
   </div>
 </section>
 
-<video id="player" playsinline webkit-playsinline preload="metadata" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none"></video>
-<div id="ytHost" style="position:fixed;left:-9999px;width:1px;height:1px;overflow:hidden"><div id="ytMount"></div></div>
+<audio id="player" preload="auto" playsinline referrerpolicy="no-referrer"></audio>
+<div id="ytHost" aria-hidden="true"><div id="ytMount"></div></div>
 <input id="filePick" type="file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.aac,.opus" multiple hidden>
 <div class="tunnel" id="tunnelChip"><span id="tunnelLabel"></span><select id="wispSelect"></select><button id="wispRetry" type="button"></button></div>
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="music.js"></script>
+<script src="music.js?v=17"></script>
 <script src="/shared/float.js" defer></script>
 </body>
 </html>

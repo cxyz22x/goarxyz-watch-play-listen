@@ -45,40 +45,70 @@ function paintGames(){
   });
   const box = $("#ggrid");
   if (!rows.length){ box.innerHTML = '<div class="empty">No games in this filter.</div>'; return; }
-  box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
+  box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy" referrerpolicy="no-referrer"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
   box.querySelectorAll(".gcard").forEach((el) => el.onclick = () => openGame(el.dataset.id));
 }
-function gameDir(file){
-  const u = new URL(file);
-  u.search = "";
-  u.hash = "";
-  if (!u.pathname.endsWith("/")) u.pathname = u.pathname.replace(/[^/]+$/, "");
-  return u.href;
+function proxyFile(file){
+  try {
+    const u = new URL(file);
+    if (!/marketjs\.com$/i.test(u.hostname)) return "";
+    return "/gcdn" + u.pathname + (u.search || "");
+  } catch (e) {
+    return "";
+  }
 }
-function stageHtml(dir){
-  const base = String(dir).replace(/"/g, "");
-  return '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '">' +
-    '<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=no">' +
-    '<link rel="stylesheet" href="game.css">' +
-    '<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#ajaxbar,#game{width:100%;height:100%}#canvas{display:block;width:100%;height:100%;touch-action:none}#orientate,#play,[id^="MobileAd"]{display:none!important}</style>' +
-    '</head><body><div id="ajaxbar"><div id="game"><canvas id="canvas"></canvas></div><div id="orientate"></div><div id="play" class="play"></div></div>' +
-    '<script src="game.js"><\/script></body></html>';
+function wakeGame(frame){
+  let n = 0;
+  const iv = setInterval(() => {
+    n++;
+    try {
+      const w = frame.contentWindow;
+      const ig = w && w.ig;
+      if (!ig || !ig.system || !ig.game) return;
+      const vis = ig.visibilityHandler;
+      if (vis && !vis.__goar) {
+        vis.__goar = true;
+        vis.isFocused = true;
+        vis.pauseHandler = function () {};
+        vis.systemPaused = function () { return true; };
+      }
+      if (vis) vis.isPaused = false;
+      ig.game.paused = false;
+      try { if (ig.sizeHandler && ig.sizeHandler.resize) ig.sizeHandler.resize(); } catch (e) {}
+      if (!ig.system.running || !ig.system.__goar) {
+        ig.system.__goar = true;
+        if (ig.game.resumeGame) ig.game.resumeGame();
+        else ig.system.startRunLoop();
+      }
+      try { w.focus(); } catch (e) {}
+      if (ig.system.running && n > 3) clearInterval(iv);
+    } catch (e) {}
+    if (n > 40) clearInterval(iv);
+  }, 250);
 }
 function openGame(id){
   const g = games.find((x) => x.id === id);
   if (!g || !g.file) return;
+  const src = proxyFile(g.file);
   $("#playTitle").textContent = g.title;
   const frame = $("#playFrame");
-  frame.removeAttribute("src");
-  frame.srcdoc = stageHtml(gameDir(g.file));
-  $("#play").classList.add("on");
+  $("#gameStage").classList.add("on");
+  frame.removeAttribute("srcdoc");
+  frame.src = src || g.file;
+  frame.onload = () => wakeGame(frame);
 }
 function closeGame(){
-  $("#play").classList.remove("on");
   const frame = $("#playFrame");
-  frame.removeAttribute("srcdoc");
+  frame.onload = null;
   frame.src = "about:blank";
+  $("#gameStage").classList.remove("on");
 }
 $("#playClose").onclick = closeGame;
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeGame(); });
+if (window.navigation) {
+  navigation.addEventListener("navigate", (e) => {
+    const stage = document.getElementById("gameStage");
+    if (stage && stage.classList.contains("on")) e.preventDefault();
+  });
+}
 loadGames();

@@ -80,21 +80,13 @@
       status.textContent = "";
     };
     const url = g.file;
-    let dir = url;
+    let src = url;
     try {
       const u = new URL(url);
-      u.search = ""; u.hash = "";
-      if (!u.pathname.endsWith("/")) u.pathname = u.pathname.replace(/[^/]+$/, "");
-      dir = u.href;
+      if (/marketjs\.com$/i.test(u.hostname)) src = "/gcdn" + u.pathname + (u.search || "");
     } catch (e) {}
-    const base = String(dir).replace(/"/g, "");
-    frame.removeAttribute("src");
-    frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><base href="' + base + '">' +
-      '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">' +
-      '<link rel="stylesheet" href="game.css">' +
-      '<style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#ajaxbar,#game{width:100%;height:100%}#canvas{display:block;width:100%;height:100%;touch-action:none}#orientate,#play,[id^="MobileAd"]{display:none!important}</style>' +
-      '</head><body><div id="ajaxbar"><div id="game"><canvas id="canvas"></canvas></div><div id="orientate"></div><div id="play" class="play"></div></div>' +
-      '<script src="game.js"><\/script></body></html>';
+    frame.removeAttribute("srcdoc");
+    frame.src = src;
   }
   function closeGame(){
     const frame = document.getElementById("gameFrame");

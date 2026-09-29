@@ -1,4 +1,4 @@
-const CACHE = "goarxyz-shell-v4";
+const CACHE = "goarxyz-shell-v6";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -28,34 +28,24 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
-  const url = req.url;
-  if (
-    url.includes("api.themoviedb.org") ||
-    url.includes("image.tmdb.org") ||
-    url.includes("youtube.com") ||
-    url.includes("youtubei.googleapis.com") ||
-    url.includes("vidrock.") ||
-    url.includes("googlevideo.com") ||
-    url.includes("libcurl") ||
-    url.includes("hls.js") ||
-    url.includes("wisp.") ||
-    url.startsWith("blob:") ||
-    url.startsWith("data:")
-  ) {
-    return;
-  }
-  if (req.mode === "navigate") {
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/yt/") || url.pathname.startsWith("/gcdn/") || url.pathname.startsWith("/spotify/")) return;
+  const fresh = req.mode === "navigate" || /\.(?:js|css|html)$/.test(url.pathname);
+  if (fresh) {
     event.respondWith(
-      fetch(req).catch(() => caches.match("./index.html").then((hit) => hit || caches.match("./")))
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        if (res.ok) caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html")))
     );
     return;
   }
   event.respondWith(
     caches.match(req).then((hit) => hit || fetch(req).then((res) => {
       const copy = res.clone();
-      if (res.ok && new URL(req.url).origin === location.origin) {
-        caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
-      }
+      if (res.ok) caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
       return res;
     }).catch(() => hit))
   );

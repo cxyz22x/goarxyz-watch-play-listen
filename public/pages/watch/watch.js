@@ -454,16 +454,21 @@ document.addEventListener("DOMContentLoaded", setupTvMode);
 if (document.readyState !== "loading") setupTvMode();
 
 /* ================= TMDB API ================= */
+const tmdbCache = new Map();
 async function tmdb(path, params={}){
   const url = new URL(BASE+path);
   url.searchParams.set("api_key", API_KEY);
   url.searchParams.set("language","en-US");
   for (const k in params){ if (params[k] !== undefined && params[k] !== null) url.searchParams.set(k, params[k]); }
+  const key = url.toString();
+  const hit = tmdbCache.get(key);
+  if (hit && Date.now() - hit.at < 10 * 60 * 1000) return hit.body;
   let res;
   try { res = await fetch(url); }
   catch(e){ throw new Error("NETWORK: " + e.message); }
   let body; try { body = await res.json(); } catch(e){ body = null; }
   if (!res.ok){ const msg = body && body.status_message ? body.status_message : ("HTTP "+res.status); throw new Error("TMDB "+res.status+": "+msg); }
+  tmdbCache.set(key, { at: Date.now(), body });
   return body;
 }
 function showKeyBanner(msg){ const b = document.getElementById("keyBanner"); b.textContent = "⚠ " + msg; b.classList.add("show"); }
@@ -475,7 +480,7 @@ function titleOf(item){ return item.title || item.name || "Untitled"; }
 function typeOf(item){ return item._forceType || item.media_type || (item.title ? "movie":"tv"); }
 function ratingOf(item){ return item.vote_average ? item.vote_average.toFixed(1) : "—"; }
 function posterImg(item, size="w342"){ return item.poster_path ? IMG + "/" + size + item.poster_path : "https://placehold.co/300x450/17171e/8b8c98?text=No+Image"; }
-function backdropImg(item, size="original"){ return item.backdrop_path ? IMG + "/" + size + item.backdrop_path : posterImg(item,"w780"); }
+function backdropImg(item, size="w1280"){ return item.backdrop_path ? IMG + "/" + size + item.backdrop_path : posterImg(item,"w780"); }
 function profileImg(p, size="w185"){ return p ? IMG + "/" + size + p : "https://placehold.co/185x185/1a1a22/5a5a68?text=%20"; }
 function providerLogo(path, size="w92"){ return path ? IMG + "/" + size + path : ""; }
 function daysAgoISO(days){ const d = new Date(); d.setDate(d.getDate()-days); return d.toISOString().slice(0,10); }
@@ -569,7 +574,7 @@ function musicCard(item, idx=0){
   div.className = "music-card anim-up";
   div.style.animationDelay = Math.min(idx*35, 400)+"ms";
   div.innerHTML = '<div class="music-art">' +
-    '<img loading="lazy" src="' + posterImg(item,"w342") + '" alt="' + titleOf(item) + '">' +
+    '<img loading="lazy" decoding="async" src="' + posterImg(item,"w342") + '" alt="' + titleOf(item) + '">' +
     '<div class="badge-music">♪ MUSIC</div></div>' +
     '<div class="card-title">' + titleOf(item) + '</div>' +
     '<div class="card-sub">' + yearOf(item) + '</div>';
@@ -1585,6 +1590,78 @@ async function showProviderGrid(prov, pid, kind){
   } catch(e){ grid.innerHTML = '<div class="loader err">Couldn\'t load.</div>'; }
 }
 
+const MOVIE_SPOTLIGHTS = [
+  {id:"m_g_action", title:"Hot Action", sub:"Current hits people are actually watching", genre:28},
+  {id:"m_g_comedy", title:"Hot Comedy", sub:"The funny ones with a crowd", genre:35},
+  {id:"m_g_horror", title:"Hot Horror", sub:"Recent scares with real ratings", genre:27},
+  {id:"m_g_scifi", title:"Hot Sci-Fi", sub:"Big science fiction right now", genre:878},
+  {id:"m_g_thriller", title:"Hot Thriller", sub:"Tense, popular, recent", genre:53},
+  {id:"m_g_romance", title:"Hot Romance", sub:"The ones people keep opening", genre:10749},
+  {id:"m_g_anim", title:"Hot Animation", sub:"Animated features with an audience", genre:16},
+  {id:"m_g_crime", title:"Hot Crime", sub:"Heists, cases, and underworld hits", genre:80}
+];
+const TV_SPOTLIGHTS = [
+  {id:"t_g_drama", title:"Hot Drama", sub:"The shows people finish", genre:18},
+  {id:"t_g_comedy", title:"Hot Comedy", sub:"Current comedies with a crowd", genre:35},
+  {id:"t_g_crime", title:"Hot Crime", sub:"Cases and underworld series", genre:80},
+  {id:"t_g_scifi", title:"Sci-Fi & Fantasy", sub:"The big genre shows", genre:10765},
+  {id:"t_g_action", title:"Action & Adventure", sub:"Set pieces and season hits", genre:10759},
+  {id:"t_g_mystery", title:"Hot Mystery", sub:"The puzzles people are in", genre:9648},
+  {id:"t_g_anim", title:"Animated Series", sub:"Animation that isn't only for kids", genre:16},
+  {id:"t_g_reality", title:"Reality", sub:"What's on in unscripted", genre:10764}
+];
+const NETWORKS = [
+  {key:"netflix", name:"Netflix", pid:8},
+  {key:"disney", name:"Disney+", pid:337},
+  {key:"prime", name:"Prime Video", pid:9},
+  {key:"max", name:"Max", pid:1899},
+  {key:"apple", name:"Apple TV+", pid:350},
+  {key:"hulu", name:"Hulu", pid:15}
+];
+function hotDiscover(kind, genre){
+  const movie = kind === "movie";
+  const params = {
+    with_genres: genre,
+    sort_by: "popularity.desc",
+    "vote_count.gte": movie ? 120 : 40,
+    include_adult: false
+  };
+  params[movie ? "primary_release_date.gte" : "first_air_date.gte"] = daysAgoISO(1460);
+  return tmdb(movie ? "/discover/movie" : "/discover/tv", params).then(r => (r.results||[]).map(x => ({...x, media_type: kind})));
+}
+function networkDiscover(kind, pid){
+  const movie = kind === "movie";
+  return tmdb(movie ? "/discover/movie" : "/discover/tv", {
+    with_watch_providers: pid,
+    watch_region: REGION,
+    with_watch_monetization_types: "flatrate",
+    sort_by: "popularity.desc",
+    "vote_count.gte": movie ? 40 : 20,
+    include_adult: false
+  }).then(r => (r.results||[]).map(x => ({...x, media_type: kind})));
+}
+async function showNetworkGrid(net, kind){
+  const grid = openGrid(net.name + (kind==="movie" ? " Movies" : " Shows"));
+  try {
+    const items = await networkDiscover(kind, net.pid);
+    grid.innerHTML = "";
+    if (!items.length){ grid.innerHTML = '<div class="loader">Nothing on ' + net.name + ' in ' + REGION + ' right now.</div>'; return; }
+    items.forEach((i, idx) => grid.appendChild(card(i, {}, idx)));
+  } catch(e){ grid.innerHTML = '<div class="loader err">Couldn\'t load.</div>'; }
+}
+function mountSpotlights(main, list, kind){
+  list.forEach(g => {
+    main.appendChild(sectionEl(g.id, g.title, g.sub, () => showGenreGrid({id:g.genre, name:g.title}, kind)));
+    loadRail(g.id, () => hotDiscover(kind, g.genre).then(rows => rows.slice(0, 16)));
+  });
+  NETWORKS.forEach(net => {
+    const id = (kind==="movie" ? "m_" : "t_") + "net_" + net.key;
+    const label = "On " + net.name;
+    main.appendChild(sectionEl(id, label, kind==="movie" ? "Popular movies on " + net.name : "Popular shows on " + net.name, () => showNetworkGrid(net, kind)));
+    loadRail(id, () => networkDiscover(kind, net.pid).then(rows => rows.slice(0, 16)));
+  });
+}
+
 /* ================= MOVIE / TV / ANIME TABS ================= */
 async function buildMovieTab(){
   await ensureGenres();
@@ -1606,6 +1683,7 @@ async function buildMovieTab(){
   loadRail("m_trend", async ()=> (await tmdb("/trending/movie/day")).results.map(x=>({...x,media_type:"movie"})));
   loadRail("m_pop", async ()=> (await tmdb("/movie/popular")).results.map(x=>({...x,media_type:"movie"})));
   loadRail("m_top", async ()=> (await tmdb("/movie/top_rated")).results.map(x=>({...x,media_type:"movie"})));
+  mountSpotlights(main, MOVIE_SPOTLIGHTS, "movie");
 }
 async function buildTVTab(){
   await ensureGenres();
@@ -1627,6 +1705,7 @@ async function buildTVTab(){
   loadRail("t_trend", async ()=> (await tmdb("/trending/tv/day")).results.map(x=>({...x,media_type:"tv"})));
   loadRail("t_pop", async ()=> (await tmdb("/tv/popular")).results.map(x=>({...x,media_type:"tv"})));
   loadRail("t_top", async ()=> (await tmdb("/tv/top_rated")).results.map(x=>({...x,media_type:"tv"})));
+  mountSpotlights(main, TV_SPOTLIGHTS, "tv");
 }
 const ANIME_SUBGENRES = [
   {id:28,name:"Action"},{id:12,name:"Adventure"},{id:35,name:"Comedy"},

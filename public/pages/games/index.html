@@ -18,11 +18,11 @@
   </div>
   <div class="ggrid" id="ggrid"><div class="empty">Loading games…</div></div>
 </main>
-<section class="play" id="play">
+<section class="stage" id="gameStage">
   <div class="play-bar"><button type="button" id="playClose">← Games</button><b id="playTitle">Game</b></div>
-  <iframe id="playFrame" title="Game" sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="autoplay; fullscreen; gamepad; pointer-lock" allowfullscreen></iframe>
+  <div id="gameMount"><iframe id="playFrame" title="Game"></iframe></div>
 </section>
-<script src="games.js"></script>
+<script src="games.js?v=7"></script>
 <script src="/shared/float.js" defer></script>
 </body>
 </html>

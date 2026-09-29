@@ -1,0 +1,151 @@
+const readline = require('readline');
+const express = require('express');
+const cors = require('cors');
+
+/**
+ * Main function to extract a Spotify direct link.
+ * Returns a Promise that resolves to a JSON object.
+ */
+async function getSpotifyDirectLink(spotifyUrl) {
+    try {
+        const apiResponse = await fetch('https://gamepvz.com/api/download/get-url', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Origin': 'https://gamepvz.com',
+                'Referer': 'https://gamepvz.com/'
+            },
+            body: JSON.stringify({ url: spotifyUrl })
+        });
+
+        if (!apiResponse.ok) {
+            throw new Error(`HTTP Error: Server returned status ${apiResponse.status}`);
+        }
+
+        const data = await apiResponse.json();
+
+        if (data.code !== 200 || !data.originalVideoUrl) {
+            throw new Error(data.msg || "Failed to get data. Make sure the Spotify link is valid!");
+        }
+
+        const title = data.title || "Unknown Title";
+        const artist = data.authorName || "Unknown Artist";
+        const coverUrl = data.coverUrl || "";
+
+        let downloadUrl = "Not available";
+        if (data.originalVideoUrl.includes('?url=')) {
+            const base64Url = data.originalVideoUrl.split('?url=')[1];
+            downloadUrl = Buffer.from(base64Url, 'base64').toString('utf-8');
+        } else {
+            downloadUrl = `https://gamepvz.com${data.originalVideoUrl}`;
+        }
+
+        return {
+            status: "success",
+            message: "Successfully extracted song link",
+            data: {
+                title: title,
+                artist: artist,
+                cover_url: coverUrl,
+                download_url: downloadUrl,
+                source_url: spotifyUrl
+            }
+        };
+
+    } catch (error) {
+        return {
+            status: "error",
+            message: error.message
+        };
+    }
+}
+
+// ==========================================
+// FUNCTION TO RUN THE REST API
+// ==========================================
+function startApiServer() {
+    const app = express();
+    const PORT = process.env.PORT || 3000;
+
+    app.use(cors());
+    app.use(express.json());
+
+    app.get('/api/spotify', async (req, res) => {
+        const url = req.query.url;
+        if (!url) {
+            return res.status(400).json({
+                status: "error",
+                message: "Parameter 'url' is required! Example: /api/spotify?url=https://open.spotify.com/..."
+            });
+        }
+
+        console.log(`\n[API] Processing request: ${url}`);
+        const result = await getSpotifyDirectLink(url);
+
+        if (result.status === "error") {
+            console.log(`[API] Request failed.`);
+            return res.status(400).json(result);
+        }
+
+        console.log(`[API] Successfully sent JSON to client!`);
+        return res.status(200).json(result);
+    });
+
+    app.get('/', (req, res) => {
+        res.json({
+            status: "success",
+            message: "Spotify Downloader API is running.",
+            endpoints: ["GET /api/spotify?url=[LINK]"]
+        });
+    });
+
+    app.listen(PORT, () => {
+        console.log(`\nREST API SERVER STARTED SUCCESSFULLY!`);
+        console.log(`==========================================`);
+        console.log(`URL Root    : http://localhost:${PORT}`);
+        console.log(`URL API     : http://localhost:${PORT}/api/spotify?url=[SPOTIFY_LINK]`);
+        console.log(`==========================================`);
+        console.log(`Press CTRL + C to stop the server.\n`);
+    });
+}
+
+// ==========================================
+// MODE SETTINGS (CLI vs API)
+// ==========================================
+if (require.main === module) {
+    const args = process.argv.slice(2);
+
+    // Mode 1: Run API server (example: node downloader.js serve)
+    if (args[0] === 'serve' || args[0] === 'api') {
+        startApiServer();
+    }
+    // Mode 2: CLI direct link (example: node downloader.js "https://...")
+    else if (args[0]) {
+        getSpotifyDirectLink(args[0]).then(result => {
+            console.log(JSON.stringify(result, null, 4));
+        });
+    }
+    // Mode 3: Interactive CLI (example: node downloader.js)
+    else {
+        console.log("Info: This script can also run as an API server. Type: node downloader.js serve\n");
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        rl.question('Enter Spotify song link: ', async (url) => {
+            if (!url.trim()) {
+                console.log(JSON.stringify({ status: "error", message: "Link cannot be empty!" }, null, 4));
+            } else {
+                const result = await getSpotifyDirectLink(url.trim());
+                process.stdout.write('\x1Bc'); // Clear terminal
+                console.log(JSON.stringify(result, null, 4));
+            }
+            rl.close();
+        });
+    }
+} else {
+    // Mode 4: Imported as a module
+    module.exports = getSpotifyDirectLink;
+}

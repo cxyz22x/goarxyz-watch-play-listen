@@ -1,6 +1,8 @@
 import { readdirSync } from "node:fs";
+import { Readable } from "node:stream";
 import { join } from "node:path";
-import type { Plugin } from "vite";
+import type { Connect, Plugin } from "vite";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
@@ -10,6 +12,8 @@ import { nitro } from "nitro/vite";
 import { grokPwaPlugin } from "./scripts/grok-pwa-plugin.mjs";
 // @ts-expect-error JS plugin alongside the TS vite config
 import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
+// @ts-expect-error plain module
+import { handleMediaRequest } from "./server/yt-proxy.mjs";
 import { isMigrationFile } from "./scripts/migration-plan.mjs";
 
 /** The files `src/lib/db.ts` globs — same directory, same non-recursive scope. */
@@ -142,6 +146,60 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+function isMediaProxyPath(pathname: string): boolean {
+  return pathname.startsWith("/gcdn/") || pathname === "/yt/search" || pathname === "/yt/audio" || pathname === "/spotify/hits" || pathname === "/spotify/preview" || pathname === "/spotify/audio" || pathname === "/spotify/file" || pathname === "/spotify/search";
+}
+
+function attachMediaProxy(middlewares: Connect.Server) {
+  middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+    try {
+      const raw = req.url || "";
+      const host = req.headers.host || "127.0.0.1:8080";
+      const url = new URL(raw, `http://${host}`);
+      if (!isMediaProxyPath(url.pathname)) {
+        next();
+        return;
+      }
+      const headers = new Headers();
+      for (const [key, value] of Object.entries(req.headers)) {
+        if (value == null) continue;
+        headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+      }
+      const response = await handleMediaRequest(url, headers);
+      if (!response) {
+        next();
+        return;
+      }
+      res.statusCode = response.status;
+      response.headers.forEach((value, key) => {
+        if (key === "transfer-encoding" || key === "content-encoding") return;
+        try { res.setHeader(key, value); } catch { /* skip bad header */ }
+      });
+      if (!response.body) {
+        res.end();
+        return;
+      }
+      Readable.fromWeb(response.body as import("stream/web").ReadableStream).pipe(res);
+    } catch {
+      if (!res.headersSent) res.statusCode = 502;
+      res.end("proxy failed");
+    }
+  });
+}
+
+/** Game files and YouTube audio, before the SPA fallback. */
+function mediaProxyPlugin(): Plugin {
+  return {
+    name: "goar-media-proxy",
+    configureServer(server) {
+      attachMediaProxy(server.middlewares);
+    },
+    configurePreviewServer(server) {
+      attachMediaProxy(server.middlewares);
+    },
+  };
+}
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
@@ -158,6 +216,7 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   resolve: { tsconfigPaths: true },
   plugins: [
+    mediaProxyPlugin(),
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
     authPopupPlugin(),
