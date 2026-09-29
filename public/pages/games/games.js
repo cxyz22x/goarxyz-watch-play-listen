@@ -48,6 +48,11 @@ function paintGames(){
   box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy" referrerpolicy="no-referrer"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
   box.querySelectorAll(".gcard").forEach((el) => el.onclick = () => openGame(el.dataset.id));
 }
+function playSrc(g){
+  if (g && g.local) return g.local;
+  if (g && String(g.file || "").startsWith("/")) return g.file;
+  return proxyFile(g && g.file);
+}
 function proxyFile(file){
   try {
     const u = new URL(file);
@@ -86,16 +91,39 @@ function wakeGame(frame){
     if (n > 40) clearInterval(iv);
   }, 250);
 }
-function openGame(id){
+function gameBoot(base){
+  return "<base href=\"" + base + "\"><script>(function(){var root=" + JSON.stringify(base) + ";function fix(u){u=String(u||\"\");if(!u)return u;if(/marketjs\\.com/i.test(u)){try{var x=new URL(u,location.href);return \"/gcdn\"+x.pathname+x.search;}catch(e){return u;}}if(/^(https?:|data:|blob:|about:)/i.test(u)||u.charAt(0)===\"/\")return u;return root+u.replace(/^\\.\\//,\"\");}var xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(){var a=[].slice.call(arguments);if(a.length>1)a[1]=fix(a[1]);return xo.apply(this,a);};if(window.fetch){var fo=window.fetch;window.fetch=function(input,init){if(typeof input===\"string\")input=fix(input);return fo.call(this,input,init);};}var d=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,\"src\");if(d&&d.set){Object.defineProperty(HTMLImageElement.prototype,\"src\",{set:function(v){d.set.call(this,fix(v));},get:function(){return d.get.call(this);}});}})();<\/script>";
+}
+function rewriteGameHtml(html, base){
+  const boot = gameBoot(base);
+  let out = html.replace(/(src|href)=(\"|')(?![a-z]+:|\/\/|#|\/)([^\"']+)/gi, (m, attr, q, path) => attr + "=" + q + base + path);
+  if (/<head[^>]*>/i.test(out)) out = out.replace(/<head[^>]*>/i, (m) => m + boot);
+  else out = "<head>" + boot + "</head>" + out;
+  return out;
+}
+async function openGame(id){
   const g = games.find((x) => x.id === id);
   if (!g || !g.file) return;
-  const src = proxyFile(g.file);
+  const src = playSrc(g);
   $("#playTitle").textContent = g.title;
   const frame = $("#playFrame");
   $("#gameStage").classList.add("on");
-  frame.removeAttribute("srcdoc");
-  frame.src = src || g.file;
-  frame.onload = () => wakeGame(frame);
+  frame.onload = null;
+  frame.removeAttribute("src");
+  if (!src) {
+    frame.srcdoc = "<p style=\"color:#eee;font:16px sans-serif;padding:24px\">This game has no local copy.</p>";
+    return;
+  }
+  frame.srcdoc = "<p style=\"color:#bbb;font:16px sans-serif;padding:24px\">Loading " + esc(g.title) + "…</p>";
+  try {
+    const res = await fetch(src, { cache: "no-store" });
+    if (!res.ok) throw new Error(String(res.status));
+    const base = src.replace(/[^/]*(\?.*)?$/, "");
+    frame.onload = () => wakeGame(frame);
+    frame.srcdoc = rewriteGameHtml(await res.text(), base);
+  } catch (e) {
+    frame.srcdoc = "<p style=\"color:#eee;font:16px sans-serif;padding:24px\">Couldn’t open " + esc(g.title) + ". The game file did not come back.</p>";
+  }
 }
 function closeGame(){
   const frame = $("#playFrame");
