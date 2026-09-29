@@ -1,0 +1,268 @@
+{"frames": [
+
+{
+	"filename": "ingame/buttons/button-changename",
+	"frame": {"x":683,"y":1671,"w":270,"h":53},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":270,"h":53},
+	"sourceSize": {"w":270,"h":53}
+},
+{
+	"filename": "ingame/buttons/button-plain3-off",
+	"frame": {"x":529,"y":1494,"w":162,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":162,"h":51},
+	"sourceSize": {"w":162,"h":51}
+},
+{
+	"filename": "ingame/buttons/button-plain3",
+	"frame": {"x":529,"y":1547,"w":162,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":162,"h":51},
+	"sourceSize": {"w":162,"h":51}
+},
+{
+	"filename": "ingame/buttons/button-plain4-off",
+	"frame": {"x":693,"y":1565,"w":293,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":293,"h":51},
+	"sourceSize": {"w":293,"h":51}
+},
+{
+	"filename": "ingame/buttons/button-plain4",
+	"frame": {"x":683,"y":1618,"w":293,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":293,"h":51},
+	"sourceSize": {"w":293,"h":51}
+},
+{
+	"filename": "ingame/buttons/circle-btn",
+	"frame": {"x":529,"y":1651,"w":75,"h":75},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":75},
+	"sourceSize": {"w":75,"h":75}
+},
+{
+	"filename": "ingame/buttons/home-btn",
+	"frame": {"x":606,"y":1651,"w":75,"h":75},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":75},
+	"sourceSize": {"w":75,"h":75}
+},
+{
+	"filename": "ingame/buttons/more-games",
+	"frame": {"x":766,"y":1726,"w":85,"h":53},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":85,"h":53},
+	"sourceSize": {"w":85,"h":53}
+},
+{
+	"filename": "ingame/buttons/replay-btn",
+	"frame": {"x":972,"y":1183,"w":37,"h":36},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":37,"h":36},
+	"sourceSize": {"w":37,"h":36}
+},
+{
+	"filename": "ingame/buttons/settings",
+	"frame": {"x":693,"y":1494,"w":49,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":49,"h":51},
+	"sourceSize": {"w":49,"h":51}
+},
+{
+	"filename": "ingame/chapters/locked",
+	"frame": {"x":1,"y":1,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/new-story",
+	"frame": {"x":1,"y":249,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/story1",
+	"frame": {"x":1,"y":497,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/story2",
+	"frame": {"x":1,"y":745,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/story3",
+	"frame": {"x":1,"y":993,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/story4",
+	"frame": {"x":1,"y":1241,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/story5",
+	"frame": {"x":1,"y":1489,"w":526,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":526,"h":246},
+	"sourceSize": {"w":526,"h":246}
+},
+{
+	"filename": "ingame/chapters/substory1",
+	"frame": {"x":529,"y":946,"w":442,"h":235},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":442,"h":235},
+	"sourceSize": {"w":442,"h":235}
+},
+{
+	"filename": "ingame/diamond",
+	"frame": {"x":529,"y":1600,"w":152,"h":49},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":152,"h":49},
+	"sourceSize": {"w":152,"h":49}
+},
+{
+	"filename": "ingame/heart",
+	"frame": {"x":853,"y":1726,"w":151,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":151,"h":51},
+	"sourceSize": {"w":151,"h":51}
+},
+{
+	"filename": "ingame/icon-dia",
+	"frame": {"x":202,"y":1737,"w":53,"h":40},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":53,"h":40},
+	"sourceSize": {"w":53,"h":40}
+},
+{
+	"filename": "ingame/icon-heart",
+	"frame": {"x":148,"y":1737,"w":52,"h":43},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":52,"h":43},
+	"sourceSize": {"w":52,"h":43}
+},
+{
+	"filename": "ingame/logo",
+	"frame": {"x":529,"y":1,"w":449,"h":163},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":449,"h":163},
+	"sourceSize": {"w":449,"h":163}
+},
+{
+	"filename": "ingame/panel-chapter",
+	"frame": {"x":529,"y":166,"w":442,"h":467},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":442,"h":467},
+	"sourceSize": {"w":442,"h":467}
+},
+{
+	"filename": "ingame/popup-bg",
+	"frame": {"x":529,"y":635,"w":442,"h":309},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":442,"h":309},
+	"sourceSize": {"w":442,"h":309}
+},
+{
+	"filename": "ingame/settings/bar-bg",
+	"frame": {"x":455,"y":1755,"w":309,"h":15},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":309,"h":15},
+	"sourceSize": {"w":309,"h":15}
+},
+{
+	"filename": "ingame/settings/bar",
+	"frame": {"x":455,"y":1737,"w":309,"h":16},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":309,"h":16},
+	"sourceSize": {"w":309,"h":16}
+},
+{
+	"filename": "ingame/settings/bg",
+	"frame": {"x":529,"y":1183,"w":441,"h":309},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":441,"h":309},
+	"sourceSize": {"w":441,"h":309}
+},
+{
+	"filename": "ingame/settings/slider",
+	"frame": {"x":980,"y":1,"w":22,"h":30},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":30},
+	"sourceSize": {"w":22,"h":30}
+},
+{
+	"filename": "ingame/story",
+	"frame": {"x":1,"y":1737,"w":145,"h":47},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":145,"h":47},
+	"sourceSize": {"w":145,"h":47}
+},
+{
+	"filename": "ingame/tags_locked",
+	"frame": {"x":766,"y":1494,"w":223,"h":69},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":223,"h":69},
+	"sourceSize": {"w":223,"h":69}
+},
+{
+	"filename": "ingame/txt-field",
+	"frame": {"x":257,"y":1737,"w":196,"h":39},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":196,"h":39},
+	"sourceSize": {"w":196,"h":39}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ingame.png",
+	"format": "RGBA8888",
+	"size": {"w":1010,"h":1785},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:9dc2e7b241625dd61f23895b819e2c00:fe4cbbc78ea6604f8648b683dc055b90:a0a7aae19725baf1127883d8cc485c4f$"
+}
+}

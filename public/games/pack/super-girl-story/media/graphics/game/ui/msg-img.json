@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "msg-img/harlow-cat",
+	"frame": {"x":1,"y":1,"w":223,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":223,"h":300},
+	"sourceSize": {"w":223,"h":300}
+},
+{
+	"filename": "msg-img/harlow-fox",
+	"frame": {"x":1,"y":303,"w":223,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":223,"h":300},
+	"sourceSize": {"w":223,"h":300}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "msg-img.png",
+	"format": "RGBA8888",
+	"size": {"w":225,"h":604},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:61c1e19af364c92ab2f45ba2abbae133:fe3ab66e73f42dfcd028bf92fa3ad513:242efab25c9b6f7c4dc331d483c456c4$"
+}
+}

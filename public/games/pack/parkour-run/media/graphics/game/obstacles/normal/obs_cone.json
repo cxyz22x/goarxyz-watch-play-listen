@@ -1,0 +1,55 @@
+{
+"frames": {
+	"traffic_cone.png": {
+		"frame": {"x":174, "y":0, "w":51, "h":80},
+		"spriteSourceSize": {"x":0,"y":1,"w":51,"h":81},
+		"sourceSize": {"w":51,"h":81}
+	},
+	"traffic_cone_frame_1.png": {
+		"frame": {"x":171, "y":115, "w":51, "h":84},
+		"spriteSourceSize": {"x":0,"y":0,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_2.png": {
+		"frame": {"x":87, "y":115, "w":83, "h":53},
+		"spriteSourceSize": {"x":45,"y":14,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_3.png": {
+		"frame": {"x":87, "y":0, "w":86, "h":61},
+		"spriteSourceSize": {"x":62,"y":13,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_4.png": {
+		"frame": {"x":0, "y":157, "w":86, "h":51},
+		"spriteSourceSize": {"x":66,"y":33,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_5.png": {
+		"frame": {"x":87, "y":62, "w":84, "h":52},
+		"spriteSourceSize": {"x":86,"y":32,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_6.png": {
+		"frame": {"x":0, "y":104, "w":86, "h":52},
+		"spriteSourceSize": {"x":91,"y":32,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_7.png": {
+		"frame": {"x":0, "y":52, "w":86, "h":51},
+		"spriteSourceSize": {"x":95,"y":33,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	},
+	"traffic_cone_frame_8.png": {
+		"frame": {"x":0, "y":0, "w":86, "h":51},
+		"spriteSourceSize": {"x":97,"y":33,"w":183,"h":84},
+		"sourceSize": {"w":183,"h":84}
+	}
+
+},
+"meta": {
+	"image": "obs_cone.png",
+	"size": {"w": 226, "h": 209},
+	"scale": "1"
+}
+}

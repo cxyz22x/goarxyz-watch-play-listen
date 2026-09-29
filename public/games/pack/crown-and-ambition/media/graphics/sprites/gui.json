@@ -1,0 +1,172 @@
+{"frames": [
+
+{
+	"filename": "gui/auto",
+	"frame": {"x":689,"y":134,"w":81,"h":87},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":81,"h":87},
+	"sourceSize": {"w":81,"h":87}
+},
+{
+	"filename": "gui/bar-tip",
+	"frame": {"x":533,"y":0,"w":70,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":70,"h":33},
+	"sourceSize": {"w":70,"h":33}
+},
+{
+	"filename": "gui/fame",
+	"frame": {"x":638,"y":0,"w":36,"h":34},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":34},
+	"sourceSize": {"w":36,"h":34}
+},
+{
+	"filename": "gui/health",
+	"frame": {"x":674,"y":0,"w":41,"h":35},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":41,"h":35},
+	"sourceSize": {"w":41,"h":35}
+},
+{
+	"filename": "gui/home",
+	"frame": {"x":770,"y":134,"w":69,"h":92},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":92},
+	"sourceSize": {"w":69,"h":92}
+},
+{
+	"filename": "gui/home2",
+	"frame": {"x":0,"y":134,"w":69,"h":71},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":71},
+	"sourceSize": {"w":69,"h":71}
+},
+{
+	"filename": "gui/loading-tip",
+	"frame": {"x":0,"y":0,"w":27,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":27,"h":20},
+	"sourceSize": {"w":27,"h":20}
+},
+{
+	"filename": "gui/loading1",
+	"frame": {"x":27,"y":0,"w":253,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":253,"h":20},
+	"sourceSize": {"w":253,"h":20}
+},
+{
+	"filename": "gui/loading4",
+	"frame": {"x":280,"y":0,"w":253,"h":20},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":253,"h":20},
+	"sourceSize": {"w":253,"h":20}
+},
+{
+	"filename": "gui/logo",
+	"frame": {"x":352,"y":63,"w":469,"h":69},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":469,"h":69},
+	"sourceSize": {"w":469,"h":69}
+},
+{
+	"filename": "gui/mainmenu-btn",
+	"frame": {"x":0,"y":63,"w":352,"h":67},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":352,"h":67},
+	"sourceSize": {"w":352,"h":67}
+},
+{
+	"filename": "gui/menu-ingame",
+	"frame": {"x":69,"y":134,"w":540,"h":86},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":86},
+	"sourceSize": {"w":540,"h":86}
+},
+{
+	"filename": "gui/music",
+	"frame": {"x":715,"y":0,"w":59,"h":63},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":63},
+	"sourceSize": {"w":59,"h":63}
+},
+{
+	"filename": "gui/next",
+	"frame": {"x":821,"y":63,"w":69,"h":71},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":71},
+	"sourceSize": {"w":69,"h":71}
+},
+{
+	"filename": "gui/pause",
+	"frame": {"x":467,"y":226,"w":467,"h":455},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":467,"h":455},
+	"sourceSize": {"w":467,"h":455}
+},
+{
+	"filename": "gui/popup-bg",
+	"frame": {"x":0,"y":226,"w":467,"h":394},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":467,"h":394},
+	"sourceSize": {"w":467,"h":394}
+},
+{
+	"filename": "gui/setting",
+	"frame": {"x":839,"y":134,"w":69,"h":92},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":92},
+	"sourceSize": {"w":69,"h":92}
+},
+{
+	"filename": "gui/skip",
+	"frame": {"x":609,"y":134,"w":80,"h":86},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":80,"h":86},
+	"sourceSize": {"w":80,"h":86}
+},
+{
+	"filename": "gui/sound",
+	"frame": {"x":774,"y":0,"w":59,"h":63},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":63},
+	"sourceSize": {"w":59,"h":63}
+},
+{
+	"filename": "gui/wealth",
+	"frame": {"x":603,"y":0,"w":35,"h":34},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":35,"h":34},
+	"sourceSize": {"w":35,"h":34}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "gui.png",
+	"format": "RGBA8888",
+	"size": {"w":934,"h":681},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cfdaed9530abe3cbb686745798712bc3:dfcb217999e7d7bada58c8a53f630534:788b34ed4e778d63c84b2c3df4d44949$"
+}
+}

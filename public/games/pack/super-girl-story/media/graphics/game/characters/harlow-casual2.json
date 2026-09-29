@@ -1,0 +1,68 @@
+{"frames": [
+
+{
+	"filename": "harlow-casual2/0",
+	"frame": {"x":1,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/1",
+	"frame": {"x":222,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/2",
+	"frame": {"x":443,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/3",
+	"frame": {"x":664,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/4",
+	"frame": {"x":885,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/5",
+	"frame": {"x":1106,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+},
+{
+	"filename": "harlow-casual2/6",
+	"frame": {"x":1327,"y":1,"w":219,"h":425},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":219,"h":425},
+	"sourceSize": {"w":219,"h":425}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "harlow-casual2.png",
+	"format": "RGBA8888",
+	"size": {"w":1547,"h":427},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:79b2c99de5264ff749dad58b87315250:a6efaca2c1c47b0e6bd04a86a1668045:c5ae8d8d0de049d9d1c5ece5b6f283aa$"
+}
+}

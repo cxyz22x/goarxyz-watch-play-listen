@@ -1,0 +1,188 @@
+{"frames": [
+
+{
+	"filename": "ui/blue-neutral",
+	"frame": {"x":1,"y":1,"w":328,"h":323},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":328,"h":323},
+	"sourceSize": {"w":328,"h":323}
+},
+{
+	"filename": "ui/button-answer-clicked",
+	"frame": {"x":445,"y":1105,"w":364,"h":57},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":364,"h":57},
+	"sourceSize": {"w":364,"h":57}
+},
+{
+	"filename": "ui/button-answer",
+	"frame": {"x":445,"y":1164,"w":364,"h":57},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":364,"h":57},
+	"sourceSize": {"w":364,"h":57}
+},
+{
+	"filename": "ui/button-plain",
+	"frame": {"x":775,"y":467,"w":162,"h":51},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":162,"h":51},
+	"sourceSize": {"w":162,"h":51}
+},
+{
+	"filename": "ui/chapter_completed_diamond",
+	"frame": {"x":1,"y":976,"w":442,"h":239},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":442,"h":239},
+	"sourceSize": {"w":442,"h":239}
+},
+{
+	"filename": "ui/chapter_completed_heart",
+	"frame": {"x":331,"y":326,"w":442,"h":239},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":442,"h":239},
+	"sourceSize": {"w":442,"h":239}
+},
+{
+	"filename": "ui/chat-load-off",
+	"frame": {"x":910,"y":431,"w":18,"h":18},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":18,"h":18},
+	"sourceSize": {"w":18,"h":18}
+},
+{
+	"filename": "ui/chat-load-on",
+	"frame": {"x":930,"y":431,"w":18,"h":18},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":18,"h":18},
+	"sourceSize": {"w":18,"h":18}
+},
+{
+	"filename": "ui/dialogue-box",
+	"frame": {"x":331,"y":567,"w":530,"h":197},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":530,"h":197},
+	"sourceSize": {"w":530,"h":197}
+},
+{
+	"filename": "ui/dialogue-box2",
+	"frame": {"x":331,"y":766,"w":530,"h":197},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":530,"h":197},
+	"sourceSize": {"w":530,"h":197}
+},
+{
+	"filename": "ui/finger1",
+	"frame": {"x":775,"y":326,"w":133,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":133,"h":139},
+	"sourceSize": {"w":133,"h":139}
+},
+{
+	"filename": "ui/finger2",
+	"frame": {"x":863,"y":520,"w":133,"h":139},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":133,"h":139},
+	"sourceSize": {"w":133,"h":139}
+},
+{
+	"filename": "ui/footer-bar",
+	"frame": {"x":445,"y":965,"w":540,"h":68},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":68},
+	"sourceSize": {"w":540,"h":68}
+},
+{
+	"filename": "ui/green-happy",
+	"frame": {"x":331,"y":1,"w":328,"h":323},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":328,"h":323},
+	"sourceSize": {"w":328,"h":323}
+},
+{
+	"filename": "ui/grey-sad",
+	"frame": {"x":661,"y":1,"w":328,"h":323},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":328,"h":323},
+	"sourceSize": {"w":328,"h":323}
+},
+{
+	"filename": "ui/header-bar",
+	"frame": {"x":445,"y":1035,"w":540,"h":68},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":68},
+	"sourceSize": {"w":540,"h":68}
+},
+{
+	"filename": "ui/loading-bg",
+	"frame": {"x":910,"y":403,"w":81,"h":26},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":81,"h":26},
+	"sourceSize": {"w":81,"h":26}
+},
+{
+	"filename": "ui/name",
+	"frame": {"x":775,"y":520,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+{
+	"filename": "ui/orange-shocked",
+	"frame": {"x":1,"y":326,"w":328,"h":323},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":328,"h":323},
+	"sourceSize": {"w":328,"h":323}
+},
+{
+	"filename": "ui/play-btn",
+	"frame": {"x":910,"y":326,"w":75,"h":75},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":75},
+	"sourceSize": {"w":75,"h":75}
+},
+{
+	"filename": "ui/red-angry",
+	"frame": {"x":1,"y":651,"w":328,"h":323},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":328,"h":323},
+	"sourceSize": {"w":328,"h":323}
+},
+{
+	"filename": "ui/send-msg",
+	"frame": {"x":822,"y":520,"w":36,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":42},
+	"sourceSize": {"w":36,"h":42}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ui.png",
+	"format": "RGBA8888",
+	"size": {"w":997,"h":1222},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:887f5ae0d0881fd7c5f214896dd3f6df:d86ce3547f986a72027a8a4dca034e9e:5b04aa198265472a3c5f56958d78e97b$"
+}
+}

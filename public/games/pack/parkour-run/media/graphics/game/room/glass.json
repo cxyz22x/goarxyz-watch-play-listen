@@ -1,0 +1,179 @@
+{
+	"frames": {
+		"glassbreak_frame_0.png": {
+			"frame": { "x": 899, "y": 194, "w": 8, "h": 213 },
+			"spriteSourceSize": { "x": 0, "y": 64, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_1.png": {
+			"frame": { "x": 889, "y": 566, "w": 39, "h": 185 },
+			"spriteSourceSize": { "x": 2, "y": 69, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_2.png": {
+			"frame": { "x": 880, "y": 0, "w": 49, "h": 193 },
+			"spriteSourceSize": { "x": 10, "y": 61, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_3.png": {
+			"frame": { "x": 823, "y": 0, "w": 56, "h": 201 },
+			"spriteSourceSize": { "x": 14, "y": 55, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_4.png": {
+			"frame": { "x": 811, "y": 752, "w": 68, "h": 175 },
+			"spriteSourceSize": { "x": 17, "y": 49, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_5.png": {
+			"frame": { "x": 811, "y": 566, "w": 77, "h": 185 },
+			"spriteSourceSize": { "x": 26, "y": 41, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_6.png": {
+			"frame": { "x": 807, "y": 378, "w": 91, "h": 187 },
+			"spriteSourceSize": { "x": 29, "y": 42, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_7.png": {
+			"frame": { "x": 706, "y": 378, "w": 100, "h": 183 },
+			"spriteSourceSize": { "x": 37, "y": 45, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_8.png": {
+			"frame": { "x": 699, "y": 702, "w": 111, "h": 159 },
+			"spriteSourceSize": { "x": 41, "y": 74, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_9.png": {
+			"frame": { "x": 693, "y": 215, "w": 121, "h": 162 },
+			"spriteSourceSize": { "x": 45, "y": 73, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_10.png": {
+			"frame": { "x": 557, "y": 175, "w": 135, "h": 179 },
+			"spriteSourceSize": { "x": 48, "y": 76, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_11.png": {
+			"frame": { "x": 379, "y": 764, "w": 148, "h": 169 },
+			"spriteSourceSize": { "x": 52, "y": 78, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_12.png": {
+			"frame": { "x": 389, "y": 0, "w": 162, "h": 173 },
+			"spriteSourceSize": { "x": 56, "y": 80, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_13.png": {
+			"frame": { "x": 217, "y": 123, "w": 171, "h": 172 },
+			"spriteSourceSize": { "x": 63, "y": 81, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_14.png": {
+			"frame": { "x": 693, "y": 0, "w": 129, "h": 214 },
+			"spriteSourceSize": { "x": 124, "y": 33, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_15.png": {
+			"frame": { "x": 552, "y": 0, "w": 137, "h": 174 },
+			"spriteSourceSize": { "x": 133, "y": 37, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_16.png": {
+			"frame": { "x": 549, "y": 702, "w": 149, "h": 196 },
+			"spriteSourceSize": { "x": 142, "y": 36, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_17.png": {
+			"frame": { "x": 549, "y": 503, "w": 156, "h": 198 },
+			"spriteSourceSize": { "x": 152, "y": 33, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_18.png": {
+			"frame": { "x": 387, "y": 296, "w": 169, "h": 206 },
+			"spriteSourceSize": { "x": 159, "y": 35, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_19.png": {
+			"frame": { "x": 379, "y": 582, "w": 169, "h": 181 },
+			"spriteSourceSize": { "x": 174, "y": 41, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_20.png": {
+			"frame": { "x": 210, "y": 396, "w": 176, "h": 185 },
+			"spriteSourceSize": { "x": 182, "y": 48, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_21.png": {
+			"frame": { "x": 194, "y": 662, "w": 184, "h": 186 },
+			"spriteSourceSize": { "x": 192, "y": 56, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_22.png": {
+			"frame": { "x": 0, "y": 662, "w": 193, "h": 151 },
+			"spriteSourceSize": { "x": 199, "y": 64, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_23.png": {
+			"frame": { "x": 0, "y": 505, "w": 201, "h": 156 },
+			"spriteSourceSize": { "x": 207, "y": 72, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_24.png": {
+			"frame": { "x": 0, "y": 242, "w": 210, "h": 153 },
+			"spriteSourceSize": { "x": 216, "y": 83, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_25.png": {
+			"frame": { "x": 0, "y": 123, "w": 216, "h": 118 },
+			"spriteSourceSize": { "x": 226, "y": 94, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_26.png": {
+			"frame": { "x": 0, "y": 0, "w": 225, "h": 122 },
+			"spriteSourceSize": { "x": 236, "y": 103, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_27.png": {
+			"frame": { "x": 0, "y": 396, "w": 209, "h": 108 },
+			"spriteSourceSize": { "x": 269, "y": 116, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_28.png": {
+			"frame": { "x": 0, "y": 893, "w": 35, "h": 21 },
+			"spriteSourceSize": { "x": 462, "y": 129, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_29.png": {
+			"frame": { "x": 0, "y": 915, "w": 32, "h": 18 },
+			"spriteSourceSize": { "x": 482, "y": 145, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_30.png": {
+			"frame": { "x": 36, "y": 893, "w": 32, "h": 20 },
+			"spriteSourceSize": { "x": 501, "y": 161, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_31.png": {
+			"frame": { "x": 0, "y": 814, "w": 37, "h": 20 },
+			"spriteSourceSize": { "x": 519, "y": 181, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_32.png": {
+			"frame": { "x": 0, "y": 849, "w": 40, "h": 21 },
+			"spriteSourceSize": { "x": 537, "y": 206, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		},
+		"glassbreak_frame_33.png": {
+			"frame": { "x": 0, "y": 871, "w": 40, "h": 21 },
+			"spriteSourceSize": { "x": 556, "y": 228, "w": 597, "h": 296 },
+			"sourceSize": { "w": 597, "h": 296 }
+		}
+	},
+	"meta": {
+		"image": "glass.png",
+		"size": { "w": 930, "h": 934 },
+		"scale": "1"
+	}
+}

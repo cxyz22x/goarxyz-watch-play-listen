@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "kenneth-office/0",
+	"frame": {"x":1,"y":1,"w":288,"h":472},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":288,"h":472},
+	"sourceSize": {"w":288,"h":472}
+},
+{
+	"filename": "kenneth-office/1",
+	"frame": {"x":291,"y":1,"w":288,"h":472},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":288,"h":472},
+	"sourceSize": {"w":288,"h":472}
+},
+{
+	"filename": "kenneth-office/2",
+	"frame": {"x":581,"y":1,"w":288,"h":472},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":288,"h":472},
+	"sourceSize": {"w":288,"h":472}
+},
+{
+	"filename": "kenneth-office/3",
+	"frame": {"x":871,"y":1,"w":288,"h":472},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":288,"h":472},
+	"sourceSize": {"w":288,"h":472}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "kenneth-office.png",
+	"format": "RGBA8888",
+	"size": {"w":1160,"h":474},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:7376a771fdc306e26a69f877283735aa:0d664826f3deabd12f20c8846a8358ca:09f76f105bd21e3fbd445d7cc95418f8$"
+}
+}

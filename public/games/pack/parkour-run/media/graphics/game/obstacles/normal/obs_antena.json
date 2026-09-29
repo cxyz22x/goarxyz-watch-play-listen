@@ -1,0 +1,45 @@
+{
+"frames": {
+	"parabolic_antena.png": {
+		"frame": {"x":0, "y":192, "w":116, "h":86},
+		"spriteSourceSize": {"x":0,"y":0,"w":116,"h":86},
+		"sourceSize": {"w":116,"h":86}
+	},
+	"parabolic_antena_frame_1.png": {
+		"frame": {"x":134, "y":0, "w":116, "h":86},
+		"spriteSourceSize": {"x":11,"y":11,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	},
+	"parabolic_antena_frame_2.png": {
+		"frame": {"x":134, "y":87, "w":116, "h":86},
+		"spriteSourceSize": {"x":11,"y":11,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	},
+	"parabolic_antena_frame_3.png": {
+		"frame": {"x":0, "y":0, "w":133, "h":95},
+		"spriteSourceSize": {"x":3,"y":2,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	},
+	"parabolic_antena_frame_4.png": {
+		"frame": {"x":0, "y":96, "w":133, "h":95},
+		"spriteSourceSize": {"x":3,"y":2,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	},
+	"parabolic_antena_frame_5.png": {
+		"frame": {"x":117, "y":192, "w":116, "h":86},
+		"spriteSourceSize": {"x":11,"y":11,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	},
+	"parabolic_antena_frame_6.png": {
+		"frame": {"x":0, "y":192, "w":116, "h":86},
+		"spriteSourceSize": {"x":11,"y":11,"w":139,"h":97},
+		"sourceSize": {"w":139,"h":97}
+	}
+
+},
+"meta": {
+	"image": "obs_antena.png",
+	"size": {"w": 251, "h": 279},
+	"scale": "1"
+}
+}

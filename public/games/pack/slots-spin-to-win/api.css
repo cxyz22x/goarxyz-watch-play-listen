@@ -1,0 +1,487 @@
+html,
+body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+input[type=checkbox] {
+    -ms-transform: scale(2);
+    /* IE */
+    -moz-transform: scale(2);
+    /* FF */
+    -webkit-transform: scale(2);
+    /* Safari and Chrome */
+    -o-transform: scale(2);
+    /* Opera */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* LEADERBOARD */
+
+.box-leaderboard {
+    background: rgba(255, 255, 255, 1);
+    color: #666666;
+    margin: 1em;
+    padding: 0.5em;
+    overflow-y: auto;
+}
+
+.box-leaderboard-image {
+   /* width: 100%;*/
+}
+
+.box-leaderboard-image img {
+    max-width: 300px;
+}
+
+.box-leaderboard-navigation {
+    /*border:1px solid #000;*/
+    font-size: 2em;
+    margin: 0;
+    padding: 0;
+/*    margin: 0 0.2em 0 0.2em;*/
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.box-leaderboard-navigation a {
+    text-decoration: none;
+}
+
+.span_2_of_4_leaderboard {
+    display: table;
+}
+
+.span_2_of_4_leaderboard a {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.box-leaderboard-navigation-item {
+    text-align: center;
+/*    padding: 0 0.2em 0.5em 0.2em;*/
+    padding: 0;
+    line-height: 1.3em;
+    height: 1.3em;
+    font-size: 0.65em;
+/*    display: inline-block;*/
+}
+
+.box-leaderboard-navigation-item-highlighted {
+    background-color: rgba(204, 204, 204, 0.3);
+    /* lighter color */
+}
+
+.box-leaderboard-col-header {
+    padding: 0 0.5em 0 0.45em;
+    font-size: 1.16em;
+    font-weight: 900;
+}
+
+.box-leaderboard-icon img {
+    padding: 0.2em 0 0 0;
+    width: 80%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    /*border:1px solid #ccc;*/
+}
+
+.box-leaderboard-username {
+    padding: 0.5em;
+    /*border:1px solid #ccc;*/
+}
+
+.box-leaderboard-score {
+    padding: 0.5em;
+}
+
+.box-leaderboard-entry {
+    /* Basic solution. Better is to have scrollbar sticking to right border
+	max-height:300px;
+	overflow-y:scroll;    
+	*/
+    /*overflow-y:scroll; */
+}
+
+.box-leaderboard-header {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #f0841f;
+    margin: 0.5em 0.5em 0em 0.5em;
+}
+
+.box-leaderboard-subheader {
+    font-size: 0.8em;
+    margin: 0.8em;
+}
+
+.box-leaderboard-footer {
+    margin: 0.4em;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.box-leaderboard-contents {
+    margin: 0.5em;
+}
+
+.box-leaderboard-close {
+    text-align: right;
+    background-image: url('media/graphics/api/close.png');
+}
+
+.span_2_of_10_leaderboard .box-leaderboard-score {
+    padding-left: 1.4em !important;
+}
+
+
+/* LOGIN */
+
+.box-login {
+    background: rgba(255, 255, 255, 1);
+    color: #666666;
+    font-size: 1em;
+    margin: 1em;
+    padding: 0.5em;
+    overflow-y: auto;
+}
+
+.box-login-header {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #f0841f;
+    border-bottom: 1px solid #ccc;
+    margin: 0.35em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+}
+
+.box-login-subheader {
+    font-size: 0.8em;
+    margin: 0.8em;
+}
+
+.box-login-footer {
+    font-size: 1.2em;
+}
+
+.box-login-contents {
+    margin: 0.5em;
+}
+
+.box-login-close {
+    width: 24px;
+    height: 24px;
+    text-align: right;
+    float: right;
+    background-image: url('media/graphics/api/close.png');
+}
+
+.box-login-form-input {
+    margin-top: 0.2em;
+    margin-bottom: 0.5em;
+    width: 100%;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0.3em;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+/* REGISTER */
+
+.box-register {
+    background: rgb(244, 244, 244);
+    color: #000000;
+    font-size: 1.25em;
+    margin: 1em;
+    padding: 0.5em;
+    overflow: auto;
+}
+
+.box-register-header {
+    font-size: 1.6em;
+    font-weight: bold;
+    text-align: center;
+    color: #003499;
+    margin: 0.35em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+}
+
+img.box-register-header-image {
+    width: 100% !important;
+    margin-top: 5px;
+}
+
+.box-register-subheader {
+    font-size: 0.8em;
+    margin: 0.8em;
+}
+
+.box-register-footer {
+    font-size: 1.2em;
+}
+
+.box-register-contents {
+    margin: 0.5em;
+}
+
+.box-register-close {
+    width: 24px;
+    height: 24px;
+    text-align: right;
+    float: right;
+    background-image: url('media/graphics/api/close.png');
+}
+
+.box-register-form-input {
+    margin-top: 0.2em;
+    margin-bottom: 0.5em;
+    width: 100%;
+    font-size: 1em;
+    border: medium solid #003499;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0.5em;
+    color: #003499;
+    text-align: center;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.box-register-name {
+    width: 65%;
+    margin: auto;
+    color: #8eafe5;
+}
+
+.box-register-email {
+    width: 65%;
+    margin: auto;
+    color: #8eafe5;
+}
+
+.box-register-tos-agree {
+    margin: auto;
+    padding: 1em;
+    color: #003499;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.register-tos-agree-error {
+	font-size:0.8em;
+	color:#cc0000;
+	margin-top:0.2em;
+	margin-bottom:0.5em;
+	display:block;
+}
+
+.register-submit {
+    width: 100%;
+    text-align: center;
+}
+
+/* REGISTER */
+
+.box-reset-password {
+    background: rgba(255, 255, 255, 1);
+    color: #666666;
+    font-size: 1em;
+    margin: 1em;
+    padding: 0.5em;
+}
+
+.box-reset-password-header {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #f0841f;
+    border-bottom: 1px solid #ccc;
+    margin: 0.35em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+}
+
+.box-reset-password-subheader {
+    font-size: 0.8em;
+    margin: 0.8em;
+}
+
+.box-reset-password-footer {
+    border-top: 1px solid #ccc;
+    font-size: 1.2em;
+    margin: 0;
+    padding-top: 0.4em;
+}
+
+.box-reset-password-contents {
+    margin: 0.5em;
+}
+
+.box-reset-password-close {
+    width: 24px;
+    height: 24px;
+    text-align: right;
+    float: right;
+    background-image: url('media/graphics/api/close.png');
+}
+
+.box-reset-password-form-input {
+    margin-top: 0.2em;
+    margin-bottom: 0.5em;
+    width: 100%;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0.3em;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+/* POPUP */
+
+.box-popup {
+    background: rgba(255, 255, 255, 1);
+    color: #666666;
+    font-size: 1em;
+    margin: 1em;
+    padding: 0.5em;
+}
+
+.box-popup-header {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #f0841f;
+    border-bottom: 1px solid #ccc;
+    margin: 0.35em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+}
+
+#okButton {
+    margin-left: 0.5em;
+}
+
+.box-popup-subheader {
+    font-size: 0.8em;
+    margin: 0.8em;
+}
+
+.box-popup-footer {
+    border-top: 1px solid #ccc;
+    font-size: 0.8em;
+    margin: 0.8em;
+    padding-top: 0.4em;
+}
+
+.box-popup-contents {
+    margin: 0.5em;
+}
+
+.box-popup-close {
+    width: 24px;
+    height: 24px;
+    text-align: right;
+    float: right;
+    background-image: url('media/graphics/api/close.png');
+}
+
+.box-popup-form-input {
+    margin-top: 0.2em;
+    margin-bottom: 0.5em;
+    width: 100%;
+    font-size: 0.8em;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0.3em;
+}
+
+.box-leaderboard-entry {
+    font-size: 1em;
+}
+
+#forgot-password {
+    font-size: 0.85em
+}
+
+
+/*
+.login-submit {
+    margin: 0.2em;
+}
+*/
+
+@media only screen and (min-width: 500px) {
+    /*
+    .box-leaderboard-entry {
+        font-size: 1em;
+    }
+*/
+    /*
+    .box-leaderboard-navigation-item {
+        height: 1.6em;
+        font-size: 1em;
+    }
+*/
+    /*
+    .box-leaderboard-footer {
+        margin: 0.4em;
+        font-size: 1em;
+    }
+*/
+    .box-login-footer {
+        font-size: 0.9em;
+    }
+    .box-register-footer {
+        font-size: 0.9em;
+    }
+    .box-register-tos-agree {
+        font-size: 0.9em;
+    }
+    .box-reset-password-footer {
+        font-size: 0.9em;
+    }
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #8eafe5;
+    opacity: 1; /* Firefox */
+  }
+  
+  :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #8eafe5;
+  }
+  
+  ::-ms-input-placeholder { /* Microsoft Edge */
+    color: #8eafe5;
+  }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kong Climb</title>
+    <link rel="icon" type="image/x-icon" href="media/graphics/favicon.ico" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, minimal-ui"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" type="text/css" href="game.css">
+    <script type="text/javascript" src="game.js"></script>
+
+<!-- AnalyticsCode -->
+<script type="text/javascript">
+    // GAME LOADING
+    var _gameLoading = function(percentage){
+        // This method is called during loading
+    }
+    // GAME LOADED
+    var _gameLoaded = function () {
+        // This method is called once, when the game is fully loaded and ready.
+    }
+    // START GAME
+    var _startGame = function () {
+        console.log("Start game!");
+        // This method is called every time users start/replay a game
+    }
+    
+    // END GAME
+    var _endGame = function (currentScore, bestScore) {
+        // This method is called every time a game ends (win/lose)
+        console.log('***** Game Ended *****');
+        console.log('Current score: ' + currentScore);
+        console.log('Best score: ' + bestScore);
+    }
+    
+    // MUTE/UNMUTE AUDIO
+    var _gameAudio = function (isON) {
+        // isON = true --> UNMUTE AUDIO
+        // isON = false --> MUTE AUDIO
+        ig.soundHandler && (isON ? ig.soundHandler.forceUnMuteAll() : ig.soundHandler.forceMuteAll());
+    }
+    
+    // PAUSE GAME
+    var _pauseGame = function () {
+        console.log("PAUSED!");
+        // This method is called when the player pause via game’s UI
+    }
+    
+    // RESUME GAME
+    var _resumeGame = function () {
+        console.log("Resumed!!");
+        // This method is called when the player resume via game’s UI
+    }
+
+    // START GAME (Trigger)
+    var startGame = function (nLevel){
+        if(!ig.game) return;
+        if(!ig.game.director) return;
+        // Any necessary code to make the game start the main game. If the game is level based, start level based on parameter (default is level 1). Otherwise just play the game
+        ig.game.director.jumpTo(LevelGame); 
+    }
+
+    // RESTART FROM END GAME(Trigger). NEW 20210202
+    var restartGame = function (){
+        if(!ig.game) return;
+        if(!ig.game.director) return;
+        // Any necessary code to clear the end game state, and replay the game. If the game is level based, restart the game using current level
+        ig.game.director.jumpTo(LevelGame); 
+    }
+</script>
+<!-- APICode -->
+</head>
+
+<div class="gamecenter-activator"></div>
+
+<body onload="setTimeout(function(){window.scrollTo(0,1)},1);">
+    <!--body-->
+        <div id="ajaxbar">
+            <div id="game"><canvas id="canvas"></canvas></div>
+    
+            <div id="orientate"><img src="media/graphics/orientate/landscape.jpg" /></div>
+            <div id="play" class="play" onclick=""></div>
+            <!--<img id="scrollDown" width="220" height="277"></img>-->
+    
+        </div>
+        <!-- <div id="tempdiv"><br><br><br></div> -->
+    <!-- APICode2 -->
+    
+    
+    <!-- END OF TEST -->
+    
+    </body>
+</html>

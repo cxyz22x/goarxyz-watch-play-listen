@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottery Ball</title>
+    <link rel="Shortcut icon" type="image/x-icon" href="media/graphics/misc/favicon.ico" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, minimal-ui"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" type="text/css" href="game.css?v=1721533404">
+    <script type="text/javascript" src="game.js?v=1721533404"></script>
+    
+    
+    <!-- Leaderboard -->
+    <link rel="stylesheet" type="text/css" href="base-api.css">
+    <link rel="stylesheet" type="text/css" href="api.css">
+    <script type="text/javascript" src="base-api.js"></script>
+    <script type="text/javascript" src="api.js"></script>
+    <script type="text/javascript" src="nobounce.min.js"></script>
+
+    <script type="text/javascript">
+        function sendInfo() {
+            MarketJSPlatformLogoutAPI.initialize();
+            $('#register-form').attr('action', _API_URL + '/api/user/register')
+            var name = document.getElementById("register-name").value;
+            ig.game.playerName = name;
+            var email = document.getElementById("register-non-unique-id").value;
+            ig.game.playerEmail = email;
+            var obj = {
+                "name":name,
+                "email":email,
+                "ball_number":null
+            };
+            var str = JSON.stringify(obj);
+            document.getElementById("register-info").value = str;
+            document.getElementById("register-password").value = name;
+        }
+        function clearFields() {
+            document.getElementById("register-name").value = "";
+            document.getElementById("register-non-unique-id").value = "";
+            document.getElementById("register-tos-agree").checked = false;
+        }
+        function skipForm() {
+            try {
+                MarketJSPlatformLogoutAPI.initialize();
+                $('#register-form').attr('action', '')
+                MarketJSPlatformLoginAPI.hideRegister();
+                setTimeout(function(){
+                    ig.game.isSkip=true;
+                    ig.game.director.jumpTo(LevelGame);
+                    ig.visibilityHandler.resumeHandler();
+                }, 100);
+            } catch (e) {
+
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        function validateTosCheckbox() {
+            var checked = document.getElementById("register-tos-agree").checked;
+            var error = document.getElementById("register-tos-agree-error");
+            if (checked === true)
+                error.style.display = 'none';
+            else
+                error.style.display = 'block';
+        }
+    </script>
+
+    <!-- RECAPTCHA v2 (checkbox) -->
+    <script>
+        $().ready(function(){
+            /* RECAPTCHA v2 */
+            window.recaptcha_v2_site_key = '6Ld7wqwcAAAAAHHOPK0uk43OrHfcHP_i60Lik-pF';
+            $("#recaptcha_token").remove();
+            $(".g-recaptcha").attr('data-sitekey', window.recaptcha_v2_site_key);
+            $("#recaptcha_parent").show();
+        });
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
+<!-- AnalyticsCode -->
+
+<!-- APICode -->
+</head>
+<body onload="setTimeout(function(){window.scrollTo(0,1)},1);">
+    <!--body-->
+        <div id="ajaxbar">
+            <div id="game"><canvas id="canvas"></canvas></div>
+    
+            <div id="orientate"><img src="media/graphics/orientate/landscape.jpg" /></div>
+            <div id="play" class="play" onclick=""></div>
+            <!--<img id="scrollDown" width="220" height="277"></img>-->
+
+            
+            <!-- REGISTER FORM -->
+            <div class='section group'>
+                <div id='register' class='overlay-container-basic'>
+                    <div class='col overlay_span_side'>&nbsp;</div>
+                    <div class='col overlay_span_middle'>
+                        <div id='box-register' class='box-register'>
+                            <form class='box-register-contents' id='register-form' name='register-form' action='' method='post'>
+                                <div id='register-notification' class='notification'></div>
+                                <!-- IMPORTANT: MUST INSERT CORRECT ALL IDS FOR GLOBAL REGISTRATION-->
+                                <div style='display:none'>
+                                    <input type='text' value='' id='register-game-id1' name='register-game-id'>
+                                    <input type='text' value='' id='register-password' name='register-password'>
+                                </div>
+                                <div class='box-register-header'>
+                                REGISTER TO WIN
+                                </div>
+
+                                <!-- NAME AND EMAIL INPUTS -->
+                                <div class='box-register-name'>
+                                    <input type='text' id='register-name' name='register-name' class='box-register-form-input' placeholder='Name'>
+                                </div>
+                                <div class='box-register-email'>
+                                    <input type='text' id='register-non-unique-id' name='register-non-unique-id' class='box-register-form-input' placeholder='Email'>
+                                </div>
+
+                                <!-- CHECK BOX -->
+                                <div class='box-register-tos-agree'>
+                                    <input type='checkbox' id='register-tos-agree' name='register-tos-agree' value='False' onchange="validateTosCheckbox();">
+                                    <label for="register-tos-agree">&nbsp;&nbsp;I agree to the <a href="./terms.html" target="_blank">Terms and Conditions</a>&nbsp;</label>
+                                    <div class="horizontal-seperator"></div>
+                                    <label id="register-tos-agree-error" for="register-tos-agree" class="register-tos-agree-error" style='display:none'>Please check the above box</label>
+                                </div>
+
+                                <!-- RECAPTCHA -->
+                                <div id="recaptcha_parent" style="text-align: center;">
+                                    <input id="recaptcha_token" type='hidden' name='g-recaptcha-response' value=''>
+                                    <!--<div id="recaptcha_error" class="error" style="display:none;">Please check the box, and solve the puzzle.</div>-->
+                                    <div class="horizontal-seperator"></div>
+                                    <div id="recaptcha" class="g-recaptcha" data-sitekey="6LewL4YcAAAAANQWcOdxOc-eUJgO61CVifBGJ62z" style="display: inline-block;"></div>
+                                    <div class="horizontal-seperator"></div>
+                                </div>
+
+                                <input style="display:none" name='register-json-info' id='register-info'>
+                                <div class='register-submit'>
+                                    <label id="register-error" class="register-tos-agree-error" style='display:none'></label>
+                                    <div class='horizontal-seperator'></div>
+                                    <!-- SUBMIT BUTTON -->
+                                    <input type='image' src="./media/graphics/api/submit-button.png" width="30%" value='Submit' onclick='sendInfo();' >
+                                    <div class='horizontal-seperator'></div>
+                                    <!-- SKIP BUTTON -->
+                                    <input type='image' src="./media/graphics/api/skip-button.png" width="30%" value='Skip' onclick='skipForm();' >
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class='col overlay_span_side'>&nbsp;</div>
+                </div>
+            </div>
+
+            <!-- LOADING -->
+            <div id="overlay-loading" class="overlay-container">
+                <img src="media/graphics/api/loader-grey.gif">
+            </div>
+    
+            <!-- SECTION GENERATED BY CODE -->
+            <div id="MobileAdInGamePreroll">
+                <div id="MobileAdInGamePreroll-Box">
+                    <div id="MobileAdInGamePreroll-Box-Header"></div>
+                    <a id="MobileAdInGamePreroll-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+                    <div id="MobileAdInGamePreroll-Box-Body">
+                        <center>
+    <!-- MobileAdInGamePreroll -->
+    <!-- AdTest-MobileAdInGamePreroll -->
+    <!-- <img src="https://cdn-factory.marketjs.com/generic.png"> -->
+    <!-- EndOfAdTest-MobileAdInGamePreroll -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGamePreroll-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <!-- SECOND AD (ROTATION) -->
+            <div id="MobileAdInGamePreroll2">
+                <div id="MobileAdInGamePreroll2-Box">
+                    <div id="MobileAdInGamePreroll2-Box-Header"></div>
+                    <a id="MobileAdInGamePreroll2-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+                    <div id="MobileAdInGamePreroll2-Box-Body">
+                        <center>
+    <!-- MobileAdInGamePreroll2 -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGamePreroll2-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <!-- THIRD AD (ROTATION) -->
+            <div id="MobileAdInGamePreroll3">
+                <div id="MobileAdInGamePreroll3-Box">
+                    <div id="MobileAdInGamePreroll3-Box-Header"></div>
+                    <a id="MobileAdInGamePreroll3-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
+                    <div id="MobileAdInGamePreroll3-Box-Body">
+                        <center>
+    <!-- MobileAdInGamePreroll3 -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGamePreroll3-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <div id="MobileAdInGameHeader">
+    <!-- MobileAdInGameHeader -->
+            </div>
+            <div id="MobileAdInGameHeader2">
+    <!-- MobileAdInGameHeader2 -->
+            </div>
+            <div id="MobileAdInGameHeader3">
+    <!-- MobileAdInGameHeader3 -->
+            </div>
+    
+            <div id="MobileAdInGameFooter">
+    <!-- MobileAdInGameFooter -->
+            </div>
+            <div id="MobileAdInGameFooter2">
+    <!-- MobileAdInGameFooter2 -->
+            </div>
+            <div id="MobileAdInGameFooter3">
+    <!-- MobileAdInGameFooter3 -->
+            </div>
+    
+    
+            <div id="MobileAdInGameEnd">
+                <div id="MobileAdInGameEnd-Box">
+                    <div id="MobileAdInGameEnd-Box-Header"></div>
+                    <a id="MobileAdInGameEnd-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+                    <div id="MobileAdInGameEnd-Box-Body">
+                        <center>
+    <!-- MobileAdInGameEnd -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGameEnd-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <!-- SECOND AD (ROTATION) -->
+            <div id="MobileAdInGameEnd2">
+                <div id="MobileAdInGameEnd2-Box">
+                    <div id="MobileAdInGameEnd2-Box-Header"></div>
+                    <a id="MobileAdInGameEnd2-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+                    <div id="MobileAdInGameEnd2-Box-Body">
+                        <center>
+    <!-- MobileAdInGameEnd2 -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGameEnd2-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <!-- THIRD AD (ROTATION) -->
+            <div id="MobileAdInGameEnd3">
+                <div id="MobileAdInGameEnd3-Box">
+                    <div id="MobileAdInGameEnd3-Box-Header"></div>
+                    <a id="MobileAdInGameEnd3-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
+                    <div id="MobileAdInGameEnd3-Box-Body">
+                        <center>
+    <!-- MobileAdInGameEnd3 -->
+                        </center>
+                    </div>
+                    <div id='MobileAdInGameEnd3-Box-Footer'></div>
+                </div>
+            </div>
+    
+            <!-- END OF SECTION GENERATED BY CODE -->
+    
+        </div>
+        <!-- <div id="tempdiv"><br><br><br></div> -->
+    <!-- APICode2 -->
+    
+    
+    <!-- END OF TEST -->
+    
+    </body>
+</html>

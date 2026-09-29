@@ -1,0 +1,78 @@
+{
+	"frames": {
+		"kitty01.png":
+		{
+		    "frame": {"x":0,"y":0,"w":218,"h":325},
+		    "rotated": false,
+		    "trimmed": true,
+		    "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+		    "sourceSize": {"w":218,"h":325}
+		},
+        "kitty02.png":
+        {
+            "frame": {"x":218,"y":0,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty03.png":
+        {
+            "frame": {"x":436,"y":0,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty04.png":
+        {
+            "frame": {"x":654,"y":0,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty05.png":
+        {
+            "frame": {"x":0,"y":325,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty06.png":
+        {
+            "frame": {"x":218,"y":325,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty07.png":
+        {
+            "frame": {"x":436,"y":325,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":218,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        },
+        "kitty08.png":
+        {
+            "frame": {"x":654,"y":325,"w":218,"h":325},
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": {"x":0,"y":0,"w":256,"h":325},
+            "sourceSize": {"w":218,"h":325}
+        }
+	},
+	"meta": {
+	    "app": "http://www.texturepacker.com",
+	    "version": "1.0",
+	    "image": "kitty.png",
+	    "format": "RGBA8888",
+	    "size": {"w":872,"h":650},
+	    "scale": "1",
+	    "smartupdate": "$TexturePacker:SmartUpdate:2f213a6b451f9f5719773418dfe80ae8$"
+	}
+} 
+

@@ -1,0 +1,40 @@
+{
+"frames": {
+	"cratebox.png": {
+		"frame": {"x":167, "y":115, "w":129, "h":80},
+		"spriteSourceSize": {"x":0,"y":0,"w":129,"h":80},
+		"sourceSize": {"w":129,"h":80}
+	},
+	"cratebox_frame_1.png": {
+		"frame": {"x":0, "y":0, "w":172, "h":114},
+		"spriteSourceSize": {"x":0,"y":1,"w":177,"h":115},
+		"sourceSize": {"w":177,"h":115}
+	},
+	"cratebox_frame_2.png": {
+		"frame": {"x":0, "y":115, "w":166, "h":106},
+		"spriteSourceSize": {"x":8,"y":9,"w":177,"h":115},
+		"sourceSize": {"w":177,"h":115}
+	},
+	"cratebox_frame_3.png": {
+		"frame": {"x":164, "y":222, "w":161, "h":99},
+		"spriteSourceSize": {"x":12,"y":16,"w":177,"h":115},
+		"sourceSize": {"w":177,"h":115}
+	},
+	"cratebox_frame_4.png": {
+		"frame": {"x":0, "y":222, "w":163, "h":103},
+		"spriteSourceSize": {"x":14,"y":12,"w":177,"h":115},
+		"sourceSize": {"w":177,"h":115}
+	},
+	"cratebox_frame_5.png": {
+		"frame": {"x":164, "y":222, "w":161, "h":99},
+		"spriteSourceSize": {"x":16,"y":16,"w":177,"h":115},
+		"sourceSize": {"w":177,"h":115}
+	}
+
+},
+"meta": {
+	"image": "obs_box.png",
+	"size": {"w": 326, "h": 326},
+	"scale": "1"
+}
+}
