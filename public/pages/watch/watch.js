@@ -1738,7 +1738,29 @@ async function buildAnimeTab(){
 }
 
 /* ================= APPS TAB ================= */
-async function buildHubsTab(){
+async 
+function renderGoarProviders(main){
+  const list = window.GOAR_PROVIDERS || [];
+  if (!list.length) return;
+  const sec = document.createElement("div");
+  sec.className = "section";
+  const groups = [];
+  const seen = new Set();
+  list.forEach(p => { if (!seen.has(p.section)) { seen.add(p.section); groups.push(p.section); } });
+  sec.innerHTML = groups.map(section => {
+    const rows = list.filter(p => p.section === section).map(p => {
+      const servers = (p.servers || []).join(", ");
+      return '<a class="card" href="' + p.repo + '" target="_blank" rel="noreferrer" style="display:block;padding:14px 16px;text-decoration:none">' +
+        '<b>' + p.name + '</b>' +
+        (servers ? '<span style="display:block;opacity:.75;margin-top:4px">' + servers + '</span>' : '') +
+        '</a>';
+    }).join("");
+    return '<div class="section-head"><div><h2>' + section + '</h2></div></div><div class="rail">' + rows + '</div>';
+  }).join("");
+  main.appendChild(sec);
+}
+
+function buildHubsTab(){
   const main = document.getElementById("mainContent");
   exitProvMode();
   document.getElementById("hero").innerHTML =
@@ -1755,6 +1777,7 @@ async function buildHubsTab(){
   hubContainer.id = "hubContainer";
   main.appendChild(hubContainer);
   buildProviderLauncher("hubsLauncher", 24);
+  renderGoarProviders(main);
   const providers = (await fetchAllProviders()).slice(0, 12);
   for (const p of providers){
     const design = getProviderDesign(p.name);
