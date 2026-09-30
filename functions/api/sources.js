@@ -19,7 +19,9 @@ function parseNdjson(text) {
   const out = [];
   String(text || "").split(/\n+/).forEach((line) => {
     line = line.trim();
-    if (!line) return;
+    if (!line || line.indexOf("event:") === 0) return;
+    if (line.indexOf("data:") === 0) line = line.slice(5).trim();
+    if (!line || (line[0] !== "{" && line[0] !== "[")) return;
     try { out.push(JSON.parse(line)); } catch (e) {}
   });
   return out;
@@ -29,7 +31,7 @@ function norm(row, family, referer) {
   if (!row) return null;
   const url = row.url || row.streamUrl || row.play || "";
   if (!url || String(url).indexOf("http") !== 0) return null;
-  const name = String(row.name || row.server || family);
+  const name = String(row.name || row.server || row.provider || family);
   return {
     name,
     family,
@@ -37,7 +39,7 @@ function norm(row, family, referer) {
     referer: row.referer || row.refererUrl || referer || "",
     origin: row.origin || referer || "",
     pngWrap: row.pngWrap === true || /ngflix/i.test(name),
-    kind: row.kind || (/\.mpd(\?|$)/i.test(url) ? "dash" : /\.mp4(\?|$)/i.test(url) ? "mp4" : "hls")
+    kind: row.kind || row.source || (/\.mpd(\?|$)/i.test(url) ? "dash" : /\.mp4(\?|$)/i.test(url) ? "mp4" : "hls")
   };
 }
 
@@ -47,10 +49,21 @@ function fromEvents(events, family, referer) {
     const server = ev.server || ev;
     if (ev.event === "server" && server && (server.ok || server.url || server.streamUrl)) {
       rows.push(norm(server, family, referer));
+    } else if (ev.event === "found" && (ev.streamUrl || ev.url)) {
+      rows.push(norm({ name: ev.name, url: ev.streamUrl || ev.url, referer: ev.referer }, family, referer));
+    } else if (ev.event === "ready" && (ev.url || ev.streamUrl)) {
+      rows.push(norm({
+        name: ev.name || ev.provider || ev.source || family,
+        url: ev.url || ev.streamUrl,
+        referer: ev.referer,
+        kind: ev.source === "MP4" ? "mp4" : ev.source === "DASH" ? "dash" : "hls"
+      }, family, referer));
     } else if (ev.event === "done" && ev.streams) {
       for (const name of Object.keys(ev.streams)) {
         rows.push(norm(Object.assign({ name }, ev.streams[name]), family, referer));
       }
+    } else if (ev.event === "done" && Array.isArray(ev.servers)) {
+      for (const s of ev.servers) rows.push(norm(s, family, referer));
     } else if (server && (server.url || server.streamUrl)) {
       rows.push(norm(server, family, referer));
     }
@@ -122,7 +135,7 @@ export async function onRequestGet(context) {
     addPlay("RESOLVER_111MOVIES", "movies111", "https://111movies.net/"),
     addGet("RESOLVER_VIDFAST", "vidfast", "/api/resolve?", "https://vidfast.pro/"),
     addGet("RESOLVER_VIDUP", "vidup", "/api/resolve?", "https://vidup.to/"),
-    addGet("RESOLVER_CINESRC", "cinesrc", "/api/catalog?", "https://cinesrc.st/")
+    addGet("RESOLVER_CINESRC", "cinesrc", "/api/stream/live?", "https://cinesrc.st/")
   ]);
 
   const seen = new Set();

@@ -9,7 +9,11 @@ Contact: admin@goarxyz.com
 | Path | What it is |
 | --- | --- |
 | `public/` | Site root for Cloudflare Pages |
-| `public/pages/watch` | Movies and TV |
+| `public/pages/watch` | Movies and TV player (`#playerVideo` + hls.js) |
+| `public/pages/watch/watch.js` | Vidrock catalog decrypt, picker, failover |
+| `public/pages/watch/extra-sources.js` | Extra families collected into the same player |
+| `public/pages/watch/source-hook.js` | Merges extras into resolve/play |
+| `public/pages/watch/SOURCES.md` | Family map |
 | `public/pages/music` | Music |
 | `public/pages/games` | Games |
 | `public/games/pack` | Local copies of all 690 games |
@@ -17,6 +21,27 @@ Contact: admin@goarxyz.com
 | `public/pages/anime` | Anime |
 | `public/legal` | Privacy, terms, copyright, contact |
 | `public/vendor` | Local player libraries |
+| `functions/api/sources.js` | Same-origin extra source worker |
+
+## Movies / TV player
+
+One player. Load order in `public/pages/watch/index.html`:
+
+1. `extra-sources.js`
+2. `watch.js`
+3. `source-hook.js`
+
+Vidrock first (Nova, Atlas, Luna, Orion, Astra). Extra families append into the same `#selServer` list and the same failover loop. No iframes.
+
+| Family | Pages env | Unlock route |
+| --- | --- | --- |
+| Vidcore | `RESOLVER_VIDCORE` | `GET /api/resolve?type&id&server=` |
+| 111movies | `RESOLVER_111MOVIES` | `POST /api/play` |
+| Vidfast | `RESOLVER_VIDFAST` | `GET /api/resolve?` |
+| Vidup | `RESOLVER_VIDUP` | `GET /api/resolve?` |
+| CineSrc | `RESOLVER_CINESRC` | `GET /api/stream/live` |
+
+Empty env leaves extras empty. Vidrock still plays.
 
 ## Deploy on Cloudflare Pages
 

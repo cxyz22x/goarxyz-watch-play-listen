@@ -1,10 +1,12 @@
 # Watch player sources
 
+One player: `#playerVideo` + hls.js.
+
 Load order in `index.html`:
 
-1. `extra-sources.js` — collectors
-2. `watch.js` — Vidrock decrypt + `#playerVideo` + hls.js + failover
-3. `source-hook.js` — no-op if `watch.js` already merged extras
+1. `extra-sources.js` — collect extra family rows
+2. `watch.js` — Vidrock decrypt + play + failover
+3. `source-hook.js` — merge extras into that same list
 
 Contract for every source row:
 
@@ -14,12 +16,12 @@ Contract for every source row:
 
 | Family | Names | Where it unlocks |
 | --- | --- | --- |
-| Vidrock | Nova, Atlas, Luna, Orion, Astra | `watch.js` catalog decrypt |
-| Vidcore | Orbit, Supreme, Prime, Premiere 4K, Horizon | resolver `/api/resolve` |
-| 111movies | Alpha, NgFlix, … | resolver `POST /api/play` |
-| Vidfast | vEdge, … | resolver `/api/resolve` |
-| Vidup | Premier, Zenith, CineX, … | resolver `/api/resolve` |
-| CineSrc | ranked provider names | resolver `/api/stream/live` |
+| Vidrock | Nova, Atlas, Luna, Orion, Astra | catalog decrypt in watch.js |
+| Vidcore | Orbit, Supreme, Prime, Premiere 4K, Horizon | `/api/sources` or `RESOLVER_VIDCORE` |
+| 111movies | Alpha, NgFlix, … | `/api/sources` or `RESOLVER_111MOVIES` |
+| Vidfast | vEdge, … | `/api/sources` or `RESOLVER_VIDFAST` |
+| Vidup | Premier, Zenith, CineX, … | `/api/sources` or `RESOLVER_VIDUP` |
+| CineSrc | ranked provider names | `/api/sources` or `RESOLVER_CINESRC` `/api/stream/live` |
 
 Not in this picker: live sports, file hosts, anime watch URLs, Ployan page URLs.
 
