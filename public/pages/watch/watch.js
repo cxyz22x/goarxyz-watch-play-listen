@@ -632,6 +632,28 @@ let VR_ORIGIN = VR_ORIGINS[0];
 const VR_AES_KEY_HEX = "7f3e9c2a8b5d1f4e6a9c3b7d2e5f8a1c4b6d9e2f5a8c1b4d7e9f2a5c8b1d4e7f";
 const PLAY_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const SOURCES_CACHE_TTL = 60000;
+
+const EMBED_PROVIDERS = [
+  { name: "Vidcore", origin: "https://vidcore.io", movie: (id) => "/movie/" + id, tv: (id, s, e) => "/tv/" + id + "/" + s + "/" + e },
+  { name: "111movies", origin: "https://111movies.net", movie: (id) => "/movie/" + id, tv: (id, s, e) => "/tv/" + id + "/" + s + "/" + e },
+  { name: "Vidfast", origin: "https://vidfast.pro", movie: (id) => "/movie/" + id, tv: (id, s, e) => "/tv/" + id + "/" + s + "/" + e },
+  { name: "Vidup", origin: "https://vidup.to", movie: (id) => "/movie/" + id, tv: (id, s, e) => "/tv/" + id + "/" + s + "/" + e },
+  { name: "CineSrc", origin: "https://cinesrc.st", movie: (id) => "/embed/movie/" + id, tv: (id, s, e) => "/embed/tv/" + id + "/" + s + "/" + e }
+];
+function embedSources(type, id, season, episode){
+  return EMBED_PROVIDERS.map((p) => ({
+    name: p.name,
+    format: "embed",
+    url: p.origin + (type === "tv" ? p.tv(id, season, episode) : p.movie(id))
+  }));
+}
+function clearEmbed(){
+  const frame = document.getElementById("playerEmbed");
+  if (frame){ frame.src = "about:blank"; frame.remove(); }
+  const video = document.getElementById("playerVideo");
+  if (video) video.style.display = "";
+}
+
 const SERVER_ORDER = ["Nova","Atlas","Luna","Orion","Astra"];
 const SERVER_PROFILES = {
   Nova:  { hosts:["cdn.ngcorp.dad"], needsProxy:true,  directPlayable:false },
@@ -832,8 +854,26 @@ class WispHlsLoader {
 async function playSource(source){
   const video = document.getElementById("playerVideo");
   destroyHls();
+  clearEmbed();
   playerState.sourceName = source.name;
   setPlayerStatus("Starting " + source.name + "…");
+  if (source.format === "embed"){
+    video.pause();
+    video.removeAttribute("src");
+    video.style.display = "none";
+    const frame = document.createElement("iframe");
+    frame.id = "playerEmbed";
+    frame.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture";
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = "origin";
+    frame.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:0;background:#000";
+    const stage = video.parentElement;
+    if (stage) stage.style.position = "relative";
+    stage.appendChild(frame);
+    frame.src = source.url;
+    setPlayerStatus("");
+    return;
+  }
   if (source.format === "mp4"){
     video.src = source.url;
     setPlayerStatus("");
@@ -907,7 +947,11 @@ async function openPlayer(id, type, title, itemData){
     destroyHls();
     try {
       try { await ensureLibcurl(); } catch(e){}
-      const sources = await resolveSources(id, type, playerState.season, playerState.episode);
+      let sources = [];
+      try { sources = await resolveSources(id, type, playerState.season, playerState.episode); }
+      catch (err) { console.warn("[goarxyz] vidrock", err); }
+      sources = sources.concat(embedSources(type, id, playerState.season, playerState.episode));
+      if (!sources.length) throw new Error("no playable sources");
       if (myToken !== playerToken) return;
       playerState.sources = sources;
       const prefer = sources.find(s => s.name === playerState.sourceName) || sources[0];
@@ -984,6 +1028,7 @@ async function openPlayer(id, type, title, itemData){
 function closePlayer(){
   playerToken++;
   destroyHls();
+  clearEmbed();
   setPlayerStatus("");
   document.getElementById("playerOverlay").classList.remove("open");
   document.getElementById("playerPicker").innerHTML = "";
@@ -1739,27 +1784,6 @@ async function buildAnimeTab(){
 
 /* ================= APPS TAB ================= */
 async 
-function renderGoarProviders(main){
-  const list = window.GOAR_PROVIDERS || [];
-  if (!list.length) return;
-  const sec = document.createElement("div");
-  sec.className = "section";
-  const groups = [];
-  const seen = new Set();
-  list.forEach(p => { if (!seen.has(p.section)) { seen.add(p.section); groups.push(p.section); } });
-  sec.innerHTML = groups.map(section => {
-    const rows = list.filter(p => p.section === section).map(p => {
-      const servers = (p.servers || []).join(", ");
-      return '<a class="card" href="' + p.repo + '" target="_blank" rel="noreferrer" style="display:block;padding:14px 16px;text-decoration:none">' +
-        '<b>' + p.name + '</b>' +
-        (servers ? '<span style="display:block;opacity:.75;margin-top:4px">' + servers + '</span>' : '') +
-        '</a>';
-    }).join("");
-    return '<div class="section-head"><div><h2>' + section + '</h2></div></div><div class="rail">' + rows + '</div>';
-  }).join("");
-  main.appendChild(sec);
-}
-
 function buildHubsTab(){
   const main = document.getElementById("mainContent");
   exitProvMode();
@@ -1777,7 +1801,6 @@ function buildHubsTab(){
   hubContainer.id = "hubContainer";
   main.appendChild(hubContainer);
   buildProviderLauncher("hubsLauncher", 24);
-  renderGoarProviders(main);
   const providers = (await fetchAllProviders()).slice(0, 12);
   for (const p of providers){
     const design = getProviderDesign(p.name);
