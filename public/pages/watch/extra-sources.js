@@ -21,7 +21,7 @@
     const url = row.url || row.streamUrl || row.browserUrl || "";
     if (!url || url.indexOf("http") !== 0) return null;
     const meta = FAMILY[family] || {};
-    const name = String(row.name || row.server || family);
+    const name = String(row.name || row.server || row.provider || family);
     return {
       name: name,
       family: family,
@@ -29,7 +29,7 @@
       referer: row.referer || row.refererUrl || meta.origin || "",
       origin: row.origin || meta.origin || "",
       pngWrap: row.pngWrap === true || meta.pngWrap === true || /ngflix|nova/i.test(name),
-      kind: row.kind || (/\.mpd(\?|$)/i.test(url) ? "dash" : /\.mp4(\?|$)/i.test(url) ? "mp4" : "hls")
+      kind: row.kind || row.source || (/\.mpd(\?|$)/i.test(url) ? "dash" : /\.mp4(\?|$)/i.test(url) ? "mp4" : "hls")
     };
   }
 
@@ -37,20 +37,29 @@
     const out = [];
     String(text || "").split(/\n+/).forEach(function (line) {
       line = line.trim();
-      if (!line) return;
+      if (!line || line.indexOf("event:") === 0) return;
+      if (line.indexOf("data:") === 0) line = line.slice(5).trim();
+      if (!line || line[0] !== "{" && line[0] !== "[") return;
       try { out.push(JSON.parse(line)); } catch (e) {}
     });
     return out;
   }
 
-  async function pullJson(url) {
-    const fetchFn = typeof w.goarTunnelFetch === "function" ? w.goarTunnelFetch : fetch;
-    const r = await fetchFn(url, { headers: { Accept: "application/json, application/x-ndjson, text/plain" } });
+  function fetchFn() {
+    return typeof w.goarTunnelFetch === "function" ? w.goarTunnelFetch : fetch;
+  }
+
+  async function pullText(url, init) {
+    const r = await fetchFn()(url, init || { headers: { Accept: "application/json, application/x-ndjson, text/event-stream, text/plain" } });
     if (!r.ok) throw new Error("HTTP " + r.status);
-    const text = await r.text();
+    return r.text();
+  }
+
+  async function pullJson(url, init) {
+    const text = await pullText(url, init);
     try {
       const j = JSON.parse(text);
-      return Array.isArray(j) ? j : (j.sources || j.streams || j.servers || [j]);
+      return Array.isArray(j) ? j : (j.sources || j.streams || j.servers || j.providers || [j]);
     } catch (e) {
       return parseNdjson(text);
     }
@@ -58,7 +67,8 @@
 
   function rowsFromEvents(events, family) {
     const rows = [];
-    events.forEach(function (ev) {
+    (events || []).forEach(function (ev) {
+      if (!ev) return;
       const server = ev.server || ev;
       if (ev.event === "server" && server && (server.ok || server.url || server.streamUrl)) {
         rows.push(norm({
@@ -68,10 +78,21 @@
           pngWrap: server.pngWrap,
           kind: server.kind
         }, family));
+      } else if (ev.event === "found" && (ev.streamUrl || ev.url)) {
+        rows.push(norm({ name: ev.name, url: ev.streamUrl || ev.url, referer: ev.referer }, family));
+      } else if (ev.event === "ready" && (ev.url || ev.streamUrl)) {
+        rows.push(norm({
+          name: ev.name || ev.provider || ev.source || family,
+          url: ev.url || ev.streamUrl,
+          referer: ev.referer,
+          kind: ev.source === "MP4" ? "mp4" : ev.source === "DASH" ? "dash" : "hls"
+        }, family));
       } else if (ev.event === "done" && ev.streams && typeof ev.streams === "object") {
         Object.keys(ev.streams).forEach(function (name) {
           rows.push(norm(Object.assign({ name: name }, ev.streams[name]), family));
         });
+      } else if (ev.event === "done" && Array.isArray(ev.servers)) {
+        ev.servers.forEach(function (s) { rows.push(norm(s, family)); });
       } else if (server && (server.url || server.streamUrl)) {
         rows.push(norm(server, family));
       }
@@ -117,14 +138,12 @@
       ? "/tv/" + id + "/" + (season || 1) + "/" + (episode || 1)
       : "/movie/" + id;
     try {
-      const fetchFn = typeof w.goarTunnelFetch === "function" ? w.goarTunnelFetch : fetch;
-      const r = await fetchFn(base + "/api/play", {
+      const text = await pullText(base + "/api/play", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/x-ndjson" },
         body: JSON.stringify({ contentPath: contentPath, type: type, id: String(id) })
       });
-      if (!r.ok) return [];
-      return rowsFromEvents(parseNdjson(await r.text()), family);
+      return rowsFromEvents(parseNdjson(text), family);
     } catch (e) {
       return [];
     }
@@ -144,6 +163,24 @@
     }
   }
 
+  async function fromCineSrc(type, id, season, episode) {
+    const base = storedBase("goar_resolver_cinesrc");
+    if (!base) return [];
+    const q = new URLSearchParams({ type: type, id: String(id) });
+    if (season) q.set("season", String(season));
+    if (episode) q.set("episode", String(episode));
+    try {
+      const text = await pullText(base + "/api/stream/live?" + q.toString(), {
+        headers: { Accept: "text/event-stream, application/x-ndjson, application/json" }
+      });
+      const rows = rowsFromEvents(parseNdjson(text), "cinesrc");
+      if (rows.length) return rows;
+      return rowsFromEvents(parseNdjson(text.replace(/\r/g, "")), "cinesrc");
+    } catch (e) {
+      return fromGetResolver("goar_resolver_cinesrc", "cinesrc", "/api/stream/provider?", type, id, season, episode);
+    }
+  }
+
   async function collect(type, id, season, episode) {
     const packs = await Promise.allSettled([
       fromSameOrigin(type, id, season, episode),
@@ -151,7 +188,7 @@
       fromPlayResolver("goar_resolver_111movies", "movies111", type, id, season, episode),
       fromGetResolver("goar_resolver_vidfast", "vidfast", "/api/resolve?", type, id, season, episode),
       fromGetResolver("goar_resolver_vidup", "vidup", "/api/resolve?", type, id, season, episode),
-      fromGetResolver("goar_resolver_cinesrc", "cinesrc", "/api/catalog?", type, id, season, episode)
+      fromCineSrc(type, id, season, episode)
     ]);
     const seen = new Set();
     const out = [];
@@ -168,4 +205,7 @@
 
   w.goarCollectExtraSources = collect;
   w.GOAR_VIDCORE_SERVERS = VIDCORE_SERVERS;
+  w.GOAR_EXTRA_RESOLVE = function (id, type, season, episode) {
+    return collect(type, id, season, episode);
+  };
 })(window);
