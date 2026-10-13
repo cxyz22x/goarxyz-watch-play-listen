@@ -45,13 +45,15 @@ function paintGames(){
   });
   const box = $("#ggrid");
   if (!rows.length){ box.innerHTML = '<div class="empty">No games in this filter.</div>'; return; }
-  box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy" referrerpolicy="no-referrer"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
+  box.innerHTML = rows.map((g) => `<button type="button" class="gcard" data-id="${esc(g.id)}"><img src="${esc(g.cover || "")}" alt="" loading="lazy" referrerpolicy="no-referrer" data-slug="${esc(String(g.file || "").split("/").filter(Boolean).slice(-2, -1)[0] || g.id || "")}" onerror="var f=this; if(!f.dataset.fb && f.dataset.slug){ f.dataset.fb=1; f.src='/gcdn/en/'+f.dataset.slug+'/media/graphics/splash/mobile/cover-start.jpg'; } else if(!f.dataset.fb2 && f.dataset.slug){ f.dataset.fb2=1; f.src='/gcdn/en/'+f.dataset.slug+'/media/graphics/splash/cover-start.jpg'; } else if(!f.dataset.fb3 && f.dataset.slug){ f.dataset.fb3=1; f.src='/gcdn/en/'+f.dataset.slug+'/media/graphics/orientate/landscape.png'; } else { f.style.display='none'; }"><div class="m"><b>${esc(g.title)}</b><span>${esc(g.category || "arcade")}</span></div></button>`).join("");
   box.querySelectorAll(".gcard").forEach((el) => el.onclick = () => openGame(el.dataset.id));
 }
 function playSrc(g){
-  if (g && g.local) return g.local;
-  if (g && String(g.file || "").startsWith("/")) return g.file;
-  return proxyFile(g && g.file);
+  if (!g) return "";
+  if (g.remote) return proxyFile(g.remote) || proxyFile(g.file) || g.local || "";
+  if (g.local && g.local.startsWith("/gcdn/")) return g.local;
+  if (g.file && g.file.startsWith("/gcdn/")) return g.file;
+  return proxyFile(g.file) || g.local || "";
 }
 function proxyFile(file){
   try {
