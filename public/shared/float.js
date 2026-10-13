@@ -7,6 +7,8 @@
     ["Games", "/pages/games/index.html"],
     ["Live", "/pages/live/index.html"],
     ["Anime", "/pages/anime/index.html"],
+    ["Proxy Scraper", "/pages/proxy-scraper/index.html"],
+    ["Agents", "/pages/agents/index.html"],
     ["Privacy", "/legal/privacy.html"],
     ["Contact", "/legal/contact.html"]
   ];
