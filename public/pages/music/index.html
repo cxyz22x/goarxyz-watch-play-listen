@@ -1,0 +1,3996 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>goarxyz — Music</title>
+  <meta name="theme-color" content="#0a0a0d" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0d;
+      --bg-elev: #111116;
+      --card: #17171e;
+      --card-hover: #1e1e27;
+      --line: #232330;
+      --text: #eceef1;
+      --muted: #8b8c98;
+      --accent: #e8b64c;
+      --accent2: #5b8def;
+      --accent3: #e05d5d;
+      --accent4: #5fd6a4;
+      --music: #a855f7;
+      --music-2: #c084fc;
+      --music-dim: rgba(168, 85, 247, .18);
+      --cta: #fff;
+      --cta-text: #0a0a0d;
+      --ease: cubic-bezier(.22, 1, .36, 1);
+      --bar: 92px;
+      --side: 244px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    button,
+    input {
+      font-family: inherit;
+      color: inherit
+    }
+
+    img {
+      display: block;
+      max-width: 100%
+    }
+
+    body.app {
+      display: grid;
+      grid-template-rows: 1fr var(--bar);
+      grid-template-columns: var(--side) 1fr;
+      height: 100vh;
+      overflow: hidden
+    }
+
+    .sidebar {
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0
+    }
+
+    .side-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px
+    }
+
+    .logo {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px 12px
+    }
+
+    .logo .marks {
+      display: flex;
+      gap: 6px;
+      font-size: 13px;
+      letter-spacing: 2px
+    }
+
+    .logo .marks span:nth-child(1) {
+      color: var(--accent)
+    }
+
+    .logo .marks span:nth-child(2) {
+      color: var(--accent2)
+    }
+
+    .logo .marks span:nth-child(3) {
+      color: var(--accent3)
+    }
+
+    .logo .marks span:nth-child(4) {
+      color: var(--accent4)
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: 0;
+      border: 0;
+      color: var(--muted);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left
+    }
+
+    .nav-btn:hover,
+    .nav-btn.on {
+      color: #fff;
+      background: var(--card)
+    }
+
+    .lib-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 6px 10px
+    }
+
+    .lib-head button {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer
+    }
+
+    .lib-list {
+      overflow: auto;
+      max-height: calc(100vh - 380px)
+    }
+
+    .lib-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    .lib-item:hover,
+    .lib-item.on {
+      background: var(--card)
+    }
+
+    .lib-item img {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #222
+    }
+
+    .lib-item b,
+    .lib-item span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .lib-item b {
+      font-size: 13px
+    }
+
+    .lib-item span {
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .stage {
+      min-width: 0;
+      overflow: auto;
+      background: linear-gradient(180deg, #2a1644 0%, var(--bg) 320px);
+      border-radius: 12px 0 0 0;
+      margin: 8px 8px 0 0
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 14px 22px;
+      background: linear-gradient(#0a0a0db8, transparent)
+    }
+
+    .circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: #0a0a0db8;
+      cursor: pointer
+    }
+
+    .search {
+      flex: 1;
+      max-width: 440px;
+      position: relative
+    }
+
+    .search input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px 10px 38px;
+      outline: 0
+    }
+
+    .search input:focus {
+      border-color: var(--music)
+    }
+
+    .search svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: .5
+    }
+
+    .page {
+      padding: 6px 28px 36px
+    }
+
+    .hero {
+      display: flex;
+      gap: 24px;
+      align-items: flex-end;
+      padding: 8px 0 26px;
+      position: relative
+    }
+
+    .hero-art {
+      width: 220px;
+      height: 220px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 18px 50px #0008;
+      background: var(--card);
+      flex-shrink: 0;
+      transition: opacity .6s ease
+    }
+
+    .hero-art.fade {
+      opacity: 0
+    }
+
+    .kicker {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--music-2);
+      margin-bottom: 8px
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(36px, 5vw, 68px);
+      line-height: .95;
+      margin-bottom: 10px
+    }
+
+    .hero p {
+      color: #c7c8d0;
+      max-width: 560px;
+      margin-bottom: 16px
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    .btn-play {
+      background: var(--cta);
+      color: var(--cta-text)
+    }
+
+    .btn-ghost {
+      background: #ffffff14;
+      border: 1px solid var(--line);
+      color: var(--text)
+    }
+
+    .section {
+      margin: 26px 0
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px
+    }
+
+    .section-head h2 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 22px
+    }
+
+    .see {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer
+    }
+
+    .tracks {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .tracks th,
+    .tracks td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #23233099
+    }
+
+    .tracks th {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em
+    }
+
+    .tracks tr {
+      cursor: pointer
+    }
+
+    .tracks tr:hover td {
+      background: #ffffff08
+    }
+
+    .tracks tr.on td {
+      background: var(--music-dim)
+    }
+
+    .num {
+      width: 36px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums
+    }
+
+    .t-art {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #222
+    }
+
+    .t-title {
+      font-weight: 600
+    }
+
+    .t-sub {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .add, .dl {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: #fff;
+      cursor: pointer
+    }
+    .dl { color: var(--accent4) }
+    .dl:hover { background: var(--card-hover) }
+
+    /* ── Dock — Spotify-authentic player bar ── */
+    .dock {
+      grid-column: 1/-1;
+      background: #121212;
+      border-top: 1px solid #282828;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      align-items: center;
+      padding: 0 16px;
+      height: var(--bar);
+      z-index: 20;
+      position: relative;
+      /* Prevent implicit rows from any stray child affecting dock height */
+      overflow: hidden
+    }
+    /* Ensure left and right dock columns are vertically centred within the bar,
+       not stretched by the taller centre controls column */
+    .dock > div:first-of-type,
+    .dock > .extra {
+      align-self: center
+    }
+
+    /* thin progress line along the very top of the dock */
+    .dock-prog {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: #282828;
+      pointer-events: none
+    }
+    .dock-prog-fill {
+      height: 100%;
+      width: 0%;
+      background: #1db954;
+      transition: width .25s linear
+    }
+
+    .now {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      cursor: pointer
+    }
+
+    .now img {
+      width: 56px;
+      height: 56px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #282828;
+      box-shadow: 0 4px 12px #0006
+    }
+
+    .now-text {
+      min-width: 0
+    }
+
+    .now b,
+    .now-text b {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fff
+    }
+
+    .now span,
+    .now-text span {
+      display: block;
+      font-size: 11px;
+      color: #b3b3b3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .now-heart {
+      background: 0;
+      border: 0;
+      color: #b3b3b3;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0
+    }
+
+    .now-heart:hover {
+      color: #fff
+    }
+
+    /* centre controls */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0 8px
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .ctrl {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      background: 0;
+      color: #b3b3b3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: color .1s
+    }
+
+    .ctrl:hover {
+      color: #fff
+    }
+
+    .ctrl.on {
+      color: #1db954
+    }
+
+    .play {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 0;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform .1s
+    }
+
+    .play:hover {
+      transform: scale(1.06);
+      background: #fff
+    }
+
+    /* Spotify-style progress bar */
+    .seek-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: min(560px, 100%);
+      font-size: 11px;
+      color: #b3b3b3
+    }
+
+    .sp-prog-wrap {
+      flex: 1;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative
+    }
+
+    .sp-prog-track {
+      width: 100%;
+      height: 4px;
+      background: #535353;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .sp-prog-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: #b3b3b3;
+      border-radius: 2px;
+      width: var(--progress-bar-transform, 0%);
+      transition: width .25s linear
+    }
+
+    .sp-prog-wrap:hover .sp-prog-fill {
+      background: #1db954
+    }
+
+    .sp-prog-wrap:hover .sp-prog-thumb {
+      opacity: 1
+    }
+
+    .sp-prog-thumb {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: var(--progress-bar-transform, 0%);
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      margin-left: -6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .1s
+    }
+
+    /* right extras */
+    .extra {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px
+    }
+
+    .status {
+      font-size: 10px;
+      color: #6a6a6a;
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .expand {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 0;
+      background: 0;
+      cursor: pointer;
+      color: #b3b3b3;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .expand:hover {
+      color: #fff
+    }
+
+    .vol-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #b3b3b3
+    }
+
+    .sp-vol-track {
+      width: 80px;
+      height: 4px;
+      background: #535353;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative
+    }
+
+    .sp-vol-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: #b3b3b3;
+      border-radius: 2px;
+      width: 80%
+    }
+
+    .vol-wrap:hover .sp-vol-fill {
+      background: #1db954
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: #535353;
+      border-radius: 4px;
+      width: 100%;
+      outline: 0;
+      cursor: pointer
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0
+    }
+
+    input[type=range]:hover::-webkit-slider-thumb {
+      opacity: 1
+    }
+
+    .np {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      background: #121212;
+      color: #fff
+    }
+
+    .np.open {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      animation: rise .42s var(--ease)
+    }
+
+    @keyframes rise {
+      from {
+        transform: translateY(24px);
+        opacity: .4
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
+
+    .np-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(40px) saturate(1.2);
+      transform: scale(1.12);
+      opacity: .35
+    }
+
+    .np-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #0a0a0de6 0%, #0a0a0dcc 40%, #0a0a0d 100%)
+    }
+
+    .np-top {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(14px + env(safe-area-inset-top)) 22px 8px
+    }
+
+    .np-top button {
+      background: #ffffff12;
+      border: 1px solid var(--line);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    .np-body {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 36px;
+      padding: 12px 6vw 20px;
+      min-height: 0
+    }
+
+    .np-artwrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative
+    }
+
+    .np-art {
+      width: min(420px, 70vw);
+      aspect-ratio: 1;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 30px 80px #000a;
+      background: #111
+    }
+
+    .np-meta {
+      text-align: center;
+      margin-top: 22px;
+      max-width: 520px
+    }
+
+    .np-meta h2 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(26px, 3vw, 40px);
+      line-height: 1.1
+    }
+
+    .np-meta p {
+      color: #c7c8d0;
+      margin-top: 6px
+    }
+
+    .np-queue {
+      background: #111116cc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: auto;
+      min-height: 0;
+      padding: 8px
+    }
+
+    .np-queue h3 {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 12px 14px 6px;
+      text-transform: uppercase;
+      letter-spacing: .06em
+    }
+
+    .np-qrow {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer
+    }
+
+    .np-qrow.on {
+      background: var(--music-dim)
+    }
+
+    .np-qrow img {
+      width: 40px;
+      height: 40px;
+      border-radius: 5px;
+      object-fit: cover
+    }
+
+    .np-foot {
+      position: relative;
+      padding: 8px 6vw calc(18px + env(safe-area-inset-bottom))
+    }
+
+    .np-seek {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px
+    }
+
+    .np-ctrls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px
+    }
+
+    .np-ctrls .play {
+      width: 64px;
+      height: 64px;
+      font-size: 22px
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #282828;
+      border: 1px solid #404040;
+      padding: 10px 16px;
+      border-radius: 12px;
+      z-index: 90;
+      font-weight: 600;
+      font-size: 13px;
+      pointer-events: none;
+      color: #fff
+    }
+
+
+    .mnav {
+      display: none
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 36px 0;
+      text-align: center
+    }
+
+    body.np-open .sidebar,
+    body.np-open .stage,
+    body.np-open .dock,
+    body.np-open .mnav {
+      visibility: hidden
+    }
+
+    @media(max-width:980px) {
+      body.app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr var(--bar) 56px
+      }
+
+      .sidebar {
+        display: none
+      }
+
+      .stage {
+        margin: 0;
+        border-radius: 0
+      }
+
+      .hero {
+        flex-direction: column;
+        align-items: flex-start
+      }
+
+      .hero-art {
+        width: 150px;
+        height: 150px
+      }
+
+      .dock {
+        grid-template-columns: 1fr auto
+      }
+
+      .extra,
+      .seek-row {
+        display: none
+      }
+
+      .np-body {
+        grid-template-columns: 1fr
+      }
+
+      .np-queue {
+        max-height: 28vh
+      }
+
+      .mnav {
+        display: flex;
+        grid-column: 1/-1;
+        background: #111116;
+        border-top: 1px solid var(--line);
+        align-items: center;
+        justify-content: space-around;
+        z-index: 21
+      }
+
+      .mnav button {
+        background: 0;
+        border: 0;
+        color: var(--muted);
+        padding: 10px;
+        font-weight: 700;
+        font-size: 12px
+      }
+
+      .mnav button.on {
+        color: #fff
+      }
+    }
+
+    /* ── Wave visualizer canvas (now-playing panel) ── */
+    .wave-canvas {
+      display: block;
+      width: min(420px, 70vw);
+      height: 64px;
+      border-radius: 0 0 16px 16px;
+      margin-top: -16px;
+      /* tuck under the artwork */
+      background: transparent;
+      pointer-events: none;
+    }
+
+    /* ── Dock mini-wave canvas ── */
+    .dock-wave {
+      display: block;
+      width: 48px;
+      height: 28px;
+      background: transparent;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    /* ── Next-track preview strip — sits above the dock, anchored to the right ── */
+    .dock-next {
+      position: fixed;
+      bottom: calc(var(--bar) + 8px);
+      right: 20px;
+      background: #1e1e27;
+      border: 1px solid #282828;
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 260px;
+      z-index: 19;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none
+    }
+    .dock-next.visible {
+      opacity: 1;
+      transform: translateY(0)
+    }
+    .dock-next img {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #282828;
+      flex-shrink: 0
+    }
+    .dock-next-label {
+      font-size: 10px;
+      color: #6a6a6a;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 2px
+    }
+    .dock-next-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px
+    }
+    .dock-next-artist {
+      font-size: 11px;
+      color: #b3b3b3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px
+    }
+  </style>
+</head>
+
+<body class="app">
+  <aside class="sidebar">
+    <div class="side-card">
+      <div class="logo">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span>
+      </div>
+      <button class="nav-btn on" data-view="home">Home</button>
+      <button class="nav-btn" data-view="search">Search</button>
+      <button class="nav-btn" data-view="library">Your Library</button>
+      <a class="nav-btn" href="index.html">Hub</a>
+    </div>
+    <div class="side-card" style="flex:1;min-height:0;overflow:auto">
+      <div class="lib-head">Queue <button type="button" id="addFiles">+ files</button></div>
+      <div class="lib-list" id="sideLib"></div>
+    </div>
+  </aside>
+  <main class="stage" id="stage"></main>
+  <footer class="dock" id="dock">
+    <!-- top-of-dock thin progress bar -->
+    <div class="dock-prog" aria-hidden="true"><div class="dock-prog-fill" id="dockProgFill"></div></div>
+    <!-- left: now playing info -->
+    <div style="display:flex;align-items:center;gap:12px;min-width:0">
+      <div class="now" id="openNow" title="Open player" style="gap:12px">
+        <img id="nowArt" alt="" style="width:56px;height:56px;border-radius:4px;object-fit:cover;background:#282828">
+        <div class="now-text">
+          <b id="nowTitle">—</b>
+          <span id="nowArtist">—</span>
+        </div>
+      </div>
+      <button class="now-heart" id="dockSave" title="Save to library">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- centre: transport + seek -->
+    <div class="controls">
+      <div class="ctrl-row">
+        <!-- shuffle -->
+        <button class="ctrl" id="btnShuffle" title="Shuffle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M18 4l3 3-3 3V8h-1.3c-.9 0-1.7.4-2.2 1.1L9.2 15c-.8 1-2 1.6-3.2 1.6H3v-2h3c.8 0 1.6-.4 2.1-1L13.4 8c.9-1.1 2.2-1.7 3.3-1.7H18V4zm0 10h-1.3c-.8 0-1.6-.4-2.1-1l-.8-1-1.4 1.8.5.6c.9 1.1 2.1 1.7 3.3 1.7H18v2l3-3-3-3v2zm-12.8-.6c.5-.6 1-.9 1.8-.9H10v-2H7c-1.2 0-2.4.6-3.2 1.6L3 13.5l1.4 1.4 1.8-1.5z" />
+          </svg>
+        </button>
+        <!-- prev -->
+        <button class="ctrl" id="btnPrev" title="Previous">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+          </svg>
+        </button>
+        <!-- play/pause -->
+        <button class="play" id="btnPlay" title="Play">
+          <svg id="btnPlayIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <!-- next -->
+        <button class="ctrl" id="btnNext" title="Next">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z" />
+          </svg>
+        </button>
+        <!-- repeat -->
+        <button class="ctrl" id="btnRepeat" title="Repeat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+          </svg>
+        </button>
+      </div>
+      <!-- Spotify-style progress bar -->
+      <div class="seek-row">
+        <span id="curT" style="width:36px;text-align:right">0:00</span>
+        <div class="sp-prog-wrap" id="progWrap">
+          <div class="sp-prog-track">
+            <div class="sp-prog-fill" id="progFill"></div>
+          </div>
+          <div class="sp-prog-thumb" id="progThumb"></div>
+        </div>
+        <span id="durT" style="width:36px">0:00</span>
+      </div>
+    </div>
+
+    <!-- right: volume + extras -->
+    <div class="extra">
+      <!-- dock mini-wave -->
+      <canvas id="dockWave" class="dock-wave" aria-hidden="true"></canvas>
+      <span class="status" id="playStatus"></span>
+      <!-- volume -->
+      <div class="vol-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+        </svg>
+        <div class="sp-vol-track" id="volTrack" title="Volume">
+          <div class="sp-vol-fill" id="volFill"></div>
+        </div>
+      </div>
+      <!-- expand to full player -->
+      <button class="expand" id="expandBtn" title="Full player">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 3 21 3 21 9" />
+          <polyline points="9 21 3 21 3 15" />
+          <line x1="21" y1="3" x2="14" y2="10" />
+          <line x1="3" y1="21" x2="10" y2="14" />
+        </svg>
+      </button>
+    </div>
+  </footer>
+  <nav class="mnav">
+    <button type="button" data-view="home" class="on">Home</button>
+    <button type="button" data-view="search">Search</button>
+    <button type="button" data-view="library">Library</button>
+    <button type="button" id="mAdd">+ files</button>
+  </nav>
+
+  <section class="np" id="nowPlaying" aria-label="Now playing">
+    <div class="np-bg" id="npBg"></div>
+    <div class="np-top">
+      <button type="button" id="npClose">↓ Home</button>
+      <span id="npLabel">Now playing</span>
+      <button type="button" id="npSave">Save</button>
+    </div>
+    <div class="np-body">
+      <div class="np-artwrap">
+        <img class="np-art" id="npArt" alt="">
+        <canvas id="waveCanvas" class="wave-canvas"></canvas>
+        <div class="np-meta">
+          <h2 id="npTitle">—</h2>
+          <p id="npArtist">—</p>
+        </div>
+      </div>
+      <aside class="np-queue" id="npQueue"></aside>
+    </div>
+    <div class="np-foot">
+      <div class="np-seek"><span id="npCur">0:00</span><input id="npSeek" type="range" min="0" max="1000"
+          value="0"><span id="npDur">0:00</span></div>
+      <div class="np-ctrls">
+        <button class="ctrl" id="npShuffle">↝</button>
+        <button class="ctrl" id="npPrev">⏮</button>
+        <button class="play" id="npPlay">▶</button>
+        <button class="ctrl" id="npNext">⏭</button>
+        <button class="ctrl" id="npRepeat">🔁</button>
+      </div>
+    </div>
+  </section>
+
+  <input id="filePick" type="file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac,.aac,.opus" multiple hidden>
+  <!-- Hidden streaming audio element — position:fixed keeps it out of the grid flow -->
+  <video id="streamEl" playsinline preload="auto" style="position:fixed;width:0;height:0;opacity:0;pointer-events:none;z-index:-1"></video>
+
+  <!-- Next-track preview strip — shown when playing, displays the upcoming track -->
+  <div class="dock-next" id="dockNext" aria-label="Up next">
+    <img id="dockNextArt" alt="" src="">
+    <div>
+      <div class="dock-next-label">Up next</div>
+      <div class="dock-next-title" id="dockNextTitle">—</div>
+      <div class="dock-next-artist" id="dockNextArtist"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       CONSTANTS & CONFIG
+       ============================================================ */
+    const LIBCURL_SOURCES = [
+      "https://cdn.jsdelivr.net/npm/libcurl.js@0.7.4/libcurl_full.js",
+      "https://unpkg.com/libcurl.js@0.7.4/libcurl_full.js",
+      "https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.js"
+    ];
+    const DEFAULT_WISP_URLS = [
+      "wss://wisp.mercurywork.shop/",
+      "wss://wisp.mercurywork.shop/wisp/",
+      "wss://wisp.crazymid.dev/",
+      "wss://wisp.terbium.app/"
+    ];
+
+    /* ── CORS proxies — tried in order, rotated on failure ──────────────────
+       Each entry wraps a target URL: proxy(url) → proxied URL.
+       Used for open.spotify.com/* when WISP is not yet ready or fails.      */
+    const CORS_PROXIES = [
+      u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+      u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      u => `https://cors-anywhere.herokuapp.com/${u}`,
+      u => `https://thingproxy.freeboard.io/fetch/${u}`,
+    ];
+    let _proxyIdx = 0; // round-robins on error
+
+    /* fetchWithProxy — tries WISP first, then each CORS proxy in sequence */
+    async function fetchWithProxy(url, opts = {}, timeout = 18000) {
+      /* 1. WISP (already tunnels CORS) */
+      const lc = getLibcurl();
+      if (lc && typeof lc.fetch === "function") {
+        try {
+          return await Promise.race([
+            wispFetch(url, opts),
+            new Promise((_, r) => setTimeout(() => r(new Error("wisp-timeout")), timeout))
+          ]);
+        } catch { }
+      }
+      /* 2. Rotate through CORS proxies */
+      let last;
+      for (let i = 0; i < CORS_PROXIES.length; i++) {
+        const proxyUrl = CORS_PROXIES[(_proxyIdx + i) % CORS_PROXIES.length](url);
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), timeout);
+          const r = await fetch(proxyUrl, Object.assign({}, opts, { signal: ctrl.signal }));
+          clearTimeout(t);
+          if (r.ok || r.status < 500) { _proxyIdx = (_proxyIdx + i) % CORS_PROXIES.length; return r; }
+        } catch (e) { last = e; }
+      }
+      /* 3. Direct (last resort — will CORS-fail for cross-origin but worth trying) */
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeout);
+      try { return await fetch(url, Object.assign({}, opts, { signal: ctrl.signal })); }
+      finally { clearTimeout(t); }
+    }
+
+    /* ============================================================
+       SPOTIFY ENDPOINT MANAGER
+       Stores both cluster configurations and provides round-robin
+       selection with per-cluster failure tracking.
+       ============================================================ */
+    const SPCLIENT_HOSTS = [
+      "gae2-spclient.spotify.com:443",
+      "guc3-spclient.spotify.com:443",
+      "gew1-spclient.spotify.com:443",
+      "gew4-spclient.spotify.com:443"
+    ];
+    const DEALER_HOSTS = [
+      "gae2-dealer.g2.spotify.com:443",
+      "guc3-dealer.g2.spotify.com:443",
+      "gew1-dealer.g2.spotify.com:443",
+      "gew4-dealer.g2.spotify.com:443"
+    ];
+
+    const SpotifyEndpoints = (() => {
+      /* Per-cluster round-robin indices — advance on each failure */
+      let _spIdx = 0, _dlIdx = 0;
+
+      function _hostToHttps(hostPort) {
+        return "https://" + hostPort.replace(/:443$/, "");
+      }
+      function _hostToWss(hostPort) {
+        return "wss://" + hostPort.replace(/:443$/, "");
+      }
+
+      return {
+        /* ── spclient ── */
+        spClientUrl() {
+          return _hostToHttps(SPCLIENT_HOSTS[_spIdx % SPCLIENT_HOSTS.length]);
+        },
+        nextSpClient() {
+          _spIdx = (_spIdx + 1) % SPCLIENT_HOSTS.length;
+          return this.spClientUrl();
+        },
+        /* Called by apresolve when a resolved host is available */
+        setResolvedSpClient(hostPort) {
+          const idx = SPCLIENT_HOSTS.findIndex(h => h === hostPort || h.split(":")[0] === hostPort);
+          if (idx >= 0) _spIdx = idx;
+        },
+
+        /* ── dealer ── */
+        dealerWssUrl() {
+          return _hostToWss(DEALER_HOSTS[_dlIdx % DEALER_HOSTS.length]);
+        },
+        nextDealer() {
+          _dlIdx = (_dlIdx + 1) % DEALER_HOSTS.length;
+          return this.dealerWssUrl();
+        },
+
+        /* Full list accessors for consumers that iterate all nodes */
+        allSpClientUrls() { return SPCLIENT_HOSTS.map(_hostToHttps); },
+        allDealerWssUrls() { return DEALER_HOSTS.map(_hostToWss); },
+      };
+    })();
+    const SPOTIFY_CDN_HOSTS = [
+      "cdn-spotify-247.zm.io.vn",
+      "cdn-spotify.zm.io.vn",
+      "cdn-spotify-inter.zm.io.vn"
+    ];
+
+    /* ============================================================
+       STOKEN — external pre-minted high-permission Spotify token
+       Served by stoken.gifted.co.ke/token.json
+       This token has Mercury metadata + storage-resolve scope,
+       enabling native Spotify CDN audio without gamepvz.
+       The server auto-refreshes it; we re-fetch when within
+       5 minutes of expiry based on expires_in + last_updated.
+       ============================================================ */
+    let _stokenCache = null; // { token, exp }
+
+    async function getStokenToken() {
+      if (_stokenCache && _stokenCache.exp > Date.now() + 5 * 60 * 1000) return _stokenCache.token;
+      try {
+        const r = await fetchAny("https://stoken.gifted.co.ke/token.json", {
+          headers: { "accept": "application/json", "user-agent": "Mozilla/5.0" }
+        }, 8000);
+        if (!r || !r.ok) throw new Error("stoken HTTP " + (r && r.status));
+        const j = await r.json();
+        if (!j || !j.token) throw new Error("no token field");
+        /* Compute absolute expiry from last_updated + expires_in */
+        const lastUpdated = j.last_updated ? new Date(j.last_updated).getTime() : Date.now();
+        const expiresIn = (j.expires_in || 3600) * 1000;
+        _stokenCache = { token: j.token, exp: lastUpdated + expiresIn };
+        console.log("[stoken] fetched, expires in", Math.round((_stokenCache.exp - Date.now()) / 60000), "min");
+        return _stokenCache.token;
+      } catch (e) {
+        console.warn("[stoken] fetch failed:", e.message);
+        return null;
+      }
+    }
+
+    /* Pathfinder persisted query hashes — extracted from live bundle web-player.06a1e8e8.js
+       (build 2026-10-03, clientVersion 1.3.5.74.g847c8fd3f005) */
+    const SEARCH_HASH  = "eef7cc54888d91bdd6802623477873caa3948ae173a0c34fd86827b267e94c03";  // searchDesktop (xpui-routes-search.0197b7d2.js)
+    const TRACK_HASH   = "a8ef9e9f02b836feb0da3003c31dbb30decc6f4b473ef89ca88c882386d668de";  // getTrack
+    const PLAYLIST_HASH= "8964e8eafb21aa992a7d951d256d83285c04be2105d209262901de70cb97584a";  // fetchPlaylist / fetchPlaylistContents / fetchPlaylistMetadata
+    const ALBUM_HASH   = "6a74b456cd1735c9193d9e8ec8cc5184cad7ce13572210315229db3975964361";  // getAlbum
+    const ARTIST_HASH  = "9f8134ef565e78621f1e1793555bd6633c5ac144ae0f89604ed3ae3f80b3c8e6";  // queryArtistOverview
+    const COLORS_HASH  = "36e90fcaea00d47c695fce31874efeb2519b97d4cd0ee1abfb4f8dc9348596ea";  // fetchExtractedColors (unchanged)
+
+    /* Web player client version — from appServerConfig in live open.spotify.com response */
+    const CLIENT_VERSION = "1.3.5.74.g847c8fd3f005";
+    /* Web player clientId returned by /api/token (stable unless Spotify rotates) */
+    const WEB_PLAYER_CLIENT_ID = "d8a5ed958d274c2e8ee717e6a4b0971d";
+
+    /* TOTP secrets — extracted from bundle build 2026-10-02.
+       The array is sorted newest-first; [0] is always the active version.
+       XOR derivation: charCode ^ (index % 33 + 9), same as the bundle's T6 construction.
+       Update this array when Spotify rotates (watch for totpVerExpired in /api/token response). */
+    const TOTP_SECRETS = [
+      { version: 61, secret: ',7/*F("rLJ2oxaKL^f+E1xvP@N' },
+      { version: 60, secret: 'OmE{ZA.J^":0FG\\Uz?[@WW' },
+      { version: 59, secret: "{iOFn;4}<1PFYKPV?5{%u14]M>/V0hDH" }
+    ];
+    /* Active version is always index 0 */
+    const TOTP_VER = TOTP_SECRETS[0].version;
+    const TOTP_SECRET = TOTP_SECRETS[0].secret; // string form; derivation below handles strings
+
+    /* Chart playlist IDs — used by loadCharts for anonymous home content */
+    const CHARTS = [
+      { id: "37i9dQZEVXbMDoHDwVN2tF", name: "Top 50 Global" },
+      { id: "37i9dQZF1DXcBWIGoYBM5M", name: "Today's Top Hits" }
+    ];
+
+    /* Seed track id for embed-scrape fallback token acquisition */
+    const TOKEN_SEED_ID = "4uLU6hMCjMI75M1A2tKUQC";
+
+    /* No hardcoded tracks — home is populated entirely from live chart fetches */
+    const SEED_TRACKS = [];
+
+    /* ============================================================
+       HOME DATA CACHE  (24-hour localStorage persistence)
+       ─────────────────────────────────────────────────────────────
+       Charts are fetched via the anon TOTP token (no user login
+       required). Results are persisted under "gxm5_charts_<date>"
+       and served from cache for 24 hours before re-fetching.
+       ============================================================ */
+    const CHART_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+    function _chartCacheGet() {
+      try {
+        const key = "gxm5_charts_" + dayKey();
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        /* Validate age: reject if older than TTL */
+        if (!obj || !obj._ts || Date.now() - obj._ts > CHART_CACHE_TTL) return null;
+        return obj;
+      } catch { return null; }
+    }
+
+    function _chartCacheSet(tops, news) {
+      try {
+        const key = "gxm5_charts_" + dayKey();
+        localStorage.setItem(key, JSON.stringify({ _ts: Date.now(), tops, news }));
+      } catch { }
+    }
+
+    /* ============================================================
+       STORAGE
+       ============================================================ */
+    const STORE = "gxm5_";
+    const S = {
+      get(k, f) { try { const v = JSON.parse(localStorage.getItem(STORE + k)); return v == null ? f : v; } catch { return f; } },
+      set(k, v) { try { localStorage.setItem(STORE + k, JSON.stringify(v)); } catch { } },
+      list() { return this.get("pl", []); },
+      save(l) { this.set("pl", l); },
+      prefs() { return Object.assign({ repeat: "off", shuffle: false, vol: 80, wisp: DEFAULT_WISP_URLS[0] }, this.get("prefs", {})); },
+      setPrefs(p) { this.set("prefs", Object.assign(this.prefs(), p)); }
+    };
+
+    /* ============================================================
+       DOM HELPERS
+       ============================================================ */
+    const $ = (s, c = document) => c.querySelector(s);
+    const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+    const esc = s => String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+    const phArt = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="8" fill="#17171e"/><text x="40" y="46" text-anchor="middle" fill="#c084fc" font-size="18" font-family="sans-serif">♪</text></svg>');
+    const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+
+    function toast(msg) {
+      $$(".toast").forEach(t => t.remove());
+      const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 2400);
+    }
+
+    /* ============================================================
+       IN-MEMORY CACHES
+       ============================================================ */
+    const chartCache = new Map(); // dayKey -> track[]
+    let anonSession = null;  // { token, clientToken, clientId, exp }
+    let spClientHost = null;  // resolved via apresolve
+    let _liveClientVersion = null;  // auto-updated from appServerConfig on each TOTP mint
+    let _liveClientId = null;  // extracted live from /api/token response or bundle
+    let _liveTotpSecrets = null; // auto-extracted from live bundle; overrides TOTP_SECRETS when set
+    const liveVer = () => _liveClientVersion || CLIENT_VERSION;
+
+    function dayKey() { return new Date().toISOString().slice(0, 10); }
+
+    /* ============================================================
+       WISP / LIBCURL BOOTSTRAP
+       ============================================================ */
+    let WISP_URL = (() => {
+      try { const u = localStorage.getItem("goar_wisp_url"); if (u) return u; } catch { }
+      return DEFAULT_WISP_URLS[0];
+    })();
+    let _libcurlReady = null, _httpSession = null;
+
+    function normalizeWispUrl(url) {
+      if (!url) return "";
+      let u = String(url).trim();
+      if (u.startsWith("https://")) u = "wss://" + u.slice(8);
+      if (u.startsWith("http://")) u = "ws://" + u.slice(7);
+      try {
+        const d = new URL(u.replace(/^wss:/i, "https:").replace(/^ws:/i, "http:"));
+        d.port = ""; u = (d.protocol === "https:" ? "wss://" : "ws://") + d.hostname + (d.pathname || "/") + d.search;
+      } catch { u = u.replace(/^(wss?:\/\/[^/]+):\d+/i, "$1"); }
+      if (u && !u.endsWith("/")) u += "/";
+      return u;
+    }
+
+    function getLibcurl() {
+      if (typeof window.libcurl !== "undefined" && window.libcurl) return window.libcurl;
+      try { const lc = (0, eval)("typeof libcurl!=='undefined'?libcurl:null"); if (lc) { window.libcurl = lc; return lc; } } catch { }
+      return null;
+    }
+
+    function waitLibcurlObject(ms) {
+      return new Promise((resolve, reject) => {
+        const hit = getLibcurl(); if (hit) return resolve(hit);
+        const t0 = Date.now();
+        const iv = setInterval(() => {
+          const lc = getLibcurl();
+          if (lc) { clearInterval(iv); resolve(lc); }
+          else if (Date.now() - t0 > ms) { clearInterval(iv); reject(new Error("libcurl missing")); }
+        }, 50);
+      });
+    }
+
+    async function waitLibcurlWasm(lc) {
+      if (lc.ready === true) return lc;
+      if (typeof lc.load_wasm === "function") { try { await lc.load_wasm(); return lc; } catch { } }
+      await new Promise((resolve, reject) => {
+        let done = false;
+        const ok = () => { if (!done) { done = true; resolve(); } };
+        const fail = e => { if (!done) { done = true; reject(e || new Error("abort")); } };
+        if (typeof lc.onload === "undefined" || lc.onload === null) lc.onload = ok;
+        document.addEventListener("libcurl_load", ok, { once: true });
+        document.addEventListener("libcurl_abort", (ev) => fail(ev && ev.error), { once: true });
+        if (lc.events && typeof lc.events.addEventListener === "function") lc.events.addEventListener("load", ok, { once: true });
+        setTimeout(() => { if (lc.ready === true || (lc.version && lc.fetch)) ok(); }, 200);
+        setTimeout(() => fail(new Error("wasm timeout")), 20000);
+      });
+      return lc;
+    }
+
+    function applyWispUrl(lc, url) {
+      const u = normalizeWispUrl(url); if (!u) throw new Error("WISP URL required");
+      try { lc.transport = "wisp"; } catch { }
+      lc.set_websocket(u); WISP_URL = u;
+      try { localStorage.setItem("goar_wisp_url", u); } catch { }
+    }
+
+    async function probeTunnel(lc) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      try {
+        const r = await lc.fetch("https://open.spotify.com/", { signal: ctrl.signal });
+        const body = await r.text();
+        if (!body) throw new Error("empty probe");
+        return true;
+      } finally { clearTimeout(timer); }
+    }
+
+    function getHttpSession() {
+      if (_httpSession) return _httpSession;
+      const lc = window.libcurl;
+      if (lc && lc.HTTPSession) {
+        try {
+          _httpSession = new lc.HTTPSession({ enable_cookies: true });
+          if (_httpSession.set_connections) _httpSession.set_connections(30, 20, 6);
+        } catch { _httpSession = null; }
+      }
+      return _httpSession;
+    }
+    function resetHttpSession() { if (_httpSession && _httpSession.close) { try { _httpSession.close(); } catch { } } _httpSession = null; }
+
+    async function ensureLibcurl(force) {
+      if (_libcurlReady && !force) return _libcurlReady;
+      _libcurlReady = (async () => {
+        setStatus("Tunnel…");
+        let lc = null;
+        try { lc = await waitLibcurlObject(1500); }
+        catch (e) {
+          let last = e;
+          for (const src of LIBCURL_SOURCES) {
+            try {
+              if (!getLibcurl()) {
+                await new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+              }
+              lc = await waitLibcurlObject(8000); break;
+            } catch (err) { last = err; }
+          }
+          if (!lc) throw last;
+        }
+        await waitLibcurlWasm(lc);
+        if (typeof lc.fetch !== "function" || typeof lc.set_websocket !== "function") throw new Error("libcurl incomplete");
+        const urls = [normalizeWispUrl(S.prefs().wisp), ...DEFAULT_WISP_URLS.map(normalizeWispUrl)].filter((u, i, a) => u && a.indexOf(u) === i);
+        let lastErr = null;
+        for (const url of urls) {
+          try {
+            applyWispUrl(lc, url); resetHttpSession();
+            await probeTunnel(lc);
+            window.libcurl = lc; setStatus("Tunnel live"); return lc;
+          } catch (e) { lastErr = e; }
+        }
+        applyWispUrl(lc, urls[0]); window.libcurl = lc; setStatus("Direct mode"); return lc;
+      })();
+      try { return await _libcurlReady; } catch (e) { _libcurlReady = null; throw e; }
+    }
+
+    async function wispFetch(url, init) {
+      const lc = await ensureLibcurl();
+      const sess = getHttpSession();
+      const fn = (sess && sess.fetch) ? sess.fetch.bind(sess) : lc.fetch.bind(lc);
+      return fn(url, init || {});
+    }
+
+    /* Primary fetch: try WISP first, fall back to direct */
+    async function fetchAny(url, opts = {}, timeout = 18000) {
+      const tryWisp = async () => {
+        const lc = getLibcurl();
+        if (!lc || typeof lc.fetch !== "function") return null;
+        return Promise.race([
+          wispFetch(url, opts),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("wisp timeout")), timeout))
+        ]);
+      };
+      try { const r = await tryWisp(); if (r) return r; } catch { }
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeout);
+      try { return await fetch(url, Object.assign({}, opts, { signal: ctrl.signal })); }
+      finally { clearTimeout(t); }
+    }
+
+    /* ============================================================
+       TOTP  (client-side HMAC-SHA1 code for /api/token auth)
+       ============================================================ */
+    /* Minimal HMAC-SHA1 in pure JS — no external dep needed */
+    function _xor(a, b) { return a.map((v, i) => v ^ b[i]); }
+    function _sha1(msg) {
+      /* msg: Uint8Array → Uint8Array(20) */
+      const H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+      const padLen = ((msg.length + 9 + 63) >> 6) << 6;
+      const buf = new Uint8Array(padLen);
+      buf.set(msg); buf[msg.length] = 0x80;
+      const bits = BigInt(msg.length * 8);
+      const dv = new DataView(buf.buffer);
+      dv.setUint32(padLen - 4, Number(bits & 0xffffffffn), false);
+      dv.setUint32(padLen - 8, Number((bits >> 32n) & 0xffffffffn), false);
+      for (let i = 0; i < padLen; i += 64) {
+        const W = new Uint32Array(80);
+        for (let j = 0; j < 16; j++) W[j] = dv.getUint32(i + j * 4, false);
+        for (let j = 16; j < 80; j++) { const v = W[j - 3] ^ W[j - 8] ^ W[j - 14] ^ W[j - 16]; W[j] = (v << 1) | (v >>> 31); }
+        let [a, b, c, d, e] = [...H];
+        for (let j = 0; j < 80; j++) {
+          let f, k;
+          if (j < 20) { f = (b & c) | (~b & d); k = 0x5a827999; }
+          else if (j < 40) { f = b ^ c ^ d; k = 0x6ed9eba1; }
+          else if (j < 60) { f = (b & c) | (b & d) | (c & d); k = 0x8f1bbcdc; }
+          else { f = b ^ c ^ d; k = 0xca62c1d6; }
+          const tmp = (((a << 5) | (a >>> 27)) + f + e + k + W[j]) >>> 0;
+          e = d; d = c; c = (b << 30) | (b >>> 2); b = a; a = tmp;
+        }
+        H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0; H[4] = (H[4] + e) >>> 0;
+      }
+      const out = new Uint8Array(20);
+      const odv = new DataView(out.buffer);
+      H.forEach((v, i) => odv.setUint32(i * 4, v, false));
+      return out;
+    }
+    function _hmacSha1(key, msg) {
+      const blockSize = 64;
+      let k = key.length > blockSize ? _sha1(key) : key;
+      if (k.length < blockSize) { const pad = new Uint8Array(blockSize); pad.set(k); k = pad; }
+      const ipad = new Uint8Array(blockSize).map((_, i) => k[i] ^ 0x36);
+      const opad = new Uint8Array(blockSize).map((_, i) => k[i] ^ 0x5c);
+      const inner = new Uint8Array(blockSize + msg.length); inner.set(ipad); inner.set(msg, blockSize);
+      const outer = new Uint8Array(blockSize + 20); outer.set(opad); outer.set(_sha1(inner), blockSize);
+      return _sha1(outer);
+    }
+    function _base32(buf) {
+      const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+      let bits = 0, val = 0, out = "";
+      for (const b of buf) { val = (val << 8) | b; bits += 8; while (bits >= 5) { out += alpha[(val >>> (bits - 5)) & 31]; bits -= 5; } }
+      if (bits > 0) out += alpha[(val << (5 - bits)) & 31];
+      return out;
+    }
+
+    function deriveTotpSecret(secretStrOrArr) {
+      /* Bundle derivation (T6 construction):
+           i = "string"==typeof t
+               ? t.split("").map((e,t)=>e.charCodeAt(0)^t%33+9)   // string path
+               : t.map((e,t)=>e^t%33+9)                            // int-array path
+           r = Buffer.from(i.join(""), "utf8").toString("hex")
+           secret = TOTP_lib.fromHex(r)
+         We replicate that exactly, accepting both string and int-array inputs. */
+      const chars = typeof secretStrOrArr === "string"
+        ? secretStrOrArr.split("").map((c, i) => c.charCodeAt(0) ^ (i % 33 + 9))
+        : secretStrOrArr.map((b, i) => b ^ (i % 33 + 9));
+      const joined = chars.join("");
+      /* UTF-8 encode joined string → hex → raw bytes */
+      const enc = new TextEncoder();
+      const utf8 = enc.encode(joined);
+      let hex = "";
+      for (const b of utf8) hex += b.toString(16).padStart(2, "0");
+      const bytes = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+      return bytes;
+    }
+
+    function mintTotp(secretBytes, timeSec) {
+      /* HOTP-SHA1, 6 digits, period=30s — mirrors T4.generate({timestamp:ms}) */
+      const counter = Math.floor(timeSec / 30);
+      const counterBuf = new Uint8Array(8);
+      let c = counter;
+      for (let i = 7; i >= 0; i--) { counterBuf[i] = c & 0xff; c = Math.floor(c / 256); }
+      const mac = _hmacSha1(secretBytes, counterBuf);
+      const offset = mac[19] & 0xf;
+      const code = ((mac[offset] & 0x7f) << 24 | (mac[offset + 1] & 0xff) << 16 | (mac[offset + 2] & 0xff) << 8 | (mac[offset + 3] & 0xff)) % 1000000;
+      return String(code).padStart(6, "0");
+    }
+
+    /* ============================================================
+       LIVE TOTP SECRET EXTRACTOR
+       Fetches the live web-player bundle and scans for
+         { secret: "...", version: N }
+       patterns — the same approach as CycloneAddons/spotify-token-generator
+       getSecret.js.  Runs fire-and-forget after the first page fetch so it
+       never blocks token minting.  On success, _liveTotpSecrets overrides
+       the hardcoded TOTP_SECRETS array for all subsequent mints.
+       ============================================================ */
+    async function _fetchLiveTotpSecrets(bundleUrl) {
+      try {
+        const r = await fetchAny(bundleUrl, {
+          headers: { "user-agent": "Mozilla/5.0", "accept": "application/javascript, */*" }
+        }, 20000);
+        if (!r || !r.ok) return;
+        const js = await r.text();
+        /* Pattern: { secret: "...", version: N }  (single or double quotes) */
+        const re = /\{\s*secret\s*:\s*(["'])([\s\S]*?)\1\s*,\s*version\s*:\s*(\d+)\s*\}/g;
+        const found = [];
+        let m;
+        while ((m = re.exec(js)) !== null) {
+          found.push({ version: parseInt(m[3], 10), secret: m[2] });
+        }
+        if (!found.length) return;
+        /* Sort newest version first — mirrors TOTP_SECRETS layout */
+        found.sort((a, b) => b.version - a.version);
+        _liveTotpSecrets = found;
+        console.log("[TOTP] live secrets extracted from bundle:", found.map(s => "v" + s.version).join(", "));
+      } catch { /* non-fatal — hardcoded secrets remain active */ }
+    }
+
+    /* ============================================================
+       SPOTIFY TOKEN  (TOTP → /api/token; fallback: embed scrape)
+       ============================================================ */
+    let _tokenInflight = null;
+
+    async function spotifyAnonToken() {
+      if (anonSession && anonSession.exp > Date.now() + 60000) return anonSession.token;
+      if (_tokenInflight) return _tokenInflight;
+      _tokenInflight = (async () => {
+        try { return await _mintTokenTotp(); }
+        catch (e) { return await _mintTokenEmbed(); }
+        finally { _tokenInflight = null; }
+      })();
+      return _tokenInflight;
+    }
+
+    /* Primary: TOTP-based /api/token */
+    async function _mintTokenTotp() {
+      setStatus("Auth…");
+
+      /* Step 1: server time
+         Bundle calls GET /api/server-time first (T2()), then falls back to null.
+         We try that endpoint, then appServerConfig from the full page, then Date.now(). */
+      let serverTimeSec = null;
+
+      /* 1a. /api/server-time — the bundle's preferred source (T2) */
+      try {
+        const sr = await fetchAny("https://open.spotify.com/api/server-time", {
+          headers: { "accept": "application/json", "user-agent": "Mozilla/5.0" }
+        }, 5000);
+        if (sr && sr.ok) {
+          const sj = await sr.json();
+          const t = Number(sj.serverTime);
+          if (t && !isNaN(t)) serverTimeSec = t; // already Unix seconds
+        }
+      } catch { }
+
+      /* 1b. Full page fetch via proxy — extracts serverTime, clientVersion, AND live clientId */
+      if (serverTimeSec === null) {
+        try {
+          const hr = await fetchWithProxy("https://open.spotify.com/", {
+            headers: {
+              "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+              "accept": "text/html", "accept-language": "en"
+            }
+          }, 12000);
+          const html = hr && hr.ok ? await hr.text() : "";
+
+          /* ── appServerConfig block: serverTime + clientVersion + clientId ──
+             The block content is base64-encoded JSON (type="text/plain").
+             atob() it first, then JSON.parse. */
+          const asc = html.match(/<script[^>]*id="appServerConfig"[^>]*>([\s\S]*?)<\/script>/);
+          if (asc) {
+            try {
+              const raw = asc[1].trim();
+              /* Try base64 first (current format), fall back to plain JSON */
+              let cfg;
+              try { cfg = JSON.parse(atob(raw)); } catch { cfg = JSON.parse(raw); }
+              if (cfg) {
+                if (cfg.serverTime && Number.isFinite(cfg.serverTime)) serverTimeSec = cfg.serverTime;
+                if (cfg.clientVersion && /^\d+\.\d+\.\d+\.\d+\.g[0-9a-f]+$/.test(cfg.clientVersion))
+                  _liveClientVersion = cfg.clientVersion;
+                /* clientId lives directly in appServerConfig in newer builds */
+                if (cfg.clientId && /^[0-9a-f]{32}$/.test(cfg.clientId))
+                  _liveClientId = cfg.clientId;
+              }
+            } catch { }
+          }
+
+          /* ── remoteConfig block: TOTP version validation flag ──
+             Decode the same way — base64 JSON.  We read enableTOTPVersionValidation
+             so we know whether Spotify is actively enforcing version checks. */
+          const rmc = html.match(/<script[^>]*id="remoteConfig"[^>]*>([\s\S]*?)<\/script>/);
+          if (rmc) {
+            try {
+              const raw = rmc[1].trim();
+              let rc;
+              try { rc = JSON.parse(atob(raw)); } catch { rc = JSON.parse(raw); }
+              if (rc) {
+                /* If TOTP version validation is disabled server-side we can skip
+                   the version check entirely — log it for debugging. */
+                if (rc.enableTOTPVersionValidation === false)
+                  console.log("[remoteConfig] TOTP version validation disabled by server");
+              }
+            } catch { }
+          }
+
+          /* ── Live web-player bundle URL → self-extract TOTP secrets ──
+             The page embeds the exact bundle URL:
+               <script src="https://open.spotifycdn.com/cdn/build/web-player/web-player.XXXXXXXX.js">
+             Fetch that JS, scan for { secret: "...", version: N } patterns,
+             and update TOTP_SECRETS in-memory so we never have stale hardcoded secrets. */
+          if (!_liveTotpSecrets) {
+            const bm = html.match(/<script[^>]+src="(https:\/\/[^"]+\/web-player\.[0-9a-f]+\.js)"/);
+            if (bm && bm[1]) {
+              /* Fire-and-forget — don't block token mint on bundle fetch */
+              _fetchLiveTotpSecrets(bm[1]).catch(() => {});
+            }
+          }
+
+          /* ── Fallback: scan raw HTML for clientId patterns ── */
+          if (!_liveClientId) {
+            const cidPatterns = [
+              /"clientId"\s*:\s*"([0-9a-f]{32})"/,
+              /client_id["\s:,]+([0-9a-f]{32})/,
+              /"client_id","([0-9a-f]{32})"/,
+              /clientId["\s:=,]+["']([0-9a-f]{32})["']/,
+            ];
+            for (const pat of cidPatterns) {
+              const m = html.match(pat);
+              if (m && m[1]) { _liveClientId = m[1]; console.log("[clientId] extracted live:", _liveClientId); break; }
+            }
+          }
+
+          /* 1c. Date header last resort */
+          if (serverTimeSec === null && hr) {
+            const dh = hr.headers && hr.headers.get("date");
+            if (dh) { const t = new Date(dh).getTime(); if (!isNaN(t)) serverTimeSec = Math.floor(t / 1000); }
+          }
+        } catch { }
+      }
+
+      if (serverTimeSec === null) serverTimeSec = Math.floor(Date.now() / 1000);
+
+      /* Step 2: derive TOTP secret.
+         Prefer _liveTotpSecrets (self-extracted from bundle) over hardcoded TOTP_SECRETS. */
+      const _activeSecrets = _liveTotpSecrets || TOTP_SECRETS;
+      const _activeVer = _activeSecrets[0].version;
+      const _activeSecret = _activeSecrets[0].secret;
+      const secretBytes = deriveTotpSecret(_activeSecret);
+
+      /* Bundle sends:
+           totp       = T5(Date.now())          — client local time
+           totpServer = T5(serverTime * 1000)   — Spotify server time (ms)
+         These DIVERGE when there is clock drift. */
+      const totp = mintTotp(secretBytes, Math.floor(Date.now() / 1000));
+      const totpServer = mintTotp(secretBytes, serverTimeSec);
+
+      /* Step 3: GET /api/token */
+      const url = new URL("https://open.spotify.com/api/token");
+      url.searchParams.set("reason", "init");
+      url.searchParams.set("productType", "web-player");
+      url.searchParams.set("totp", totp);
+      url.searchParams.set("totpServer", totpServer);
+      url.searchParams.set("totpVer", String(_activeVer));
+
+      const reqHeaders = {
+        "Referer": "https://open.spotify.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "accept": "application/json",
+        "accept-language": "en"
+      };
+
+      /* Use proxy-aware fetch for the token endpoint */
+      const r = await fetchWithProxy(url.toString(), { headers: reqHeaders }, 12000);
+      if (!r || !r.ok) throw new Error("/api/token HTTP " + (r && r.status));
+      const json = await r.json();
+      if (json && json.totpVerExpired) {
+        /* Spotify rotated the TOTP version. Try remaining secrets from the active list
+           (live-extracted first, then hardcoded fallbacks). */
+        console.warn("[TOTP] Version", _activeVer, "expired. Trying older secrets…");
+        /* Merge live + hardcoded, deduplicate by version, skip index 0 (already tried) */
+        const allSecrets = [...(_liveTotpSecrets || []), ...TOTP_SECRETS]
+          .filter((s, i, a) => a.findIndex(x => x.version === s.version) === i)
+          .filter(s => s.version !== _activeVer);
+        for (const fb of allSecrets) {
+          const fbBytes = deriveTotpSecret(fb.secret);
+          const fbUrl = new URL("https://open.spotify.com/api/token");
+          fbUrl.searchParams.set("reason", "init");
+          fbUrl.searchParams.set("productType", "web-player");
+          fbUrl.searchParams.set("totp", mintTotp(fbBytes, Math.floor(Date.now() / 1000)));
+          fbUrl.searchParams.set("totpServer", mintTotp(fbBytes, serverTimeSec));
+          fbUrl.searchParams.set("totpVer", String(fb.version));
+          try {
+            const fr = await fetchWithProxy(fbUrl.toString(), { headers: reqHeaders }, 12000);
+            if (!fr || !fr.ok) continue;
+            const fj = await fr.json();
+            if (fj && fj.accessToken) {
+              console.log("[TOTP] Fallback version", fb.version, "accepted");
+              Object.assign(json, fj); // merge successful response into json
+              break;
+            }
+          } catch { }
+        }
+        if (!json.accessToken)
+          console.warn("[TOTP] All versions exhausted — update TOTP_SECRETS");
+      }
+      if (json && json.error) throw new Error(json.error.message || "totp rejected");
+      if (!json || !json.accessToken) throw new Error("no accessToken in /api/token response");
+
+      /* Use the live clientId from the response — it's fresher than any hardcoded value */
+      const clientId = json.clientId || _liveClientId || WEB_PLAYER_CLIENT_ID;
+      if (json.clientId) _liveClientId = json.clientId;
+
+      let clientToken = "";
+      try { clientToken = await _mintClientToken(clientId); } catch (e) { /* non-fatal */ }
+      anonSession = {
+        token: json.accessToken,
+        clientId,
+        clientToken,
+        isAnonymous: !!json.isAnonymous,
+        exp: Number(json.accessTokenExpirationTimestampMs) || Date.now() + 3600 * 1000
+      };
+      setStatus("Ready");
+      return anonSession.token;
+    }
+
+    /* Fallback: scrape __NEXT_DATA__ from embed page */
+    async function _mintTokenEmbed() {
+      setStatus("Auth (embed)…");
+      const r = await fetchAny(
+        "https://open.spotify.com/embed/track/" + TOKEN_SEED_ID,
+        { headers: { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "accept": "text/html", "accept-language": "en" } },
+        15000
+      );
+      if (!r || !r.ok) throw new Error("spotify embed " + ((r && r.status) || "fail"));
+      const html = await r.text();
+      const m = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+      if (!m) throw new Error("__NEXT_DATA__ not found");
+      const root = JSON.parse(m[1]);
+      const sess =
+        root?.props?.pageProps?.state?.session ||
+        root?.props?.pageProps?.state?.settings?.session;
+      if (!sess?.accessToken) throw new Error("accessToken missing from __NEXT_DATA__");
+      anonSession = {
+        token: sess.accessToken,
+        clientId: WEB_PLAYER_CLIENT_ID,
+        clientToken: "",
+        exp: Number(sess.accessTokenExpirationTimestampMs) || Date.now() + 20 * 60 * 1000
+      };
+      setStatus("Authed (embed)");
+      return anonSession.token;
+    }
+
+    /* Step 4: client token via clienttoken.spotify.com (JSON body, skips full protobuf) */
+    async function _mintClientToken(clientId) {
+      const deviceId = _randomUUID();
+      const body = JSON.stringify({
+        client_data: {
+          client_version: liveVer(),
+          client_id: clientId || WEB_PLAYER_CLIENT_ID,
+          js_sdk_data: {
+            device_brand: "Apple", device_model: "unknown",
+            os: "macos", os_version: "10.15.7",
+            device_id: deviceId, device_type: "computer"
+          }
+        }
+      });
+      const r = await fetchAny("https://clienttoken.spotify.com/v1/clienttoken", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json",
+          "origin": "https://open.spotify.com",
+          "referer": "https://open.spotify.com/",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        },
+        body
+      }, 10000);
+      if (!r || !r.ok) throw new Error("clienttoken HTTP " + (r && r.status));
+      const json = await r.json();
+      const tok = json?.granted_token?.token;
+      if (!tok) throw new Error("no granted_token");
+      return tok;
+    }
+
+    function _randomUUID() {
+      if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8); return v.toString(16);
+      });
+    }
+
+    /* Step 5: apresolve — pick nearest spclient host */
+    async function resolveSpClientHost() {
+      if (spClientHost) return spClientHost;
+      try {
+        const r = await fetchAny("https://apresolve.spotify.com/?type=dealer-g2&type=spclient", {
+          headers: { "referer": "https://open.spotify.com/", "user-agent": "Mozilla/5.0" }
+        }, 8000);
+        if (r && r.ok) {
+          const json = await r.json();
+          const hosts = json && json.spclient;
+          if (Array.isArray(hosts) && hosts.length) {
+            const hostPort = hosts[0]; // e.g. "gew1-spclient.spotify.com:443"
+            spClientHost = "https://" + hostPort.replace(/:443$/, "");
+            /* Keep SpotifyEndpoints in sync with the resolved node */
+            SpotifyEndpoints.setResolvedSpClient(hostPort);
+            return spClientHost;
+          }
+        }
+      } catch { }
+      /* Fallback to first known host */
+      spClientHost = SpotifyEndpoints.spClientUrl();
+      return spClientHost;
+    }
+
+    /* ============================================================
+       PATHFINDER GRAPHQL  (GET /v1/query — confirmed working 2026-10-03)
+       ============================================================ */
+    /* Pathfinder GraphQL — GET /v1/query (same as spotify.rs reference implementation).
+       v2 requires POST; v1 accepts GET with query-param variables — confirmed working
+       against the live api-partner.spotify.com endpoint 2026-10-03. */
+    async function pathfinder(operationName, sha, variables, _retry) {
+      const token = await spotifyAnonToken();
+      const url =
+        "https://api-partner.spotify.com/pathfinder/v1/query" +
+        "?operationName=" + encodeURIComponent(operationName) +
+        "&variables=" + encodeURIComponent(JSON.stringify(variables)) +
+        "&extensions=" + encodeURIComponent(JSON.stringify({ persistedQuery: { version: 1, sha256Hash: sha } }));
+      const headers = {
+        "authorization": "Bearer " + token,
+        "accept": "application/json",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "app-platform": "WebPlayer",
+        "spotify-app-version": liveVer(),
+        "origin": "https://open.spotify.com",
+        "referer": "https://open.spotify.com/",
+        "accept-language": "en-GB"
+      };
+      const r = await fetchAny(url, { headers }, 15000);
+      if (r && r.status === 401) {
+        if (_retry) throw new Error("spotify 401 after retry");
+        anonSession = null;
+        return pathfinder(operationName, sha, variables, true);
+      }
+      if (r && r.status === 412) {
+        throw new Error("pathfinder 412: persisted query hash stale");
+      }
+      if (!r || !r.ok) throw new Error("pathfinder HTTP " + (r && r.status));
+      return r.json();
+    }
+
+    function coverFrom(sources) {
+      const list = Array.isArray(sources) ? sources.filter(s => s && s.url) : [];
+      list.sort((a, b) => (b.width || 0) - (a.width || 0));
+      const pick = list.find(s => (s.width || 0) >= 300 && (s.width || 0) <= 640) || list[0];
+      return pick ? pick.url : "";
+    }
+
+    /* ── fetchCoverForTrack: populate song.cover from Pathfinder for any track
+       that has a Spotify ID but no cover URL yet. Fires async; safe to call
+       multiple times for the same track (guarded by a pending-set). ── */
+    const _coverPending = new Set();
+
+    /* Extract a cover URL from any Pathfinder track response shape */
+    function _coverFromTrackJson(json) {
+      if (!json) return "";
+      const data = json.data || json;
+      /* Try all known response shapes */
+      const node =
+        data.trackUnion ||
+        data.track ||
+        data.trackV2 ||
+        (data.track && data.track.data) ||
+        data;
+      if (!node) return "";
+      /* Try normTrack first (handles all coverArt paths) */
+      const row = normTrack(node);
+      if (row && row.cover) return row.cover;
+      /* Direct cover art extraction as fallback */
+      return (
+        coverFrom(node.albumOfTrack && node.albumOfTrack.coverArt && node.albumOfTrack.coverArt.sources) ||
+        coverFrom(node.album && node.album.coverArt && node.album.coverArt.sources) ||
+        coverFrom(node.coverArt && node.coverArt.sources) ||
+        ""
+      );
+    }
+
+    async function fetchCoverForTrack(song) {
+      if (!song || !song.sp || song.cover || _coverPending.has(song.sp)) return;
+      _coverPending.add(song.sp);
+      try {
+        /* Primary: getTrack by URI */
+        let cover = "";
+        try {
+          const json = await pathfinder("getTrack", TRACK_HASH, { uri: "spotify:track:" + song.sp });
+          cover = _coverFromTrackJson(json);
+        } catch { /* hash may be stale — fall through to search */ }
+        /* Fallback: searchDesktop by title + artist — always returns cover art */
+        if (!cover && song.title) {
+          try {
+            const q = (song.title + " " + (song.artist || "")).trim().slice(0, 120);
+            const sj = await pathfinder("searchDesktop", SEARCH_HASH, {
+              searchTerm: q, offset: 0, limit: 5, numberOfTopResults: 3,
+              includeAudiobooks: false, includePreReleases: true,
+              includeAlbumPreReleases: false, includeAuthors: false,
+              includeEpisodeContentRatingsV2: false
+            });
+            const items = (sj && sj.data && sj.data.searchV2 && sj.data.searchV2.tracksV2 && sj.data.searchV2.tracksV2.items) || [];
+            for (const wrap of items) {
+              const row = normTrack(wrap && (wrap.item && wrap.item.data || wrap.data));
+              if (row && row.sp === song.sp && row.cover) { cover = row.cover; break; }
+            }
+            /* If exact sp match not found, take the first result's cover (best-effort) */
+            if (!cover && items.length) {
+              const row = normTrack(items[0] && (items[0].item && items[0].item.data || items[0].data));
+              if (row && row.cover) cover = row.cover;
+            }
+          } catch { /* non-fatal */ }
+        }
+        if (!cover) return;
+        /* Write cover back to every reference of this track */
+        song.cover = cover;
+        /* Update persisted library */
+        const saved = S.list();
+        const idx = saved.findIndex(x => x.sp === song.sp);
+        if (idx >= 0 && !saved[idx].cover) { saved[idx].cover = cover; S.save(saved); }
+        /* Update live state.list */
+        state.list.forEach(t => { if (t.sp === song.sp && !t.cover) t.cover = cover; });
+        /* Update tops/news */
+        [state.tops, state.news].forEach(arr => arr.forEach(t => { if (t.sp === song.sp && !t.cover) t.cover = cover; }));
+        /* Repaint UI — update existing img tags in-place without re-rendering whole pages.
+           Reset the side/queue rebuild guards so cover changes are reflected immediately. */
+        _sideListKey = "";
+        _queueKey = "";
+        const cur = current();
+        if (cur && cur.sp === song.sp) paintNow(); // updates dock/NP art + calls paintQueue+paintSide
+        else { paintSide(); paintQueue(); }
+        /* Update any artwork images already rendered in the DOM for this sp id.
+           Targets: track-row thumbnails (tr[data-sp] img.t-art)
+                    sidebar library items (.lib-item[data-sp] img)
+                    queue rows (.np-qrow[data-i] img)
+                    hero image (if it matches the featured track) */
+        document.querySelectorAll(
+          `tr[data-sp="${CSS.escape(song.sp)}"] img.t-art, .lib-item[data-sp="${CSS.escape(song.sp)}"] img`
+        ).forEach(img => {
+          img.onerror = () => { img.onerror = null; img.src = phArt; };
+          img.src = cover;
+        });
+        /* Update queue rows that show this track */
+        document.querySelectorAll("#npQueue .np-qrow img").forEach(img => {
+          const row = img.closest(".np-qrow");
+          if (!row) return;
+          const idx2 = Number(row.dataset.i);
+          const t2 = state.list[idx2];
+          if (t2 && t2.sp === song.sp) {
+            img.onerror = () => { img.onerror = null; img.src = phArt; };
+            img.src = cover;
+          }
+        });
+        /* Also update the hero art if it currently shows this track */
+        const heroArt = document.getElementById("heroArt");
+        if (heroArt && heroArt.dataset && heroArt.dataset.sp === song.sp) {
+          heroArt.onerror = () => { heroArt.onerror = null; heroArt.src = phArt; };
+          heroArt.src = cover;
+        }
+      } catch { /* non-fatal — artwork is cosmetic */ }
+      finally { _coverPending.delete(song.sp); }
+    }
+
+    /* ensureCovers: kick off cover fetches for up to N uncovered tracks in a list */
+    function ensureCovers(list, max = 20) {
+      let count = 0;
+      for (const t of list) {
+        if (count >= max) break;
+        if (t && t.sp && !t.cover && !t.local) { fetchCoverForTrack(t); count++; }
+      }
+    }
+
+    function cleanArtist(raw) {
+      return String(raw || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function spotifyTrackId(uri) {
+      const m = String(uri || "").match(/spotify:track:([A-Za-z0-9]{22})/);
+      return m ? m[1] : "";
+    }
+
+    /* Normalise a Pathfinder track node into our internal format */
+    function normTrack(data) {
+      /* Accept any Track-like node: Track, RestrictedTrack, TrackResponseWrapper, etc.
+         Only hard-reject nodes that have an __typename that is definitely NOT a track. */
+      if (!data) return null;
+      const tn = data.__typename || "";
+      if (tn && !/track/i.test(tn)) return null;
+      const sp = (String(data.uri || "").match(/spotify:track:([A-Za-z0-9]{22})/) || [])[1] || "";
+      if (!sp || !data.name) return null;
+      const people = []
+        .concat((data.artists && data.artists.items) || [])
+        .concat((data.firstArtist && data.firstArtist.items) || [])
+        .concat((data.otherArtists && data.otherArtists.items) || []);
+      const artist = [...new Set(people.map(a => (a && a.profile && a.profile.name) || (a && a.name) || "").filter(Boolean))].join(", ");
+      /* Try all known cover art source paths in order of preference */
+      const cover =
+        coverFrom(data.albumOfTrack && data.albumOfTrack.coverArt && data.albumOfTrack.coverArt.sources) ||
+        coverFrom(data.album && data.album.coverArt && data.album.coverArt.sources) ||
+        coverFrom(data.coverArt && data.coverArt.sources) ||
+        (data.albumOfTrack && data.albumOfTrack.images && data.albumOfTrack.images[0] && data.albumOfTrack.images[0].url) ||
+        "";
+      return { sp, id: "sp_" + sp, title: data.name, artist, cover };
+    }
+
+    /* ============================================================
+       SPOTIFY PLAYLIST SCRAPE  (for chart tracks with cover art)
+       ============================================================ */
+    async function spotifyPlaylist(playlistId) {
+      const r = await fetchAny(
+        "https://open.spotify.com/embed/playlist/" + playlistId,
+        {
+          headers: {
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "accept": "text/html", "accept-language": "en"
+          }
+        },
+        20000
+      );
+      if (!r || !r.ok) throw new Error("playlist fetch " + ((r && r.status) || "fail"));
+      const html = await r.text();
+      const m = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+      if (!m) throw new Error("__NEXT_DATA__ missing in playlist");
+      const root = JSON.parse(m[1]);
+      const list = root?.props?.pageProps?.state?.data?.entity?.trackList;
+      if (!Array.isArray(list)) throw new Error("trackList missing");
+      return list.map(t => {
+        const sp = spotifyTrackId(t.uri);
+        if (!sp || !t.title) return null;
+        /* Cover art: exhaustively try every known field path that Spotify embeds
+           have used across all observed __NEXT_DATA__ versions. */
+        const cover =
+          /* sources arrays (preferred — highest resolution selection via coverFrom) */
+          coverFrom(t.trackArtwork && t.trackArtwork.sources) ||
+          coverFrom(t.albumArtwork && t.albumArtwork.sources) ||
+          coverFrom(t.albumArt && t.albumArt.sources) ||
+          coverFrom(t.coverArt && t.coverArt.sources) ||
+          coverFrom(t.image && t.image.sources) ||
+          coverFrom(t.art && t.art.sources) ||
+          coverFrom(t.album && t.album.coverArt && t.album.coverArt.sources) ||
+          coverFrom(t.album && t.album.images) ||
+          coverFrom(t.thumbnail && t.thumbnail.sources) ||
+          /* direct url fields */
+          (t.trackArtwork && t.trackArtwork.url) ||
+          (t.albumArtwork && t.albumArtwork.url) ||
+          (t.albumArt && t.albumArt.url) ||
+          (t.coverArt && t.coverArt.url) ||
+          (t.image && t.image.url) ||
+          (t.art && t.art.url) ||
+          (t.coverImageUrl) ||
+          (t.imageUrl) ||
+          (t.thumbnail && t.thumbnail.url) ||
+          (t.album && t.album.coverArt && t.album.coverArt.url) ||
+          /* images arrays */
+          (Array.isArray(t.images) && t.images[0] && t.images[0].url) ||
+          (Array.isArray(t.album && t.album.images) && t.album.images[0] && t.album.images[0].url) ||
+          /* last resort: scan all top-level string values that look like Spotify CDN image URLs */
+          (() => { for (const v of Object.values(t)) { if (typeof v === "string" && /^https:\/\/i\.scdn\.co\//.test(v)) return v; } return ""; })() ||
+          "";
+        return {
+          sp, id: "sp_" + sp,
+          title: String(t.title || "").trim(),
+          artist: cleanArtist(t.subtitle),
+          cover
+        };
+      }).filter(Boolean);
+    }
+
+    /* ============================================================
+       SPOTIFY SEARCH  (Pathfinder GraphQL)
+       ============================================================ */
+    async function spotifySearch(q) {
+      const query = String(q || "").trim().slice(0, 120);
+      if (!query) return [];
+      /* Direct track link / URI */
+      const link = query.match(/(?:spotify:track:|open\.spotify\.com\/track\/)([A-Za-z0-9]{22})/);
+      if (link) {
+        const json = await pathfinder("getTrack", TRACK_HASH, { uri: "spotify:track:" + link[1] });
+        const row = normTrack(json?.data?.trackUnion || json?.data?.track || null);
+        return row ? [row] : [];
+      }
+      const json = await pathfinder("searchDesktop", SEARCH_HASH, {
+        searchTerm: query, offset: 0, limit: 12, numberOfTopResults: 5,
+        includeAudiobooks: false, includePreReleases: true,
+        includeAlbumPreReleases: false, includeAuthors: false,
+        includeEpisodeContentRatingsV2: false
+      });
+      const items = json?.data?.searchV2?.tracksV2?.items || [];
+      const out = [], seen = new Set();
+      for (const wrap of items) {
+        const row = normTrack(wrap?.item?.data || wrap?.data);
+        if (!row || seen.has(row.sp)) continue;
+        seen.add(row.sp); out.push(row);
+      }
+      return out;
+    }
+
+    /* ============================================================
+       AUDIO ENGINE  (gamepvz.com full Spotify MP3 — Tier 1 only)
+       ─────────────────────────────────────────────────────────────
+       Tier 1: gamepvz.com full Spotify MP3 (plain MP3, no DRM)
+               Streamed via WISP MediaSource pipeline.
+       Local files: played via blob URL through the same stream path.
+       Both paths feed a Web Audio AnalyserNode for the wave canvas.
+       ============================================================ */
+
+    const spotifyFileCache = new Map(); // sp id → { url, cover, title, artist, exp }
+
+    /* ============================================================
+       NATIVE SPOTIFY AUDIO PIPELINE
+       ─────────────────────────────────────────────────────────────
+       Uses the stoken.gifted.co.ke token which has:
+         - Mercury metadata scope → GET spclient/metadata/4/track/<hexGid>
+         - storage-resolve scope → GET spclient/storage-resolve/files/audio/interactive/<fileId>
+       Both return protobuf binary.  We parse only the fields we need
+       using a minimal varint decoder — no protobuf library required.
+       Audio format preference: OGG_VORBIS_320 > OGG_VORBIS_160 > OGG_VORBIS_96 > MP3_320 > MP3_160
+       ============================================================ */
+
+    /* base62 track ID → 16-byte hex GID (Spotify's internal format) */
+    function base62ToHex(id) {
+      const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let n = 0n;
+      for (const c of id) n = n * 62n + BigInt(chars.indexOf(c));
+      return n.toString(16).padStart(32, "0");
+    }
+
+    /* Minimal protobuf varint reader */
+    function _pbVarint(buf, pos) {
+      let r = 0n, s = 0n;
+      while (pos < buf.length) {
+        const b = buf[pos++];
+        r |= BigInt(b & 0x7f) << s;
+        if (!(b & 0x80)) break;
+        s += 7n;
+      }
+      return [r, pos];
+    }
+
+    /* Parse Mercury Track metadata protobuf → array of { fileId (hex), format (int) }
+       Track proto field 13 = file (repeated AudioFile)
+       AudioFile field 1 = file_id (bytes, 16), field 2 = format (varint) */
+    function _parseMercuryTrack(buf) {
+      /* format enum values we care about, in preference order */
+      const FMT_PREF = [19, 18, 17, 13, 1]; // OGG320, OGG160, OGG96, MP3_320, MP3_160
+      const files = [];
+
+      /* _tryAudioFile: attempt to parse a bytes blob as an AudioFile message.
+         AudioFile proto: field 1 (wt=2) = file_id (exactly 16 bytes),
+                          field 2 (wt=0) = format (varint).
+         Returns { fileId, format } or null. */
+      function _tryAudioFile(d) {
+        let ip = 0, fid = "", fmt = -1;
+        while (ip < d.length) {
+          let it, ip2;
+          try { [it, ip2] = _pbVarint(d, ip); } catch { break; }
+          const ifn = Number(it >> 3n), iwt = Number(it & 7n);
+          if (iwt === 2) {
+            let il, ip3;
+            try { [il, ip3] = _pbVarint(d, ip2); } catch { break; }
+            const iln = Number(il);
+            if (ifn === 1 && iln === 16) {
+              fid = Array.from(d.slice(ip3, ip3 + 16)).map(b => b.toString(16).padStart(2, "0")).join("");
+            }
+            ip = ip3 + iln;
+          } else if (iwt === 0) {
+            let iv, ip3;
+            try { [iv, ip3] = _pbVarint(d, ip2); } catch { break; }
+            if (ifn === 2) fmt = Number(iv);
+            ip = ip3;
+          } else { ip = ip2 + 1; }
+        }
+        return (fid.length === 32 && fmt >= 0) ? { fileId: fid, format: fmt } : null;
+      }
+
+      /* Walk the top-level Track proto.
+         Audio files live at:
+           - top-level field 24 (AudioFile directly)
+           - inside field 13 (container) at its inner field 24 (AudioFile)
+         We scan field 24 at both depths. */
+      function _walkLevel(b) {
+        let pos = 0;
+        while (pos < b.length) {
+          let tag, p2;
+          try { [tag, p2] = _pbVarint(b, pos); } catch { break; }
+          const fn = Number(tag >> 3n), wt = Number(tag & 7n);
+          if (wt === 2) {
+            let len, p3;
+            try { [len, p3] = _pbVarint(b, p2); } catch { break; }
+            const ln = Number(len);
+            if (p3 + ln > b.length) break;
+            const d = b.slice(p3, p3 + ln);
+            if (fn === 24) {
+              /* Field 24 = AudioFile at this level */
+              const af = _tryAudioFile(d);
+              if (af) files.push(af);
+            } else if (fn === 13) {
+              /* Field 13 = container that itself contains field 24 AudioFiles */
+              _walkLevel(d);
+            }
+            pos = p3 + ln;
+          } else if (wt === 0) {
+            let v, p3;
+            try { [v, p3] = _pbVarint(b, p2); } catch { break; }
+            pos = p3;
+          } else if (wt === 5) { pos = p2 + 4; }
+          else { pos = p2 + 1; }
+        }
+      }
+
+      _walkLevel(buf);
+
+      /* Deduplicate by fileId, then sort by preference */
+      const seen = new Set();
+      const unique = files.filter(f => { if (seen.has(f.fileId)) return false; seen.add(f.fileId); return true; });
+      unique.sort((a, b) => {
+        const ai = FMT_PREF.indexOf(a.format), bi = FMT_PREF.indexOf(b.format);
+        return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+      });
+      return unique;
+    }
+
+    /* Parse storage-resolve response protobuf → first CDN URL string
+       StorageResolveResponse field 2 = cdnurl (repeated string) */
+    function _parseStorageResolve(buf) {
+      let pos = 0;
+      while (pos < buf.length) {
+        let tag, p2;
+        try { [tag, p2] = _pbVarint(buf, pos); } catch { break; }
+        const fn = Number(tag >> 3n), wt = Number(tag & 7n);
+        if (wt === 2) {
+          let len, p3;
+          try { [len, p3] = _pbVarint(buf, p2); } catch { break; }
+          const ln = Number(len);
+          if (p3 + ln > buf.length) break;
+          if (fn === 2) {
+            /* cdnurl string */
+            const s = new TextDecoder().decode(buf.slice(p3, p3 + ln));
+            if (s.startsWith("https://")) return s;
+          }
+          pos = p3 + ln;
+        } else if (wt === 0) {
+          let v, p3;
+          try { [v, p3] = _pbVarint(buf, p2); } catch { break; }
+          pos = p3;
+        } else if (wt === 5) { pos = p2 + 4; }
+        else { pos = p2 + 1; }
+      }
+      return "";
+    }
+
+    /* Resolve audio CDN URL via native Spotify pipeline (Mercury + storage-resolve)
+       Returns { url, mimeType } or throws. */
+    async function resolveSpotifyNative(trackId) {
+      const token = await getStokenToken();
+      if (!token) throw new Error("stoken unavailable");
+
+      const gid = base62ToHex(trackId);
+      const spBase = spClientHost || SpotifyEndpoints.spClientUrl();
+      const headers = {
+        "authorization": "Bearer " + token,
+        "accept": "application/protobuf",
+        "app-platform": "WebPlayer",
+        "spotify-app-version": liveVer(),
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "origin": "https://open.spotify.com",
+        "referer": "https://open.spotify.com/"
+      };
+
+      /* Step 1: Mercury metadata */
+      const metaR = await fetchAny(
+        spBase + "/metadata/4/track/" + gid,
+        { headers },
+        12000
+      );
+      if (!metaR || !metaR.ok) throw new Error("Mercury metadata HTTP " + (metaR && metaR.status));
+      const metaBuf = new Uint8Array(await metaR.arrayBuffer());
+      const files = _parseMercuryTrack(metaBuf);
+      if (!files.length) throw new Error("no audio files in metadata");
+
+      /* Step 2: storage-resolve — try each file format in preference order */
+      let cdnUrl = "", mimeType = "audio/mpeg";
+      for (const f of files) {
+        try {
+          const srR = await fetchAny(
+            spBase + "/storage-resolve/files/audio/interactive/" + f.fileId,
+            { headers },
+            10000
+          );
+          if (!srR || !srR.ok) continue;
+          const srBuf = new Uint8Array(await srR.arrayBuffer());
+          const url = _parseStorageResolve(srBuf);
+          if (!url) continue;
+          cdnUrl = url;
+          /* Determine MIME from format */
+          if (f.format === 19 || f.format === 18 || f.format === 17) mimeType = "audio/ogg; codecs=vorbis";
+          else mimeType = "audio/mpeg";
+          break;
+        } catch { /* try next format */ }
+      }
+      if (!cdnUrl) throw new Error("storage-resolve returned no CDN URL");
+      return { url: cdnUrl, mimeType };
+    }
+
+    /* ── gamepvz Spotify full-track resolver ──
+       POSTs the Spotify track URL to gamepvz.com's download API.
+       Returns a plain MP3 URL — no DRM, decodes fine with decodeAudioData. */
+    function decodeSpotifyFileUrl(raw){
+      raw=String(raw||"");
+      if(raw.includes("?url=")){
+        let b64=raw.split("?url=")[1]||"";
+        b64+=("===".slice((b64.length+3)%4||4));
+        try{ return atob(b64.replace(/-/g,"+").replace(/_/g,"/")); }catch{}
+      }
+      if(raw.startsWith("/")) return "https://gamepvz.com"+raw;
+      return raw;
+    }
+
+    async function spotifyUrlPlays(url){
+      try{
+        const r=await fetchAny(url,{
+          headers:{"user-agent":"Mozilla/5.0","range":"bytes=0-15","accept":"audio/mpeg,*/*"}
+        },5000);
+        if(!r||(!r.ok&&r.status!==206)) return false;
+        const type=r.headers&&r.headers.get("content-type")||"";
+        if(/text|html|json/i.test(type)) return false;
+        /* Check for ID3 magic or audio content-type */
+        const buf=await r.arrayBuffer();
+        const bytes=new Uint8Array(buf);
+        const isId3=(bytes[0]===0x49&&bytes[1]===0x44&&bytes[2]===0x33);
+        return isId3||/audio/i.test(type);
+      }catch{ return false; }
+    }
+
+    async function usableSpotifyUrl(url){
+      let parsed; try{ parsed=new URL(url); }catch{ return ""; }
+      const hosts=[...new Set([parsed.hostname,...SPOTIFY_CDN_HOSTS])];
+      return new Promise(resolve=>{
+        let pending=hosts.length, settled=false;
+        for(const host of hosts){
+          const next=new URL(url); next.hostname=host;
+          const candidate=next.toString();
+          spotifyUrlPlays(candidate).then(ok=>{
+            if(ok&&!settled){ settled=true; resolve(candidate); }
+            pending-=1;
+            if(!pending&&!settled) resolve("");
+          });
+        }
+      });
+    }
+
+    async function requestSpotifyFile(trackId){
+      const r=await fetchAny("https://gamepvz.com/api/download/get-url",{
+        method:"POST",
+        headers:{
+          "content-type":"application/json",
+          "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "origin":"https://gamepvz.com",
+          "referer":"https://gamepvz.com/"
+        },
+        body:JSON.stringify({ url:"https://open.spotify.com/track/"+trackId })
+      },10000);
+      if(!r||!r.ok) throw new Error("gamepvz HTTP "+(r&&r.status));
+      const data=await r.json();
+      if(data.code!==200||!data.originalVideoUrl) throw new Error(data.msg||"no full track url");
+      const fileUrl=decodeSpotifyFileUrl(data.originalVideoUrl);
+      const parsed=new URL(fileUrl);
+      if(parsed.protocol!=="https:") throw new Error("bad audio url protocol");
+      return { data, fileUrl:parsed.toString() };
+    }
+
+    async function resolveSpotifyFile(trackId, bustCache){
+      /* bustCache=true forces a fresh request even if the cache has an entry —
+         used when a previously-resolved URL fails to decode (expired CDN URL). */
+      if(!bustCache){
+        const hit=spotifyFileCache.get(trackId);
+        if(hit&&hit.exp>Date.now()) return hit;
+      } else {
+        spotifyFileCache.delete(trackId);
+      }
+      let last="gamepvz down";
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          const {data,fileUrl}=await requestSpotifyFile(trackId);
+          const url=await usableSpotifyUrl(fileUrl);
+          if(!url){ last="audio host down"; continue; }
+          const row={
+            url,
+            title:data.title||"",
+            artist:data.authorName||"",
+            cover:data.coverUrl||"",
+            exp:Date.now()+6*60*60*1000
+          };
+          spotifyFileCache.set(trackId,row);
+          return row;
+        }catch(err){ last=String((err&&err.message)||err); }
+      }
+      throw new Error(last);
+    }
+
+    /* ============================================================
+       WIDEVINE EME — spclient license relay
+       ─────────────────────────────────────────────────────────────
+       Activated only when the <video> element fires an `encrypted`
+       event, meaning the stream contains CENC-protected content.
+       Plain-text Tier-1/Tier-2 streams never trigger this path.
+       ============================================================ */
+
+    /* Build the standard Spotify-compatible Widevine license request headers */
+    function _wvLicenseHeaders() {
+      const token = anonSession && anonSession.token || "";
+      const ct    = anonSession && anonSession.clientToken || "";
+      const h = {
+        "content-type": "application/octet-stream",
+        "accept":       "application/octet-stream",
+        "user-agent":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "app-platform": "WebPlayer",
+        "spotify-app-version": liveVer(),
+        "origin":   "https://open.spotify.com",
+        "referer":  "https://open.spotify.com/",
+      };
+      if (token) h["authorization"] = "Bearer " + token;
+      if (ct)    h["client-token"]  = ct;
+      return h;
+    }
+
+    /* Send a raw Widevine license challenge to the spclient /widevine-license
+       endpoint, rotating across all spclient nodes on failure.
+       Returns the raw license response bytes (Uint8Array). */
+    async function _requestWidevineLicense(challenge) {
+      const body = challenge instanceof Uint8Array ? challenge : new Uint8Array(challenge);
+      let lastErr = "no spclient node available";
+      for (let i = 0; i < SPCLIENT_HOSTS.length; i++) {
+        const base = i === 0 ? SpotifyEndpoints.spClientUrl() : SpotifyEndpoints.nextSpClient();
+        const url  = base + "/widevine-license/v1/audio/license";
+        try {
+          const r = await fetchAny(url, {
+            method: "POST",
+            headers: _wvLicenseHeaders(),
+            body
+          }, 12000);
+          if (r && r.ok) {
+            const buf = await r.arrayBuffer();
+            return new Uint8Array(buf);
+          }
+          if (r && r.status === 401) {
+            /* Token expired — clear and let the next playback re-mint it */
+            anonSession = null;
+          }
+          lastErr = "spclient license HTTP " + (r && r.status);
+        } catch (e) {
+          lastErr = String((e && e.message) || e);
+        }
+      }
+      throw new Error("Widevine license failed: " + lastErr);
+    }
+
+    /* Attach Widevine EME handling to a video element.
+       Safe to call multiple times — installs the listener only once per element
+       (tracked via a WeakSet). */
+    const _wvAttached = new WeakSet();
+    function attachWidevine(videoEl) {
+      if (!videoEl || _wvAttached.has(videoEl)) return;
+      if (typeof navigator.requestMediaKeySystem !== "function") return;
+      _wvAttached.add(videoEl);
+
+      videoEl.addEventListener("encrypted", async (evt) => {
+        /* Only handle CENC init data — the format used by Spotify */
+        if (evt.initDataType && evt.initDataType !== "cenc" && evt.initDataType !== "keyids") return;
+
+        try {
+          /* 1. Acquire MediaKeys for com.widevine.alpha */
+          const access = await navigator.requestMediaKeySystem("com.widevine.alpha", [{
+            initDataTypes: ["cenc"],
+            videoCapabilities: [],
+            audioCapabilities: [
+              { contentType: 'audio/mp4; codecs="mp4a.40.2"' },
+              { contentType: 'audio/webm; codecs="opus"' },
+            ],
+            distinctiveIdentifier: "not-allowed",
+            persistentState: "not-allowed",
+          }]);
+
+          /* Install on element — idempotent if already set */
+          let mk = videoEl._wvMediaKeys;
+          if (!mk) {
+            mk = await access.createMediaKeys();
+            videoEl._wvMediaKeys = mk;
+            await videoEl.setMediaKeys(mk);
+          }
+
+          /* 2. Create a temporary key session */
+          const session = mk.createSession("temporary");
+
+          session.addEventListener("message", async (msgEvt) => {
+            /* msgEvt.message is the raw Widevine challenge (ArrayBuffer) */
+            try {
+              setStatus("DRM · license request…");
+              const license = await _requestWidevineLicense(new Uint8Array(msgEvt.message));
+              await session.update(license);
+              setStatus("DRM · keys installed");
+            } catch (e) {
+              console.error("[WV] license update failed:", e.message);
+              setStatus("DRM error: " + (e.message || "license failed"));
+            }
+          });
+
+          /* 3. Trigger the license challenge from the PSSH init data */
+          await session.generateRequest(evt.initDataType, evt.initData);
+
+        } catch (e) {
+          console.error("[WV] EME setup failed:", e.message);
+          setStatus("DRM error: " + (e.message || "EME setup failed"));
+        }
+      });
+    }
+
+    /* ============================================================
+       SPOTIFY DEALER — WebSocket push channel
+       ─────────────────────────────────────────────────────────────
+       Connects to a dealer-g2 node authenticated with the live
+       access token.  Handles reconnection across all 4 nodes with
+       exponential backoff (1 s → 2 s → 4 s → 8 s, capped at 30 s).
+       Messages are delivered to SpotifyDealer.onMessage if set.
+       ============================================================ */
+    const SpotifyDealer = (() => {
+      let _ws = null;
+      let _nodeIdx = 0;
+      let _backoff = 1000;
+      let _retryTimer = null;
+      let _pingTimer = null;
+      let _stopped = false;
+      let _connected = false;
+      let _onMessage = null;
+
+      function _wssUrl() {
+        const host = DEALER_HOSTS[_nodeIdx % DEALER_HOSTS.length].replace(/:443$/, "");
+        const token = (anonSession && anonSession.token) || "";
+        return "wss://" + host + "/?access_token=" + encodeURIComponent(token);
+      }
+
+      function _schedulePing(ws) {
+        clearTimeout(_pingTimer);
+        /* Spotify dealer expects a {"type":"ping"} every <=30 s */
+        _pingTimer = setTimeout(() => {
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            try { ws.send(JSON.stringify({ type: "ping" })); } catch { }
+            _schedulePing(ws);
+          }
+        }, 25000);
+      }
+
+      function _connect() {
+        if (_stopped) return;
+        /* Require a minted token before opening the WebSocket */
+        if (!anonSession || !anonSession.token) {
+          _retryTimer = setTimeout(_connect, 2000);
+          return;
+        }
+        try {
+          const url = _wssUrl();
+          const ws = new WebSocket(url);
+          _ws = ws;
+
+          ws.onopen = () => {
+            _connected = true;
+            _backoff = 1000;
+            console.log("[dealer] connected ->", DEALER_HOSTS[_nodeIdx % DEALER_HOSTS.length]);
+            _schedulePing(ws);
+          };
+
+          ws.onmessage = (evt) => {
+            let msg;
+            try { msg = JSON.parse(evt.data); } catch { return; }
+            if (msg && msg.type === "pong") return;
+            if (typeof _onMessage === "function") {
+              try { _onMessage(msg); } catch { }
+            }
+          };
+
+          ws.onerror = () => { /* always followed by onclose — handle reconnect there */ };
+
+          ws.onclose = () => {
+            _connected = false;
+            clearTimeout(_pingTimer);
+            if (_stopped) return;
+            /* Rotate node and schedule reconnect with backoff */
+            _nodeIdx = (_nodeIdx + 1) % DEALER_HOSTS.length;
+            const delay = Math.min(_backoff, 30000);
+            _backoff = Math.min(_backoff * 2, 30000);
+            console.log("[dealer] closed — retry in", delay, "ms via node", _nodeIdx);
+            _retryTimer = setTimeout(_connect, delay);
+          };
+
+        } catch (e) {
+          _nodeIdx = (_nodeIdx + 1) % DEALER_HOSTS.length;
+          const delay = Math.min(_backoff, 30000);
+          _backoff = Math.min(_backoff * 2, 30000);
+          _retryTimer = setTimeout(_connect, delay);
+        }
+      }
+
+      return {
+        start() { _stopped = false; _connect(); },
+        stop() {
+          _stopped = true;
+          clearTimeout(_retryTimer); clearTimeout(_pingTimer);
+          if (_ws) { try { _ws.close(); } catch { } _ws = null; }
+          _connected = false;
+        },
+        get connected() { return _connected; },
+        set onMessage(fn) { _onMessage = fn; },
+        get onMessage() { return _onMessage; },
+      };
+    })();
+
+
+
+    /* ============================================================
+       AUDIO ENGINE
+       ─────────────────────────────────────────────────────────────
+       Streaming path  (kind="stream"):  hidden <video> element fed
+         by a WISP-piped MediaSource.  Starts in ~1s, no decode wait.
+         Used for Tier 1 (gamepvz MP3) and Tier 2 (YouTube WebM/MP4).
+       WA path  (kind="wa"):  legacy AudioBufferSource used only for
+         local files and Tier-3 30 s previews (small buffers).
+       Both paths feed a Web Audio AnalyserNode for the wave canvas.
+       ============================================================ */
+    const engine = {
+      kind: "",          // "stream" | "wa" | ""
+      /* stream state */
+      streamEl: null,    // the <video> element (points to #streamEl)
+      streamSrc: null,   // MediaElementAudioSourceNode — created once, never destroyed
+      /* wa state (local files + preview only) */
+      waCtx: null, waSource: null,
+      waDur: 0, waStartAt: 0, waOffset: 0, waPaused: false,
+      /* shared */
+      isPreview: false,
+      waAnalyser: null,  // AnalyserNode — rebuilt each playback
+      waGain: null       // GainNode   — rebuilt each playback
+    };
+
+    function getAudioContext() {
+      if (!engine.waCtx || engine.waCtx.state === "closed") {
+        try { engine.waCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch { engine.waCtx = null; }
+      }
+      return engine.waCtx;
+    }
+    function gainValue() { return Math.max(0, Math.min(1, (S.prefs().vol || 80) / 100)); }
+    function destroyWaSource() {
+      try { if (engine.waSource) { engine.waSource.onended = null; engine.waSource.stop(0); } } catch { }
+      engine.waSource = null;
+    }
+    function suspendWa() { if (engine.waCtx && engine.waCtx.state === "running") engine.waCtx.suspend().catch(() => { }); }
+    function resumeWa() { if (engine.waCtx && engine.waCtx.state === "suspended") engine.waCtx.resume().catch(() => { }); }
+    function waCurrentTime() {
+      if (engine.kind === "stream" && engine.streamEl) return engine.streamEl.currentTime || 0;
+      if (engine.kind !== "wa" || !engine.waCtx) return 0;
+      if (engine.waPaused) return engine.waOffset;
+      return engine.waOffset + (engine.waCtx.currentTime - engine.waStartAt);
+    }
+
+    /* ── Shared graph builder: analyser → gain → destination ──
+       Called by both playStream and playWa after creating their source node. */
+    function _buildGraph(sourceNode) {
+      const ctx = engine.waCtx;
+      if (!ctx) return;
+      /* Fully disconnect old downstream nodes first */
+      if (engine.waAnalyser) { try { engine.waAnalyser.disconnect(); } catch { } }
+      if (engine.waGain)     { try { engine.waGain.disconnect(); }     catch { } }
+      /* Disconnect the source node from any stale connections so only the new
+         analyser receives its output (avoids silent duplicate/dead connections). */
+      try { sourceNode.disconnect(); } catch { }
+      engine.waAnalyser = ctx.createAnalyser();
+      engine.waAnalyser.fftSize = 256;
+      engine.waAnalyser.smoothingTimeConstant = 0.8;
+      engine.waGain = ctx.createGain();
+      engine.waGain.gain.value = gainValue();
+      sourceNode.connect(engine.waAnalyser);
+      engine.waAnalyser.connect(engine.waGain);
+      engine.waGain.connect(ctx.destination);
+    }
+
+    /* ── WISP-piped MediaSource streaming ──────────────────────────
+       Fetches the audio URL through the WISP tunnel and pumps the
+       bytes into a MediaSource so the <video> element can start
+       playing before the full download is complete.
+       mimeType: MIME for MediaSource.addSourceBuffer —
+         "audio/mpeg" for MP3,  "audio/webm; codecs=opus" for WebM,
+         "audio/mp4; codecs=mp4a.40.2" for AAC/M4A.              */
+    async function wispStream(videoEl, url, ua, mimeType) {
+      /* Clean up any existing MediaSource on this element */
+      if (videoEl.src && videoEl.src.startsWith("blob:")) {
+        try { URL.revokeObjectURL(videoEl.src); } catch { }
+      }
+      videoEl.removeAttribute("src");
+      videoEl.load();
+
+      /* Detect MIME from URL/UA if caller didn't specify */
+      if (!mimeType) {
+        if (/\.mp3(\?|$)/i.test(url) || /audio\/mpeg/i.test(url)) mimeType = "audio/mpeg";
+        else if (/webm/i.test(url)) mimeType = "audio/webm; codecs=opus";
+        else if (/\.m4a|\.aac|mp4a/i.test(url)) mimeType = "audio/mp4; codecs=mp4a.40.2";
+        else mimeType = "audio/mpeg"; // best guess
+      }
+
+      /* If MediaSource not supported or MIME not supported → direct src fallback */
+      if (!window.MediaSource || !MediaSource.isTypeSupported(mimeType)) {
+        videoEl.src = url;
+        return;
+      }
+
+      const ms = new MediaSource();
+      const msBlobUrl = URL.createObjectURL(ms);
+      videoEl.src = msBlobUrl;
+
+      await new Promise((res, rej) => {
+        ms.addEventListener("sourceopen", res, { once: true });
+        ms.addEventListener("error",      rej, { once: true });
+        setTimeout(() => rej(new Error("MediaSource open timeout")), 8000);
+      });
+
+      const sb = ms.addSourceBuffer(mimeType);
+      sb.mode = "sequence";
+
+      /* Stream via WISP fetch, fall back to direct */
+      let response;
+      try {
+        response = await Promise.race([
+          wispFetch(url, { headers: ua ? { "user-agent": ua } : {} }),
+          new Promise((_, r) => setTimeout(() => r(new Error("stream-fetch-timeout")), 30000))
+        ]);
+      } catch {
+        response = await fetch(url, { headers: ua ? { "user-agent": ua } : {} });
+      }
+      if (!response || !response.ok) throw new Error("stream HTTP " + (response && response.status));
+
+      const reader = response.body.getReader();
+      const pump = async () => {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            try {
+              if (ms.readyState === "open") {
+                if (sb.updating) await new Promise(r => sb.addEventListener("updateend", r, { once: true }));
+                ms.endOfStream();
+              }
+            } catch { }
+            return;
+          }
+          if (sb.updating) await new Promise(r => sb.addEventListener("updateend", r, { once: true }));
+          /* Abort if the element has moved on to a different source */
+          if (videoEl.src !== msBlobUrl) { try { reader.cancel(); } catch {} return; }
+          try { sb.appendBuffer(value); } catch { return; }
+        }
+      };
+      pump().catch(() => {});
+    }
+
+    /* ── playStream: set a streaming audio URL on the video element ──
+       This is the primary playback path for Tier 1 and Tier 2.
+       Returns a Promise that resolves when the element can play.   */
+    async function playStream(url, ua, mimeType, label, isPreview) {
+      const ctx = getAudioContext();
+      if (!ctx) throw new Error("no AudioContext");
+
+      const videoEl = document.getElementById("streamEl");
+      if (!videoEl) throw new Error("no streamEl");
+
+      /* Tear down legacy WA path */
+      destroyWaSource();
+
+      /* Attach Widevine EME handler once — no-op on plain-text streams */
+      attachWidevine(videoEl);
+
+      /* createMediaElementSource can only be called once per element across the
+         entire page lifetime. Store it on the engine object and reuse it.
+         On the first call it will be null; on subsequent calls it already exists. */
+      if (!engine.streamSrc) {
+        engine.streamSrc = ctx.createMediaElementSource(videoEl);
+      }
+      /* Rebuild the analyser/gain graph — _buildGraph disconnects old nodes first */
+      _buildGraph(engine.streamSrc);
+
+      engine.kind = "stream";
+      engine.streamEl = videoEl;
+      engine.isPreview = !!isPreview;
+      engine.waPaused = false;
+
+      if (ctx.state === "suspended") await ctx.resume();
+
+      /* Start pumping bytes via WISP */
+      await wispStream(videoEl, url, ua, mimeType);
+
+      /* Wait for enough data to start playing */
+      await new Promise((res, rej) => {
+        const timeout = setTimeout(() => rej(new Error("canplay timeout")), 20000);
+        const onCan = () => { clearTimeout(timeout); videoEl.removeEventListener("error", onErr); res(); };
+        const onErr = () => { clearTimeout(timeout); videoEl.removeEventListener("canplay", onCan); rej(new Error("video error " + (videoEl.error && videoEl.error.code))); };
+        if (videoEl.readyState >= 2) { clearTimeout(timeout); res(); return; }
+        videoEl.addEventListener("canplay", onCan, { once: true });
+        videoEl.addEventListener("error",   onErr, { once: true });
+      });
+
+      /* Attach ended/timeupdate handlers */
+      videoEl.onended = () => {
+        if (engine.kind === "stream" && engine.streamEl === videoEl) {
+          state.playing = false;
+          _stopWaveLoop();
+          paintNow();
+          next();
+        }
+      };
+
+      state.playing = true;
+      videoEl.volume = gainValue();
+      videoEl.play().catch(() => {});
+
+      startWave();
+      paintNow();
+      setStatus((label || "Spotify") + (isPreview ? " · preview" : " · streaming"));
+    }
+
+    /* ============================================================
+       WAVE VISUALIZER  (frequency-bar canvas, Web Audio AnalyserNode)
+       Two targets: #waveCanvas (full player panel) + #dockWave (dock bar)
+       ============================================================ */
+    let _waveRaf = null; // requestAnimationFrame handle
+
+    /* _sizeCanvas: set canvas pixel buffer from CSS layout size.
+       Must be called after layout is known (deferred via rAF on panel open). */
+    function _sizeCanvas(canvas, fallbackW, fallbackH) {
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = canvas.clientWidth || fallbackW;
+      const cssH = canvas.clientHeight || fallbackH;
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      return dpr;
+    }
+
+    function startWave() {
+      /* If no analyser yet (AudioContext not yet created), start wave will be
+         called again by playStream once the graph is built. */
+      if (!engine.waAnalyser) return;
+
+      /* Cancel any running loop before starting a fresh one */
+      cancelAnimationFrame(_waveRaf);
+      _waveRaf = null;
+
+      const npCanvas = document.getElementById("waveCanvas");
+      const dockCanvas = document.getElementById("dockWave");
+
+      /* Size the dock canvas immediately — it is always visible in the DOM.
+         The NP panel canvas gets sized here too (may be 0 if panel is closed,
+         but the fallback dimensions are used and drawing still works offscreen). */
+      const dpr = window.devicePixelRatio || 1;
+      if (dockCanvas) {
+        /* Use getBoundingClientRect for reliable sub-pixel dimensions */
+        const rect = dockCanvas.getBoundingClientRect();
+        const cssW = (rect && rect.width > 0 ? rect.width : null) || dockCanvas.offsetWidth || 48;
+        const cssH = (rect && rect.height > 0 ? rect.height : null) || dockCanvas.offsetHeight || 28;
+        dockCanvas.width = Math.round(cssW * dpr);
+        dockCanvas.height = Math.round(cssH * dpr);
+      }
+      if (npCanvas) _sizeCanvas(npCanvas, 420, 64);
+
+      const npCtx = npCanvas ? npCanvas.getContext("2d") : null;
+      const dkCtx = dockCanvas ? dockCanvas.getContext("2d") : null;
+      const analyser = engine.waAnalyser;
+      const bufLen = analyser.frequencyBinCount; // fftSize/2 = 128
+      const dataArr = new Uint8Array(bufLen);
+      /* Use only the lower 60% of bins (melodic range) */
+      const numBins = Math.floor(bufLen * 0.6);
+
+      /* NP panel bar geometry — recomputed each frame so panel open/close resizes */
+      const npBarCount = 48, npGap = 2 * dpr;
+      const npBarW_base = () => {
+        const w = npCanvas ? npCanvas.width : 420 * dpr;
+        return (w - npGap * (npBarCount - 1)) / npBarCount;
+      };
+
+      /* Dock bar geometry */
+      const dkBarCount = 12, dkGap = 1 * dpr;
+      const dkBarW_base = () => {
+        const w = dockCanvas ? dockCanvas.width : 48 * dpr;
+        return (w - dkGap * (dkBarCount - 1)) / dkBarCount;
+      };
+
+      function draw() {
+        if (!engine.waAnalyser) { _stopWaveLoop(); return; }
+        /* Continue drawing even when paused — show frozen bars at last position */
+        _waveRaf = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArr);
+
+        /* ── NP panel canvas ── */
+        if (npCtx && npCanvas) {
+          const npH = npCanvas.height;
+          const npBarW = npBarW_base();
+          npCtx.clearRect(0, 0, npCanvas.width, npH);
+          for (let i = 0; i < npBarCount; i++) {
+            const bin = Math.round((i / npBarCount) * numBins);
+            const v = dataArr[bin] / 255;
+            const h = Math.max(2 * dpr, v * npH);
+            const x = i * (npBarW + npGap);
+            const y = npH - h;
+            const alpha = 0.35 + v * 0.65;
+            npCtx.fillStyle = `rgba(168,85,247,${alpha.toFixed(2)})`;
+            npCtx.beginPath();
+            if (npCtx.roundRect) npCtx.roundRect(x, y, npBarW, h, [2 * dpr, 2 * dpr, 0, 0]);
+            else npCtx.rect(x, y, npBarW, h);
+            npCtx.fill();
+          }
+        }
+
+        /* ── Dock mini-wave canvas ── */
+        if (dkCtx && dockCanvas) {
+          const dkH = dockCanvas.height;
+          const dkBarW = dkBarW_base();
+          dkCtx.clearRect(0, 0, dockCanvas.width, dkH);
+          for (let i = 0; i < dkBarCount; i++) {
+            const bin = Math.round((i / dkBarCount) * numBins);
+            const v = dataArr[bin] / 255;
+            const h = Math.max(1 * dpr, v * dkH);
+            const x = i * (dkBarW + dkGap);
+            const y = dkH - h;
+            const alpha = engine.waPaused ? 0.2 : (0.3 + v * 0.7);
+            dkCtx.fillStyle = `rgba(168,85,247,${alpha.toFixed(2)})`;
+            dkCtx.beginPath();
+            if (dkCtx.roundRect) dkCtx.roundRect(x, y, dkBarW, h, [1 * dpr, 1 * dpr, 0, 0]);
+            else dkCtx.rect(x, y, dkBarW, h);
+            dkCtx.fill();
+          }
+        }
+      }
+
+      /* Start immediately on the next animation frame */
+      _waveRaf = requestAnimationFrame(draw);
+    }
+
+    function _stopWaveLoop() {
+      if (_waveRaf) { cancelAnimationFrame(_waveRaf); _waveRaf = null; }
+    }
+
+    function stopWave() {
+      _stopWaveLoop();
+      /* Clear both canvases */
+      const npCanvas = document.getElementById("waveCanvas");
+      if (npCanvas) { const c = npCanvas.getContext("2d"); if (c) c.clearRect(0, 0, npCanvas.width, npCanvas.height); }
+      const dkCanvas = document.getElementById("dockWave");
+      if (dkCanvas) { const c = dkCanvas.getContext("2d"); if (c) c.clearRect(0, 0, dkCanvas.width, dkCanvas.height); }
+    }
+
+    function destroyEngine() {
+      stopWave();
+      /* Stop the video element (do NOT destroy streamSrc — it's permanent) */
+      const videoEl = document.getElementById("streamEl");
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.onended = null;
+        const blobUrl = videoEl.src;
+        videoEl.removeAttribute("src");
+        videoEl.load();
+        if (blobUrl && blobUrl.startsWith("blob:")) { try { URL.revokeObjectURL(blobUrl); } catch {} }
+      }
+      engine.streamEl = null;
+      /* Tear down WA path */
+      destroyWaSource();
+      if (engine.waAnalyser) { try { engine.waAnalyser.disconnect(); } catch { } engine.waAnalyser = null; }
+      if (engine.waGain)     { try { engine.waGain.disconnect(); }     catch { } engine.waGain = null; }
+      engine.kind = ""; engine.waDur = 0; engine.waOffset = 0; engine.waStartAt = 0;
+      engine.waPaused = false; engine.isPreview = false;
+    }
+
+    /* fetchAndDecode kept for local files and Tier-3 30 s previews (small buffers only) */
+    async function fetchAndDecode(url) {
+      let buf = null;
+      try {
+        const r = await Promise.race([
+          wispFetch(url, {}),
+          new Promise((_, rej) => setTimeout(() => rej(new Error("fetch-timeout")), 30000))
+        ]);
+        if (!r || !r.ok) throw new Error("HTTP " + (r && r.status));
+        buf = await r.arrayBuffer();
+      } catch (e) {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 30000);
+        try {
+          const r = await fetch(url, { signal: ctrl.signal });
+          if (!r || !r.ok) throw new Error("HTTP " + (r && r.status));
+          buf = await r.arrayBuffer();
+        } finally { clearTimeout(t); }
+      }
+      const ctx = getAudioContext();
+      if (!ctx) throw new Error("AudioContext unavailable");
+      if (ctx.state === "suspended") await ctx.resume();
+      return ctx.decodeAudioData(buf);
+    }
+
+    async function playWa(audioBuf, offset, auto, label, isPreview) {
+      const ctx = getAudioContext();
+      if (!ctx) throw new Error("no AudioContext");
+      destroyWaSource();
+      /* Stop any active stream (keep streamSrc node — it's permanent) */
+      const videoEl = document.getElementById("streamEl");
+      if (videoEl) { videoEl.pause(); videoEl.onended = null; }
+      engine.streamEl = null;
+      /* Build audio graph via shared helper */
+      const src = ctx.createBufferSource();
+      src.buffer = audioBuf;
+      _buildGraph(src);
+      engine.waSource = src;
+      engine.waDur = audioBuf.duration;
+      engine.waOffset = Math.max(0, Math.min(offset || 0, audioBuf.duration));
+      engine.waStartAt = ctx.currentTime;
+      engine.waPaused = false;
+      engine.kind = "wa";
+      engine.isPreview = !!isPreview;
+      if (ctx.state === "suspended") await ctx.resume();
+      src.start(0, engine.waOffset);
+      src.onended = () => {
+        if (engine.kind === "wa" && !engine.waPaused && engine.waSource === src) {
+          state.playing = false;
+          _stopWaveLoop(); // stop the RAF loop; canvas retains last frame until next song
+          paintNow();
+          const elapsed = engine.waOffset + (ctx.currentTime - engine.waStartAt);
+          if (elapsed >= engine.waDur - 0.5) next();
+        }
+      };
+      if (auto) {
+        state.playing = true;
+        startWave();
+      } else {
+        /* Only suspend if running — guard against already-suspended context */
+        if (ctx.state === "running") await ctx.suspend();
+        engine.waPaused = true; state.playing = false;
+        /* Do NOT call stopWave() here — the draw loop keeps running frozen so
+           that when the panel is opened in a paused state the canvas shows bars. */
+      }
+      paintNow();
+      setStatus((label || "Spotify") + (isPreview ? " · preview" : " · full track"));
+    }
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    const state = {
+      view: "home",
+      tops: [], news: [],
+      list: S.list().length ? S.list() : SEED_TRACKS.slice(),
+      i: 0, playing: false, token: 0, skip: 0
+    };
+    const current = () => state.list[state.i] || null;
+
+    function setStatus(msg) { const el = $("#playStatus"); if (el) el.textContent = msg; }
+
+    /* Art URL helpers — Spotify CDN only */
+    function spArt(song, size) {
+      if (!song) return phArt;
+      if (song.cover) return song.cover;
+      return phArt;
+    }
+
+    function safeImg(el, src, fallback) {
+      if (!el) return;
+      const fb = fallback || phArt;
+      const target = src || fb;
+      const current = el.getAttribute("src") || "";
+      /* Skip only when the element is already showing the exact same real (non-placeholder) URL
+         and it has loaded successfully. Never skip when upgrading from placeholder to real URL. */
+      if (current === target && target !== phArt && target !== fb && el.complete && el.naturalWidth > 0) return;
+      el.onerror = () => { el.onerror = null; if (el.src !== fb) el.src = fb; };
+      el.setAttribute("src", target);
+    }
+
+    /* ============================================================
+       CORE PLAYBACK
+       ============================================================ */
+    async function playSong(song, auto, myToken) {
+      if(!song||!song.sp){ setStatus("No track"); return; }
+      const tag=`[play:${song.sp.slice(0,6)} "${song.title}"]`;
+
+      /* helper: back-fill cover from gamepvz onto live track + persisted library.
+         Always applies when cover is non-empty, even if a placeholder was set.
+         Does NOT replace an existing HTTP(S) cover with a blank. */
+      function backfillCover(cover){
+        if(!cover) return;
+        song.cover=cover;
+        /* Propagate to all references in state.list (de-dup by sp) */
+        state.list.forEach(t=>{ if(t.sp===song.sp) t.cover=cover; });
+        /* Propagate to tops / news arrays so hero and track rows reflect it */
+        [state.tops,state.news].forEach(arr=>arr.forEach(t=>{ if(t.sp===song.sp) t.cover=cover; }));
+        /* Persist to library */
+        const saved=S.list();
+        const idx=saved.findIndex(x=>x.sp===song.sp);
+        if(idx>=0){ saved[idx].cover=cover; S.save(saved); }
+        paintNow();
+      }
+
+      /* ── Tier 1: gamepvz.com full Spotify MP3 — streamed via WISP ── */
+      let t1Start=Date.now();
+      try{
+        setStatus("Fetching track…");
+        console.log(tag,"tier1 gamepvz start");
+        const file=await resolveSpotifyFile(song.sp);
+        if(myToken!==state.token) return;
+        backfillCover(file.cover);
+        console.log(tag,"tier1 gamepvz resolved, streaming…",file.url.slice(0,60));
+        setStatus("Streaming…");
+        destroyEngine();
+        await playStream(file.url, null, "audio/mpeg", "Spotify", false);
+        if(myToken!==state.token){ destroyEngine(); return; }
+        console.log(tag,"tier1 OK in "+(Date.now()-t1Start)+"ms (stream started)");
+        state.skip=0; return;
+      }catch(e){
+        if(myToken!==state.token) return;
+        console.warn(tag,"tier1 failed in "+(Date.now()-t1Start)+"ms:",e.message);
+      }
+
+      /* ── Tier 2: Native Spotify CDN (Mercury metadata + storage-resolve via stoken) ── */
+      let t2Start=Date.now();
+      try{
+        setStatus("Resolving via native CDN…");
+        console.log(tag,"tier2 native-spotify start");
+        const native=await resolveSpotifyNative(song.sp);
+        if(myToken!==state.token) return;
+        console.log(tag,"tier2 native resolved, streaming…",native.url.slice(0,60));
+        setStatus("Streaming…");
+        destroyEngine();
+        await playStream(native.url, null, native.mimeType, "Spotify", false);
+        if(myToken!==state.token){ destroyEngine(); return; }
+        console.log(tag,"tier2 native OK in "+(Date.now()-t2Start)+"ms");
+        state.skip=0; return;
+      }catch(e){
+        if(myToken!==state.token) return;
+        console.warn(tag,"tier2 native failed in "+(Date.now()-t2Start)+"ms:",e.message);
+      }
+
+      if(myToken!==state.token) return;
+      console.error(tag,"all audio sources failed");
+      setStatus("Couldn't play");
+      state.playing=false; paintNow();
+      toast("No audio source found");
+      if(state.list.length>1) setTimeout(()=>{ if(myToken===state.token) next(); },2000);
+    }
+
+    /* ============================================================
+       LOCAL FILE SUPPORT  (IndexedDB)
+       ============================================================ */
+    const IDB_NAME = "goarxyz-music", IDB_STORE = "tracks";
+    function idbOpen() { return new Promise((res, rej) => { const req = indexedDB.open(IDB_NAME, 1); req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE); req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+    async function idbPut(id, blob) { const db = await idbOpen(); await new Promise((res, rej) => { const tx = db.transaction(IDB_STORE, "readwrite"); tx.objectStore(IDB_STORE).put(blob, id); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+    async function idbGet(id) { const db = await idbOpen(); return new Promise((res, rej) => { const tx = db.transaction(IDB_STORE, "readonly"); const req = tx.objectStore(IDB_STORE).get(id); req.onsuccess = () => res(req.result || null); req.onerror = () => rej(req.error); }); }
+    const isLocal = s => !!(s && (s.local || String(s.id || "").startsWith("local_")));
+
+    /* ============================================================
+       PLAYBACK CORE
+       ============================================================ */
+
+    /* prewarm: silently pre-resolve the next N Spotify tracks in the queue
+       so they are already in spotifyFileCache when playAt
+       reaches them.  Runs in the background — errors are fully ignored. */
+    function prewarm(fromIndex, count=2){
+      if(!state.list.length) return;
+      const p=S.prefs();
+      for(let k=1;k<=count;k++){
+        let idx;
+        if(p.shuffle){
+          idx=Math.floor(Math.random()*state.list.length);
+        } else {
+          idx=(fromIndex+k)%state.list.length;
+        }
+        const s=state.list[idx];
+        if(!s||isLocal(s)) continue;
+        /* Pre-resolve URL only — no decode, no buffer, just prime the cache */
+        if(!spotifyFileCache.has(s.sp)||spotifyFileCache.get(s.sp).exp<=Date.now()){
+          console.log("[prewarm] resolving sp:",s.sp.slice(0,6),s.title);
+          resolveSpotifyFile(s.sp).catch(()=>{});
+        }
+      }
+    }
+
+    async function playAt(i, auto) {
+      if (!state.list.length) return;
+      state.i = (i + state.list.length) % state.list.length;
+      const song = current(), my = ++state.token;
+      paintNow(); setStatus("Loading…");
+
+      if (isLocal(song)) {
+        destroyEngine();
+        let blobUrl = null;
+        try {
+          const blob = await idbGet(song.id); if (!blob) throw new Error("File missing");
+          blobUrl = URL.createObjectURL(blob);
+          if (my !== state.token) { URL.revokeObjectURL(blobUrl); return; }
+          /* Use playStream with blob URL — instant, no decode wait */
+          await playStream(blobUrl, null, blob.type || "audio/mpeg", "local", false);
+          if (my !== state.token) { destroyEngine(); URL.revokeObjectURL(blobUrl); return; }
+          state.skip = 0;
+          prewarm(state.i);
+          return;
+        } catch (e) {
+          if (blobUrl) { try { URL.revokeObjectURL(blobUrl); } catch {} }
+          if (my !== state.token) return;
+          state.playing = false; paintNow();
+          toast(e.message || "Local file error");
+        }
+        return;
+      }
+
+      await playSong(song, auto, my);
+      /* After playSong resolves (success or failure), if we're still the
+         active token, kick off background resolution for the next 2 tracks */
+      if(my===state.token) prewarm(state.i);
+    }
+
+    function next() {
+      const p = S.prefs();
+      if (p.repeat === "one") return playAt(state.i, true);
+      if (p.shuffle) return playAt(Math.floor(Math.random() * state.list.length), true);
+      playAt(state.i + 1, true);
+    }
+    function prev() {
+      const cur = waCurrentTime();
+      if (cur > 3) {
+        if (engine.kind === "stream" && engine.streamEl) { engine.streamEl.currentTime = 0; return; }
+        const audioBuf = engine.waSource && engine.waSource.buffer;
+        if (audioBuf) { const was = !engine.waPaused; destroyWaSource(); playWa(audioBuf, 0, was, "seek", engine.isPreview); }
+        return;
+      }
+      playAt(state.i - 1, true);
+    }
+    function jump(sp, auto) { const idx = state.list.findIndex(x => x.sp === sp); if (idx >= 0) playAt(idx, auto); }
+    function useList(items, sp, auto) { state.list = items.slice(); const idx = Math.max(0, state.list.findIndex(x => x.sp === sp)); playAt(idx, auto); }
+
+    function togglePlay() {
+      if (!current()) return playAt(0, true);
+      /* ── Streaming path ── */
+      if (engine.kind === "stream" && engine.streamEl) {
+        const el = engine.streamEl;
+        if (el.paused) {
+          el.play().catch(() => {});
+          state.playing = true; engine.waPaused = false;
+          if (!_waveRaf) startWave();
+        } else {
+          el.pause();
+          state.playing = false; engine.waPaused = true;
+        }
+        paintNow(); return;
+      }
+      /* ── WA path (local files + preview) ── */
+      const ctx = getAudioContext();
+      if (engine.kind === "wa" && ctx) {
+        if (engine.waPaused) {
+          resumeWa(); engine.waStartAt = ctx.currentTime; engine.waPaused = false; state.playing = true;
+          if (!_waveRaf) startWave();
+        } else {
+          const cur = waCurrentTime(); suspendWa(); engine.waOffset = cur; engine.waPaused = true; state.playing = false;
+        }
+        paintNow(); return;
+      }
+      playAt(state.i, true);
+    }
+
+    function openPlayer() {
+      document.body.classList.add("np-open");
+      $("#nowPlaying").classList.add("open");
+      paintNow();
+      /* Re-size the NP canvas now that the panel is visible and has real layout dimensions.
+         Schedule one rAF so the browser has painted the panel before we read clientWidth. */
+      requestAnimationFrame(() => {
+        const npCanvas = document.getElementById("waveCanvas");
+        if (npCanvas) _sizeCanvas(npCanvas, 420, 64);
+        /* Re-start the wave loop so it picks up the newly-sized canvas */
+        _stopWaveLoop();
+        startWave();
+      });
+    }
+    function closePlayer() {
+      /* Do NOT stop wave — dock mini-wave should keep running.
+         Just close the panel visually. */
+      document.body.classList.remove("np-open");
+      $("#nowPlaying").classList.remove("open");
+    }
+
+    /* ============================================================
+       UI PAINT
+       ============================================================ */
+    const PLAY_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+    const PAUSE_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+    const NP_PLAY_ICON = `<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+    const NP_PAUSE_ICON = `<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+    function paintNow() {
+      const s = current(), p = S.prefs();
+      ["#btnShuffle", "#npShuffle"].forEach(id => { const el = $(id); if (el) el.classList.toggle("on", !!p.shuffle); });
+      ["#btnRepeat", "#npRepeat"].forEach(id => { const el = $(id); if (el) el.classList.toggle("on", p.repeat !== "off"); });
+      /* SVG play/pause icons */
+      const bp = $("#btnPlay"), npb = $("#npPlay");
+      if (bp) bp.innerHTML = state.playing ? PAUSE_ICON : PLAY_ICON;
+      if (npb) npb.innerHTML = state.playing ? NP_PAUSE_ICON : NP_PLAY_ICON;
+      if (!s) {
+        const nt = $("#nowTitle"), na = $("#nowArtist");
+        if (nt) nt.textContent = "—";
+        if (na) na.textContent = "—";
+        return;
+      }
+      const nt = $("#nowTitle"), na = $("#nowArtist"), npt = $("#npTitle"), npa = $("#npArtist");
+      if (nt) nt.textContent = s.title;
+      if (na) na.textContent = s.artist || "";
+      if (npt) npt.textContent = s.title;
+      if (npa) npa.textContent = s.artist || "";
+      /* Trigger async cover fetch if this track has no artwork yet */
+      if (s.sp && !s.cover && !s.local) fetchCoverForTrack(s);
+      const art = s.cover || phArt;
+      safeImg($("#nowArt"), art, phArt);
+      safeImg($("#npArt"), art, phArt);
+      const bg = $("#npBg"); if (bg) bg.style.backgroundImage = "url('" + art + "')";
+      document.title = s.title + " — goarxyz";
+      const lbl = $("#npLabel"); if (lbl) lbl.textContent = "Now playing";
+      if (navigator.mediaSession) navigator.mediaSession.metadata = new MediaMetadata({ title: s.title, artist: s.artist || "", artwork: s.cover ? [{ src: s.cover, sizes: "300x300", type: "image/jpeg" }] : [] });
+      /* ── Update next-track dock strip ── */
+      const dn = document.getElementById("dockNext");
+      if (dn) {
+        const p2 = S.prefs();
+        let nextIdx;
+        if (p2.repeat === "one") nextIdx = state.i;
+        else if (p2.shuffle) nextIdx = -1; // shuffle = unknown next
+        else nextIdx = (state.i + 1) % state.list.length;
+        const nextSong = nextIdx >= 0 ? state.list[nextIdx] : null;
+        const dnt = document.getElementById("dockNextTitle");
+        const dna = document.getElementById("dockNextArtist");
+        const dnart = document.getElementById("dockNextArt");
+        if (nextSong && nextSong !== s) {
+          if (dnt) dnt.textContent = nextSong.title || "—";
+          if (dna) dna.textContent = nextSong.artist || "";
+          if (dnart) { dnart.onerror = () => { dnart.onerror = null; dnart.src = phArt; }; dnart.src = nextSong.cover || phArt; }
+          dn.classList.add("visible");
+        } else {
+          dn.classList.remove("visible");
+        }
+      }
+      paintQueue(); paintSide();
+    }
+
+    /* Guard vars — avoid full innerHTML rebuild when nothing changed */
+    let _sideListKey = "", _queueKey = "";
+
+    function paintSide() {
+      const rows = state.list.slice(0, 24);
+      const el = $("#sideLib"); if (!el) return;
+      const cur = current();
+      const key = rows.map(s => s.sp || s.id).join(",") + "|" + (cur && (cur.sp || cur.id) || "");
+      if (key === _sideListKey) return; // nothing changed
+      _sideListKey = key;
+      el.innerHTML = rows.map(s => `<div class="lib-item ${cur && cur.sp === s.sp ? "on" : ""}" data-sp="${esc(s.sp || s.id)}"><img src="${esc(s.cover || phArt)}" onerror="this.src='${phArt}'" alt=""><div><b>${esc(s.title)}</b><span>${esc(s.artist || "")}</span></div></div>`).join("");
+      el.querySelectorAll(".lib-item").forEach(el => el.onclick = () => jump(el.dataset.sp || el.dataset.id, true));
+      const on = el.querySelector(".lib-item.on");
+      if (on) on.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+
+    function paintQueue() {
+      const box = $("#npQueue"); if (!box) return;
+      const key = state.list.map(s => s.sp || s.id).join(",") + "|" + state.i;
+      if (key === _queueKey) return; // nothing changed
+      _queueKey = key;
+      box.innerHTML = "<h3>Up next</h3>" + state.list.map((s, i) => `<div class="np-qrow ${i === state.i ? "on" : ""}" data-i="${i}"><img src="${esc(s.cover || phArt)}" onerror="this.src='${phArt}'" alt=""><div><div class="t-title">${esc(s.title)}</div><div class="t-sub">${esc(s.artist || "")}</div></div></div>`).join("");
+      const cur = box.querySelector(".np-qrow.on");
+      if (cur) cur.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      box.querySelectorAll(".np-qrow").forEach(el => el.onclick = () => playAt(Number(el.dataset.i), true));
+    }
+
+    function trackRows(items) {
+      const DL_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>`;
+      return `<table class="tracks"><thead><tr><th class="num">#</th><th>Title</th><th style="width:64px"></th></tr></thead><tbody>
+  ${items.map((s, i) => `<tr data-sp="${esc(s.sp)}" class="${current() && current().sp === s.sp ? "on" : ""}"><td class="num">${i + 1}</td><td><div style="display:flex;gap:10px;align-items:center"><img class="t-art" src="${esc(s.cover || phArt)}" onerror="this.src='${phArt}'" alt=""><div><div class="t-title">${esc(s.title)}</div><div class="t-sub">${esc(s.artist || "")}</div></div></div></td><td style="display:flex;gap:6px;align-items:center"><button class="add" data-sp="${esc(s.sp)}" title="Save to library">+</button><button class="dl" data-dl="${esc(s.sp)}" title="Download MP3">${DL_ICON}</button></td></tr>`).join("")}
+  </tbody></table>`;
+    }
+
+    function bindTracks(root, items) {
+      root.querySelectorAll("tr[data-sp]").forEach(el => el.onclick = e => {
+        if (e.target.closest(".add,[data-dl]")) return;
+        const song = items.find(x => x.sp === el.dataset.sp); if (!song) return;
+        useList(items, song.sp, true);
+      });
+      root.querySelectorAll("button.add[data-sp]").forEach(btn => btn.onclick = e => {
+        e.stopPropagation();
+        const song = items.find(x => x.sp === btn.dataset.sp); if (song) addSong(song);
+      });
+      root.querySelectorAll("button.dl[data-dl]").forEach(btn => btn.onclick = e => {
+        e.stopPropagation();
+        const song = items.find(x => x.sp === btn.dataset.dl); if (song) downloadTrack(song);
+      });
+    }
+
+    /* ============================================================
+       SEEK / TIME
+       ============================================================ */
+    function mediaTime() {
+      if (engine.kind === "stream" && engine.streamEl) {
+        const el = engine.streamEl;
+        return { cur: el.currentTime || 0, dur: isFinite(el.duration) ? el.duration : 0 };
+      }
+      if (engine.kind === "wa") return { cur: Math.min(waCurrentTime(), engine.waDur || 0), dur: engine.waDur || 0 };
+      return { cur: 0, dur: 0 };
+    }
+    function bindSeek(el) {
+      if (!el) return;
+      el.oninput = e => {
+        const { dur } = mediaTime(); if (!dur) return;
+        const t = (e.target.value / 1000) * dur;
+        if (engine.kind === "stream" && engine.streamEl) {
+          engine.streamEl.currentTime = t;
+        } else if (engine.kind === "wa") {
+          const audioBuf = engine.waSource && engine.waSource.buffer;
+          if (!audioBuf) return;
+          const was = !engine.waPaused;
+          const ctx = getAudioContext(); if (!ctx) return;
+          if (engine.waGain) { try { engine.waGain.disconnect(); } catch { } engine.waGain = null; }
+          destroyWaSource();
+          playWa(audioBuf, t, was, "seek", engine.isPreview).catch(() => { });
+        }
+      };
+    }
+    function _setProgPct(pct) {
+      const w = (pct * 100).toFixed(2) + "%";
+      const pf = document.getElementById("progFill"), pt = document.getElementById("progThumb");
+      if (pf) { pf.style.setProperty("--progress-bar-transform", w); pf.style.width = w; }
+      if (pt) { pt.style.setProperty("--progress-bar-transform", w); pt.style.left = w; }
+      /* dock top progress line — always visible including on mobile */
+      const dp = document.getElementById("dockProgFill");
+      if (dp) dp.style.width = w;
+    }
+    function tick() {
+      const { cur, dur } = mediaTime();
+      const pct = dur ? cur / dur : 0;
+      const ct = $("#curT"), dt = $("#durT"), nct = $("#npCur"), ndt = $("#npDur"), nsk = $("#npSeek");
+      if (ct) ct.textContent = fmt(cur); if (dt) dt.textContent = fmt(dur);
+      if (nct) nct.textContent = fmt(cur); if (ndt) ndt.textContent = fmt(dur);
+      if (nsk && document.activeElement !== nsk) nsk.value = dur ? Math.floor(pct * 1000) : 0;
+      _setProgPct(pct);
+    }
+    setInterval(() => { if (engine.kind === "stream" || engine.kind === "wa") tick(); }, 250);
+
+    /* ============================================================
+       SAVE TO LIBRARY
+       ============================================================ */
+    function addSong(song) {
+      if (!song || !song.sp) return;
+      const saved = S.list();
+      if (saved.some(x => x.sp === song.sp)) return toast("Already saved");
+      saved.unshift({ sp: song.sp, id: "sp_" + song.sp, title: song.title || song.sp, artist: song.artist || "", cover: song.cover || "" });
+      S.save(saved); toast("Saved"); paintSide();
+      if (state.view === "library") viewLibrary();
+    }
+
+    /* ============================================================
+       DOWNLOAD TRACK
+       Resolves the gamepvz URL then fetches the MP3 as a blob and
+       triggers a browser download.  Uses the track title as filename.
+       ============================================================ */
+    async function downloadTrack(song) {
+      if (!song || !song.sp) return;
+      toast("Preparing download…");
+      try {
+        const file = await resolveSpotifyFile(song.sp);
+        const r = await fetchAny(file.url, { headers: { "user-agent": "Mozilla/5.0", "accept": "audio/mpeg,*/*" } }, 60000);
+        if (!r || !r.ok) throw new Error("HTTP " + (r && r.status));
+        const blob = await r.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = (song.title || song.sp).replace(/[/\\:*?"<>|]/g, "_") + ".mp3";
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 5000);
+        toast("Downloaded: " + song.title);
+      } catch (e) { toast("Download failed: " + (e.message || e)); }
+    }
+
+    /* ============================================================
+       VIEWS
+       ============================================================ */
+    let heroRotateTimer = null, heroIdx = 0;
+
+    function setNav() { $$("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === state.view)); }
+
+    function rotateHero() {
+      const art = $("#heroArt"); if (!art) return;
+      const pool = state.tops.length ? state.tops : [];
+      if (!pool.length) return;
+      heroIdx = (heroIdx + 1) % pool.length;
+      const pick = pool[heroIdx];
+      art.classList.add("fade");
+      setTimeout(() => {
+        art.dataset.sp = pick.sp || "";
+        safeImg(art, pick.cover || phArt, phArt);
+        const te = $("#heroTitle"), se = $("#heroSub");
+        if (te) te.textContent = pick.title;
+        if (se) se.textContent = pick.artist || "";
+        art.classList.remove("fade");
+      }, 600);
+    }
+    function startHeroRotate() { clearInterval(heroRotateTimer); heroRotateTimer = setInterval(rotateHero, 8000); }
+
+    function viewHome() {
+      state.view = "home"; setNav(); clearInterval(heroRotateTimer);
+      const tops = state.tops.length ? state.tops : [];
+      const news = state.news.length ? state.news : [];
+      const feat = tops[0] || null;
+      heroIdx = 0;
+      const loading = !tops.length;
+      $("#stage").innerHTML = `
+    <div class="topbar">
+      <button class="circle" type="button" id="backBtn">←</button>
+      <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+        <input id="q" placeholder="Search Spotify…"></div>
+    </div>
+    <div class="page">
+      <div class="hero">
+        <img class="hero-art" id="heroArt" data-sp="${esc(feat && feat.sp || '')}" src="${esc(feat && feat.cover || phArt)}" onerror="this.src='${phArt}'" alt="">
+        <div>
+          <div class="kicker">Today · ${new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}</div>
+          <h1>Top Picks</h1>
+          <p style="color:#c084fc;font-size:13px;font-weight:600;margin-bottom:4px" id="heroTitle">${esc(feat && feat.title || (loading ? "Loading…" : ""))}</p>
+          <p id="heroSub" style="color:#c7c8d0;max-width:560px;margin-bottom:16px">${esc(feat && feat.artist || "")}</p>
+          <p style="color:#c7c8d0;max-width:560px;margin-bottom:16px">Spotify catalogue · Native CDN audio · WISP tunnel · Instant full-track playback</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${tops.length ? `<button class="btn btn-play" id="heroPlay">Play</button>` : ""}
+            <button class="btn btn-ghost" id="heroOpen">Open player</button>
+          </div>
+        </div>
+      </div>
+      ${tops.length ? `<div class="section" id="secTops"><div class="section-head"><h2>Today's Top Picks</h2><span class="see" id="seeTops">Play all</span></div>${trackRows(tops.slice(0, 12))}</div>` : `<div class="empty" style="padding:60px 0">Loading charts…</div>`}
+      ${news.length ? `<div class="section" id="secNews"><div class="section-head"><h2>New Releases</h2><span class="see" id="seeNews">Play all</span></div>${trackRows(news.slice(0, 10))}</div>` : ""}
+    </div>`;
+      bindTracks($("#stage"), tops.concat(news));
+      const hp = $("#heroPlay"); if (hp) hp.onclick = () => useList(tops, tops[0] && tops[0].sp, true);
+      $("#heroOpen").onclick = () => { if (!current() && tops.length) useList(tops, tops[0].sp, false); openPlayer(); };
+      const st = $("#seeTops"); if (st) st.onclick = () => useList(tops, tops[0] && tops[0].sp, true);
+      const sn = $("#seeNews"); if (sn) sn.onclick = () => news.length && useList(news, news[0].sp, true);
+      $("#q").addEventListener("keydown", e => { if (e.key === "Enter") viewSearch(e.target.value.trim()); });
+      $("#backBtn").onclick = viewHome;
+      if (tops.length) startHeroRotate();
+    }
+
+    function viewLibrary() {
+      state.view = "library"; setNav(); clearInterval(heroRotateTimer);
+      const saved = S.list();
+      $("#stage").innerHTML = `<div class="topbar"><button class="circle" type="button" id="backBtn">←</button></div>
+    <div class="page"><div class="hero"><div class="hero-art" style="display:grid;place-items:center;background:linear-gradient(135deg,#a855f7,#5b8def);font-size:64px">♪</div>
+    <div><div class="kicker">Playlist</div><h1>Your Library</h1><p>${saved.length ? saved.length + " saved tracks" : "Save a track or drop local files."}</p>
+    <div style="display:flex;gap:10px"><button class="btn btn-play" id="libPlay">Play</button><button class="btn btn-ghost" id="libFiles">Add files</button></div></div></div>
+    ${saved.length ? trackRows(saved) : '<div class="empty">Nothing saved yet. Hit + on any track.</div>'}</div>`;
+      bindTracks($("#stage"), saved);
+      $("#libPlay").onclick = () => { if (saved.length) useList(saved, saved[0].sp || saved[0].id, true); };
+      $("#libFiles").onclick = () => $("#filePick").click();
+      $("#backBtn").onclick = viewHome;
+    }
+
+    function viewSearch(q0 = "") {
+      state.view = "search"; setNav(); clearInterval(heroRotateTimer);
+      $("#stage").innerHTML = `<div class="topbar"><button class="circle" type="button" id="backBtn">←</button>
+    <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+    <input id="q" value="${esc(q0)}" placeholder="Song, artist, or Spotify link" autofocus></div></div>
+    <div class="page"><div id="sres" class="empty">Type a query and press Enter.</div></div>`;
+      $("#backBtn").onclick = viewHome;
+      let _searchTimer = null;
+      const run = async () => {
+        const q = $("#q").value.trim(); const box = $("#sres");
+        if (!q) { box.className = "empty"; box.textContent = "Type a query and press Enter."; return; }
+        box.className = "empty"; box.textContent = "Searching…";
+        try {
+          const items = await spotifySearch(q);
+          /* If user typed something else while this search was in flight, discard */
+          if (q !== ($("#q") && $("#q").value.trim())) return;
+          if (!items.length) { box.textContent = "No results — try again."; return; }
+          box.className = ""; box.innerHTML = trackRows(items); bindTracks(box, items);
+          ensureCovers(items);
+        } catch (e) { box.textContent = e.message || "Search failed"; }
+      };
+      const qEl = $("#q");
+      /* Run on Enter key immediately */
+      qEl.addEventListener("keydown", e => { if (e.key === "Enter") { clearTimeout(_searchTimer); run(); } });
+      /* Also run with 300 ms debounce on keyup for instant feel */
+      qEl.addEventListener("keyup", e => {
+        if (e.key === "Enter") return; // already handled above
+        clearTimeout(_searchTimer);
+        const v = qEl.value.trim();
+        if (v.length < 2) return;
+        _searchTimer = setTimeout(run, 300);
+      });
+      if (q0) run();
+    }
+
+    function goView(name) { if (name === "home") viewHome(); else if (name === "search") viewSearch(""); else if (name === "library") viewLibrary(); }
+
+    /* ============================================================
+       LOAD LIVE CHARTS  (with 24-hour localStorage cache)
+       ============================================================ */
+    async function loadCharts() {
+      /* 1. Serve from localStorage cache if still fresh (< 24 h) */
+      const persisted = _chartCacheGet();
+      if (persisted && persisted.tops && persisted.tops.length) {
+        state.tops = persisted.tops;
+        state.news = persisted.news || [];
+        /* Also warm the in-memory chartCache map */
+        chartCache.set(dayKey(), { tops: state.tops, news: state.news });
+        if (!S.list().length) state.list = state.tops.slice();
+        if (state.view === "home") viewHome();
+        paintSide();
+        ensureCovers(state.tops.concat(state.news));
+        return;
+      }
+
+      /* 2. Fall back to in-memory chartCache (same session, charts already fetched) */
+      const memCached = chartCache.get(dayKey());
+      if (memCached) {
+        state.tops = memCached.tops || []; state.news = memCached.news || [];
+        if (state.view === "home") viewHome(); paintSide();
+        ensureCovers(state.tops.concat(state.news));
+        return;
+      }
+
+      /* 3. Fetch live from Spotify embed scrape */
+      try {
+        const [topsRaw, newsRaw] = await Promise.all([
+          spotifyPlaylist(CHARTS[0].id),
+          spotifyPlaylist(CHARTS[1].id)
+        ]);
+        if (topsRaw.length) state.tops = topsRaw.slice(0, 40);
+        if (newsRaw.length) state.news = newsRaw.slice(0, 40);
+        /* Persist to both caches */
+        chartCache.set(dayKey(), { tops: state.tops, news: state.news });
+        _chartCacheSet(state.tops, state.news);
+        if (!S.list().length) state.list = state.tops.slice();
+        if (state.view === "home") viewHome();
+        paintSide();
+        ensureCovers(state.tops.concat(state.news));
+      } catch (e) {
+        /* Charts failed — home view shows "Loading…" and will retry on next interaction */
+        if (state.view === "home") viewHome();
+        ensureCovers(state.list);
+      }
+    }
+
+    /* ============================================================
+       VOLUME / CONTROLS WIRING
+       ============================================================ */
+    function toggleShuffle() { S.setPrefs({ shuffle: !S.prefs().shuffle }); paintNow(); toast("Shuffle " + (S.prefs().shuffle ? "on" : "off")); }
+    function cycleRepeat() { const o = ["off", "all", "one"]; S.setPrefs({ repeat: o[(o.indexOf(S.prefs().repeat) + 1) % 3] }); toast("Repeat " + S.prefs().repeat); paintNow(); }
+
+    bindSeek($("#npSeek")); // only NP panel has the hidden range input now
+    $("#btnPlay").onclick = $("#npPlay").onclick = togglePlay;
+    $("#btnNext").onclick = $("#npNext").onclick = next;
+    $("#btnPrev").onclick = $("#npPrev").onclick = prev;
+    $("#btnShuffle").onclick = $("#npShuffle").onclick = toggleShuffle;
+    $("#btnRepeat").onclick = $("#npRepeat").onclick = cycleRepeat;
+    $("#openNow").onclick = openPlayer; $("#expandBtn").onclick = openPlayer;
+    $("#npClose").onclick = closePlayer;
+    $("#npSave").onclick = () => { if (current()) addSong(current()); };
+
+    $$("[data-view]").forEach(b => b.onclick = () => goView(b.dataset.view));
+
+    /* Guarded addFiles wiring */
+    const addFilesBtn = $("#addFiles"), mAddBtn = $("#mAdd");
+    if (addFilesBtn) addFilesBtn.onclick = () => $("#filePick").click();
+    if (mAddBtn) mAddBtn.onclick = () => $("#filePick").click();
+
+    $("#filePick").onchange = async e => {
+      const files = [...e.target.files || []].filter(f => /^audio\//.test(f.type) || /\.(mp3|m4a|ogg|wav|flac|aac|opus)$/i.test(f.name));
+      for (const file of files) {
+        const id = "local_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        await idbPut(id, file);
+        addSong({ sp: id, id, title: file.name.replace(/\.[^.]+$/, ""), artist: "This device", cover: "", local: true });
+      }
+      if (files.length) toast("Added " + files.length);
+      e.target.value = ""; if (state.view === "library") viewLibrary();
+    };
+
+    document.addEventListener("keydown", e => {
+      if (e.target.matches("input,textarea")) return;
+      if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+      if (e.code === "ArrowRight") next();
+      if (e.code === "ArrowLeft") prev();
+      if (e.code === "Escape") closePlayer();
+      if (e.code === "KeyF") openPlayer();
+    });
+    if (navigator.mediaSession) {
+      navigator.mediaSession.setActionHandler("play", togglePlay);
+      navigator.mediaSession.setActionHandler("pause", togglePlay);
+      navigator.mediaSession.setActionHandler("nexttrack", next);
+      navigator.mediaSession.setActionHandler("previoustrack", prev);
+    }
+
+    /* ── Volume bar click ── */
+    document.getElementById("volTrack").onclick = e => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const v = Math.round(pct * 100);
+      /* Apply to whichever engine is active */
+      if (engine.waGain) engine.waGain.gain.value = pct;
+      if (engine.kind === "stream" && engine.streamEl) engine.streamEl.volume = pct;
+      S.setPrefs({ vol: v });
+      document.getElementById("volFill").style.width = v + "%";
+    };
+
+    /* ── Progress bar click ── */
+    document.getElementById("progWrap").onclick = e => {
+      const { dur } = mediaTime(); if (!dur) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const t = pct * dur;
+      if (engine.kind === "stream" && engine.streamEl) {
+        engine.streamEl.currentTime = t;
+      } else if (engine.kind === "wa") {
+        const audioBuf = engine.waSource && engine.waSource.buffer;
+        if (!audioBuf) return;
+        const was = !engine.waPaused;
+        if (engine.waGain) { try { engine.waGain.disconnect(); } catch { } engine.waGain = null; }
+        destroyWaSource();
+        playWa(audioBuf, t, was, "seek", engine.isPreview).catch(() => { });
+      }
+    };
+
+    /* ── Save heart button in dock ── */
+    document.getElementById("dockSave").onclick = e => { e.stopPropagation(); if (current()) addSong(current()); };
+
+    /* ============================================================
+       BOOT
+       ============================================================ */
+    viewHome();
+    paintNow();
+
+    /* Set initial volume bar from saved prefs */
+    (() => { const v = S.prefs().vol || 80; const vf = document.getElementById("volFill"); if (vf) vf.style.width = v + "%"; })();
+
+    /* WISP tunnel → anon token prefetch → charts + cover backfill
+       stoken is only needed as a fallback and is fetched lazily on demand */
+    ensureLibcurl()
+      .then(() => {
+        return spotifyAnonToken().catch(() => {})
+          .then(() => {
+            SpotifyDealer.start();
+            ensureCovers(state.list);
+            return loadCharts();
+          });
+      })
+      .catch(() => loadCharts());
+  </script>
+</body>
+
+</html>
