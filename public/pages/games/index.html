@@ -419,12 +419,20 @@
     }
     try { render(); } catch (err) { console.error(err); }
 
+    function proxyUrl(url) {
+      try {
+        const u = new URL(url, location.href);
+        if (/marketjs\.com$/i.test(u.hostname)) return "/gcdn" + u.pathname + (u.search || "");
+        return url;
+      } catch { return url; }
+    }
     function gameDirectory(fileUrl) {
-      const u = new URL(fileUrl, location.href);
+      const proxied = proxyUrl(fileUrl);
+      const u = new URL(proxied, location.href);
       let path = u.pathname || "/";
       if (!path.endsWith("/")) path = path.replace(/\/[^/]*$/, "/");
       if (!path.endsWith("/")) path += "/";
-      return u.origin + path;
+      return (u.origin === location.origin ? "" : u.origin) + path;
     }
 
     function escAttr(s) {
@@ -533,7 +541,7 @@
     }
 
     function openGame(g) {
-      const url = g.file;
+      const url = proxyUrl(g.file || g.remote || "");
       pendingGameUrl = url;
       const go = function () { window.location.assign(url); };
       const root = document.documentElement;
