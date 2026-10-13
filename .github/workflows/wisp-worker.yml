@@ -19,8 +19,11 @@ jobs:
         with:
           node-version: 20
       - name: Typecheck worker
-        run: npx tsc --noEmit --project wisp-worker
+        run: |
+          npm install --no-save typescript @cloudflare/workers-types
+          npx tsc --noEmit --project wisp-worker
       - name: Sync SOCKS5 proxy list
+        if: ${{ secrets.WISP_SOCKS5 != '' }}
         run: printf '%s' "${{ secrets.WISP_SOCKS5 }}" | npx wrangler secret put WISP_SOCKS5
         working-directory: wisp-worker
         env:
