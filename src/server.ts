@@ -11,6 +11,7 @@ import {
 } from "../scripts/grok-pwa-shared.mjs";
 import { handleMediaRequest } from "../server/yt-proxy.mjs";
 import { WispServer } from "../server/wisp";
+export { WispServer };
 
 interface Env {
   WISP: DurableObjectNamespace;

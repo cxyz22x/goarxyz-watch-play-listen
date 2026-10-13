@@ -3,6 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 
 interface Env {
   WISP_TOKEN?: string;
+  WISP_SOCKS5?: string;
 }
 
 interface WispMessage {
@@ -16,6 +17,170 @@ interface WispMessage {
 
 interface StreamState {
   socket: Socket;
+}
+
+interface Socks5Proxy {
+  host: string;
+  port: number;
+  username?: string;
+  password?: string;
+}
+
+function parseSocks5List(raw: string | undefined): Socks5Proxy[] {
+  if (!raw) return [];
+  return raw
+    .split(/[\n,;]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      let creds: string | undefined;
+      let hostPort = entry;
+      const at = entry.lastIndexOf("@");
+      if (at !== -1) {
+        creds = entry.slice(0, at);
+        hostPort = entry.slice(at + 1);
+      }
+      const parts = hostPort.split(":");
+      const host = parts.slice(0, -1).join(":");
+      const port = Number(parts[parts.length - 1]);
+      if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
+        return null;
+      }
+      const proxy: Socks5Proxy = { host, port };
+      if (creds) {
+        const [username, ...rest] = creds.split(":");
+        proxy.username = decodeURIComponent(username);
+        proxy.password = decodeURIComponent(rest.join(":"));
+      }
+      return proxy;
+    })
+    .filter((p): p is Socks5Proxy => p !== null);
+}
+
+function pickProxy(proxies: Socks5Proxy[]): Socks5Proxy | null {
+  if (proxies.length === 0) return null;
+  return proxies[Math.floor(Math.random() * proxies.length)];
+}
+
+function encodeSocks5String(value: string): Uint8Array {
+  const bytes = new Uint8Array(value.length);
+  for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i) & 0xff;
+  return bytes;
+}
+
+function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
+  if (proxy.username) {
+    return new Uint8Array([0x05, 0x02, 0x00, 0x02]);
+  }
+  return new Uint8Array([0x05, 0x01, 0x00]);
+}
+
+function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
+  const user = encodeSocks5String(proxy.username ?? "");
+  const pass = encodeSocks5String(proxy.password ?? "");
+  const out = new Uint8Array(3 + user.length + pass.length);
+  out[0] = 0x01;
+  out[1] = user.length;
+  out.set(user, 2);
+  out[2 + user.length] = pass.length;
+  out.set(pass, 3 + user.length);
+  return out;
+}
+
+function socks5ConnectRequest(
+  destination: string,
+  port: number,
+): Uint8Array {
+  const isIPv4 = /^(\d{1,3}\.){3}\d{1,3}$/.test(destination);
+  let addrBytes: Uint8Array;
+  let addrType: number;
+  if (isIPv4) {
+    addrType = 0x01;
+    addrBytes = new Uint8Array(4);
+    destination.split(".").forEach((o, i) => {
+      addrBytes[i] = Number(o) & 0xff;
+    });
+  } else {
+    addrType = 0x03;
+    const name = encodeSocks5String(destination);
+    addrBytes = new Uint8Array(1 + name.length);
+    addrBytes[0] = name.length;
+    addrBytes.set(name, 1);
+  }
+  const out = new Uint8Array(
+    4 + addrBytes.length + 2,
+  );
+  out[0] = 0x05;
+  out[1] = 0x01;
+  out[2] = 0x00;
+  out[3] = addrType;
+  out.set(addrBytes, 4);
+  const portHi = (port >> 8) & 0xff;
+  const portLo = port & 0xff;
+  out[4 + addrBytes.length] = portHi;
+  out[5 + addrBytes.length] = portLo;
+  return out;
+}
+
+async function readExact(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  length: number,
+): Promise<Uint8Array> {
+  const out = new Uint8Array(length);
+  let filled = 0;
+  while (filled < length) {
+    const { done, value } = await reader.read();
+    if (done) throw new Error("socks5 proxy closed early");
+    if (!value) continue;
+    out.set(value.subarray(0, Math.min(value.length, length - filled)), filled);
+    filled += value.length;
+    if (filled > length) {
+      throw new Error("socks5 proxy sent more than expected");
+    }
+  }
+  return out;
+}
+
+async function dialThroughSocks5(
+  proxy: Socks5Proxy,
+  destination: string,
+  port: number,
+): Promise<Socket> {
+  const socket = connect({ hostname: proxy.host, port: proxy.port });
+  const writer = socket.writable.getWriter();
+  const reader = socket.readable.getReader();
+  try {
+    await writer.write(socks5Greeting(proxy));
+    const methods = await readExact(reader, 2);
+    if (methods[0] !== 0x05) throw new Error("not a socks5 proxy");
+    if (methods[1] === 0xff) throw new Error("socks5 proxy rejected auth");
+    if (methods[1] === 0x02) {
+      if (!proxy.username) throw new Error("socks5 proxy wants auth");
+      await writer.write(socks5AuthRequest(proxy));
+      const auth = await readExact(reader, 2);
+      if (auth[1] !== 0x00) throw new Error("socks5 auth failed");
+    } else if (methods[1] !== 0x00) {
+      throw new Error("socks5 proxy sent unknown method");
+    }
+    await writer.write(socks5ConnectRequest(destination, port));
+    const head = await readExact(reader, 4);
+    if (head[1] !== 0x00) {
+      throw new Error(`socks5 connect failed (code ${head[1]})`);
+    }
+    const addrType = head[3];
+    let skip: number;
+    if (addrType === 0x01) skip = 4;
+    else if (addrType === 0x03) {
+      const lenByte = await readExact(reader, 1);
+      skip = lenByte[0];
+    } else if (addrType === 0x04) skip = 16;
+    else throw new Error("socks5 proxy sent unknown addr type");
+    await readExact(reader, skip + 2);
+    return socket;
+  } finally {
+    writer.releaseLock();
+    reader.releaseLock();
+  }
 }
 
 export class WispServer extends DurableObject<Env> {
@@ -62,6 +227,7 @@ export class WispServer extends DurableObject<Env> {
       return new Response("unauthorized", { status: 401 });
     }
 
+    const proxies = parseSocks5List(this.env.WISP_SOCKS5);
     const { 0: client, 1: server } = new WebSocketPair();
     server.accept();
 
@@ -96,42 +262,53 @@ export class WispServer extends DurableObject<Env> {
         const id = this.nextStreamId++;
         const destination = String(msg.destination ?? "");
         const port = Number(msg.port ?? 443);
-        if (!destination || !Number.isInteger(port) || port < 1 || port > 65535) {
+        if (
+          !destination ||
+          !Number.isInteger(port) ||
+          port < 1 ||
+          port > 65535
+        ) {
           send({ type: "error", streamID: id, reason: "invalid destination" });
           return;
         }
-        try {
-          const socket = connect({ hostname: destination, port });
+        void (async () => {
+          let socket: Socket;
+          try {
+            const proxy = pickProxy(proxies);
+            if (proxy) {
+              socket = await dialThroughSocks5(proxy, destination, port);
+            } else {
+              socket = connect({ hostname: destination, port });
+            }
+          } catch (err) {
+            send({
+              type: "error",
+              streamID: id,
+              reason: String((err as Error)?.message ?? err),
+            });
+            return;
+          }
           this.streams.set(id, { socket });
           send({ type: "connected", streamID: id });
           const reader = socket.readable.getReader();
-          void (async () => {
-            try {
-              for (;;) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                if (value) {
-                  send({
-                    type: "data",
-                    streamID: id,
-                    data: this.bytesToBase64(value as Uint8Array),
-                  });
-                }
+          try {
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (value) {
+                send({
+                  type: "data",
+                  streamID: id,
+                  data: this.bytesToBase64(value as Uint8Array),
+                });
               }
-            } catch {
-              /* read error */
             }
-            send({ type: "close", streamID: id, reason: "stream ended" });
-            await cleanupStream(id);
-          })();
-        } catch (err) {
-          send({
-            type: "error",
-            streamID: id,
-            reason: String((err as Error)?.message ?? err),
-          });
-          void cleanupStream(id);
-        }
+          } catch {
+            /* read error */
+          }
+          send({ type: "close", streamID: id, reason: "stream ended" });
+          await cleanupStream(id);
+        })();
         return;
       }
 
