@@ -221,7 +221,7 @@
 
   <div class="theater" id="theater" role="dialog" aria-modal="true">
     <div class="theater-bar">
-      <button class="btn btn-outline" type="button" id="theater-back">← Home</button>
+      <button class="btn btn-outline" type="button" id="theater-back">← All games</button>
       <span class="logo hidden-nav" style="font-size:14px">goar<span class="logo-xyz">xyz</span></span>
       <span class="title" id="theater-title"></span>
       <button class="fav" type="button" id="theater-fav" aria-label="Save">♥</button>
@@ -551,8 +551,8 @@
       theater.classList.add("open");
       document.documentElement.classList.add("is-game-locked");
       document.body.style.overflow = "hidden";
-      frameLaunch.hidden = false;
-      frameLaunchButton.disabled = false;
+      frameLaunch.hidden = true;
+      frameLaunchButton.disabled = true;
       frame.srcdoc = buildShellDoc(url, g.title || "Game");
     }
 
