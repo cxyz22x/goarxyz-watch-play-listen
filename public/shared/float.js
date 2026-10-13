@@ -8,7 +8,8 @@
     ["Live", "/pages/live/index.html"],
     ["Anime", "/pages/anime/index.html"],
     ["Proxy Scraper", "/pages/proxy-scraper/index.html"],
-    ["Agents", "/pages/agents/index.html"],
+    ["AI.Byo", "/pages/AI.Byo/index.html"],
+    ["ip.info", "/pages/ip.info/index.html"],
     ["Privacy", "/legal/privacy.html"],
     ["Contact", "/legal/contact.html"]
   ];
