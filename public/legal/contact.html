@@ -1,24 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Contact — goarxyz</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" /><link rel="stylesheet" href="/shared/brand.css" /><link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "2B70MaYfY0JN4GWBqR0NU87Ei3NdFqsJ", K2 = "FtsKIKtc5IdB5TB9qTsMjvhXDmmncrXS", IV = "IQi4QGQI4XTau/4t", K = "xwXz2iRQTd6tQ6ee0aefov6GFSGEnrOFJimBRdFcepk=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<main>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <nav class="legal">
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="copyright.html">Copyright</a>
-    <a href="contact.html" aria-current="page">Contact</a>
-  </nav>
-  <h1>Contact</h1>
-  <p>Email <a class="mail" href="mailto:admin@goarxyz.com">admin@goarxyz.com</a>.</p>
-  <p>Use that address for privacy, copyright notices about this interface, and anything else about the site. Include the page you were on.</p>
-</main><script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>

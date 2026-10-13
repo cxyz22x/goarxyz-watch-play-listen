@@ -140,7 +140,7 @@ LOADER_TEMPLATE = r"""<!DOCTYPE html>
 
 def collect_pages():
     pages = [PUBLIC / "index.html"]
-    for sub in sorted(PUBLIC.rglob("index.html")):
+    for sub in sorted(PUBLIC.rglob("*.html")):
         if sub != PUBLIC / "index.html":
             pages.append(sub)
     return [p for p in pages if p.is_file()]

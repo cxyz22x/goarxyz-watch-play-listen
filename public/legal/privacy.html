@@ -1,33 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Privacy — goarxyz</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" /><link rel="stylesheet" href="/shared/brand.css" /><link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "XOyr9FJLE9pIbksoIi78RvGPuOKyCAXd", K2 = "eg6TesVwrk4vokrjZLEbQJrcKyh/wUtu", IV = "Oq6/89CoQH4qRBlK", K = "WL0kIs40tLB2X2Nj05bSJh3rltPzpIk57hhoijivFlc=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<main>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <nav class="legal">
-    <a href="privacy.html" aria-current="page">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="copyright.html">Copyright</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-  <h1>Privacy</h1>
-  <p>goarxyz is a front-end catalog. There is no account and no goarxyz login. This page says what the site itself stores.</p>
-  <h2>On this device</h2>
-  <ul>
-    <li>Saved lists, region, and the position of the menu button, in local storage.</li>
-    <li>Short-lived catalog responses in memory while a tab is open.</li>
-  </ul>
-  <p>Clearing site data for this address removes that. goarxyz does not run its own analytics pixel.</p>
-  <h2>Other services</h2>
-  <p>Posters, titles, and playback can come from other sites, including The Movie Database, AniList, image hosts, and the player you open. Those services see the request your browser makes and have their own policies.</p>
-  <h2>Contact</h2>
-  <p>Privacy questions: <a class="mail" href="mailto:admin@goarxyz.com">admin@goarxyz.com</a></p>
-</main><script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>

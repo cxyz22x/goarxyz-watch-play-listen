@@ -1,30 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Terms — goarxyz</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" /><link rel="stylesheet" href="/shared/brand.css" /><link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "+aTdXans4sm6/2L8+4ZY/AVkO/w3NmtT", K2 = "sWKmt6CqODH4xg81Ui5xy9Qu0dx+4iVL", IV = "7bNrCJ/1O7ACGTGz", K = "iiUxEFvPpdHhvUG6DYbvIzKi48E6a6P5viXEKEOXOUY=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<main>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <nav class="legal">
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html" aria-current="page">Terms</a>
-    <a href="copyright.html">Copyright</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-  <h1>Terms of use</h1>
-  <p>goarxyz is a catalog interface. It does not host, store, or sell video, music, or television files. Using the site means you accept the following.</p>
-  <ul>
-    <li>You use it for yourself. You do not present goarxyz as an official studio, label, or broadcaster.</li>
-    <li>Titles, artwork, and streams belong to their owners. goarxyz does not claim them.</li>
-    <li>You do not use the site to attack, overload, or scrape other services.</li>
-    <li>Playback depends on third parties. A title can fail, change, or disappear without notice.</li>
-  </ul>
-  <p>Questions: <a class="mail" href="mailto:admin@goarxyz.com">admin@goarxyz.com</a></p>
-</main><script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>

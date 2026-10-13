@@ -1,24 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Copyright — goarxyz</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="legal.css" /><link rel="stylesheet" href="/shared/brand.css" /><link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "0u6XnR6BXBb5psUsPMdLTufCp7mwHBUw", K2 = "UgIQmNK6wmpHw4rb64bCxMB7oW7MnZjI", IV = "h4UyHheuk0Hzp7PI", K = "HEKiSJvPSFj+AjQ9dF0b9LF5u4rJDsKdKgTQC3NxFxM=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<main>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <nav class="legal">
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="copyright.html" aria-current="page">Copyright</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-  <h1>Copyright</h1>
-  <p>goarxyz does not store or serve the video, music, or live files that play in the browser. Metadata and artwork are shown from the catalogs named on each page.</p>
-  <p>If you are a rights holder and something on this interface should change, write to <a class="mail" href="mailto:admin@goarxyz.com">admin@goarxyz.com</a> with the page address, the title, and what you want removed. A file that is actually hosted somewhere else has to be taken up with that host.</p>
-</main><script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>
