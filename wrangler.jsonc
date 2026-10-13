@@ -3,7 +3,7 @@
   "name": "goarxyz-watch-play-listen",
   "compatibility_date": "2026-10-13",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+  "main": "./src/server.ts",
   "observability": {
     "enabled": true
   }
