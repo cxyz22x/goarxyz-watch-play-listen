@@ -11,6 +11,7 @@ import {
 } from "../scripts/grok-pwa-shared.mjs";
 import { handleMediaRequest } from "../server/yt-proxy.mjs";
 
+
 const fetchStart = createStartHandler(defaultStreamHandler);
 
 function requestHost(request: Request): string {

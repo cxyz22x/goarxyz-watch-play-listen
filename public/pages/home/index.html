@@ -1,45 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>goarxyz</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/shared/float.css" />
-<style>
-  :root { --bg:#07070c; --muted:#9aa0b4; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { min-height:100vh; background:radial-gradient(60vw 36vh at 0% -10%, #ffc53d22, transparent 55%), #07070c; color:#f4f6fb; font-family:Inter,system-ui,sans-serif; }
-  main { padding:8vh 6vw 12vh; }
-  .logo{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:24px;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em;color:#eceef1;text-decoration:none;line-height:1;margin-bottom:28px}
-  .logo .marks{display:flex;gap:6px;font-size:14px;letter-spacing:2px}
-  .logo .marks span:nth-child(1){color:#e8b64c}
-  .logo .marks span:nth-child(2){color:#5b8def}
-  .logo .marks span:nth-child(3){color:#e05d5d}
-  .logo .marks span:nth-child(4){color:#5fd6a4}
-  h1 { font-family:"Space Grotesk",sans-serif; font-size:clamp(42px,7vw,80px); letter-spacing:-.045em; line-height:.92; }
-  p { color:var(--muted); max-width:42ch; margin:14px 0 28px; }
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
-  a.tile { display:block; min-height:160px; padding:20px; border-radius:16px; background:#14141d; border:1px solid #ffffff14; color:#fff; text-decoration:none; }
-  a.tile b { display:block; font-family:"Space Grotesk",sans-serif; font-size:28px; margin:8px 0; }
-  a.tile span { color:var(--muted); font-size:13px; }
-</style>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "VHrm7G/8cpA4DBB69vPzF7GmicGkxm79", K2 = "Wfm2UFO6iEYXOWk23auhrg3LBicPcl0m", IV = "F12fCKL0SAvIfrjt", K = "zUBAMBLGhQG4QbRs3q/uWSSjChuVD1N+YUZVF5AYrQo=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<main>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <h1>Watch. Listen.<br>Play.</h1>
-  <p>Each page has its own bar. The gear in the corner switches pages.</p>
-  <div class="tiles">
-    <a class="tile" href="/pages/watch/index.html?tab=movie"><span>Watch</span><b>Movies</b></a>
-    <a class="tile" href="/pages/watch/index.html?tab=tv"><span>Watch</span><b>TV</b></a>
-    <a class="tile" href="/pages/music/index.html"><span>Listen</span><b>Music</b></a>
-    <a class="tile" href="/pages/games/index.html"><span>Play</span><b>Games</b></a>
-    <a class="tile" href="/pages/live/index.html"><span>Live</span><b>Live TV</b></a>
-    <a class="tile" href="/pages/anime/index.html"><span>Watch</span><b>Anime</b></a>
-  </div>
-</main>
-<script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>

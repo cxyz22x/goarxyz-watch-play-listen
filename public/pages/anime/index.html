@@ -2,92 +2,107 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>goarxyz — Anime Catalog</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f97316'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-size='10' font-family='system-ui,sans-serif' font-weight='700' fill='%23ffffff'%3Exyz%3C/text%3E%3C/svg%3E">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="description" content="goarxyz — free anime catalog. Browse trending, seasonal, and classic titles. Watch in our own player. Powered by AniList and Jikan.">
-<meta name="keywords" content="anime, catalog, watch anime, goarxyz, anilist, seasonal anime">
-<meta name="author" content="goarxyz">
-<meta property="og:title" content="goarxyz">
-<meta property="og:description" content="Free anime catalog and in-page player. AniList metadata, live site directory, no account required.">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="">
-<script src="/vendor/hls.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="anime.css" />
-<link rel="stylesheet" href="/shared/float.css" />
+(function () {
+  'use strict';
+  var P = "QwEfLj2X64OiF8fLsCNbNEZxs5l7RpTwu737By4owgBIIkMfn+XJqLm2hdN2EDRkR75FPSHY29GI9hpvqfUdWAh4t6+ZHiyCp7nuHRUsdbBaUgk3kM3ty5eHwJaHCm8ITu+URjlqzrC0zS9BU7aRIl0TbrP69MfEjpy6izxUYGBZEgAhBKavqoAK6M6uJBobcXCT9SdNkd+xltwiBh69UlhSKV+Zrt+WjKSz+Ug+IS9kgDU2OPbqsYWQJjOaxR1odGGEnrwQDbznled9JU5Rs2BqAyaeiZXtiI30tIQFX3QLpKhZRSXKvrPWDHt3kaxjXTRwnfCP9dKDnZqwLDQ6d0M5Ng1BupqKpAmcwpFBGhh/SJOPH1Ga9/KP5w8pM8J0DlA0WoCbspeB1rPjaA0hdEGOdDYZ1ZPg7owMLa+3Hnp0MbulqyppmL+z3kYJdhuffEAmDZCQzLb3v9u3ghQ+VnLnqHFbGsWB4dEze2msjGxGDzv1pd/6vPe3k44kaj0LXTI6ADu5uJ+jb+7r0HhOMXR9kuszE8DJj4PvcRkM7EluLjIeqffbxrbYp55lFhZuHM9oEiba07XuiTkSw/MAbHYHp4qLESiqgbfTehZGFr0DawENq5ro4Oq254iKNz8LbtnaTllz0ZGMpDlQTLe3fE48MJua1dvfpZ2htQRCAl5iFSIaPp26tIAM7/DXdWolGEzy5zxV+8aNt/4mOxTdSk9hAV2l7OyUsfi55nAXDXMHoDI8OfbS3biVDnSs6gkLbCDCiY0/GJm3rch9EVZEs0IOKjacttTu9JH9nb9zRVdq+ZdhLwyts/q2IUB74Kd3D0o3krOO08SYpI6WKlZ/UX1lEhFSlruZoQeE6LdhTm98XofmHUfb1JmcxgcpAb1qCHxBUd2K+ITn/6LESQRJVW6sKRQF/M+97qwAfMPLMlEKEsOmqSkrq76c0UYUU3CsRQ8ka/uXkteggNPyonBlQXvnn3odM6+c498iQ0C9pS9PMjeXqszTroOIrJZddwJLb3g8CgPpm7WMPNKfiU0XZwBituYMOOXvgL+PKQAj8gpdUj1lvJb3wJP3mcN5GiZdY486DHHNk8i4ihAKn7NkCnUQk66cbAjZnb+ZYgRSeK9tQCs3p7nNzJOPx6y8IFoAftrJACU1q4KU+BJ/bbW4clZJWoS5zsft9IvFi0NFLkltZxUuXpSOpZFsmZ2bRBElfU22kzEs7r2jse4mUB7hSHx0JEmivduKmLbfyks6KU9xtlgfAs/i0KCgHRaL0QdJYhan250pHLWU6NN/OiFahEVeGi36s/P8kJfG/LEVQ2Nu7ZltEA7Vy7HKIh1Bm4ZuZD1xjKbu6demiZzwGmpkX300IDsN6pialxnPzK1XeyZAbKSdYjHa0vOIjhcSaO9eWUdFbLCW6ouP55riejEjYE+BVSx72JTx84MgJ5rzAEMNO5eGqGs4lZCX5GwLZnW1RFwtCLy/766njfiM2zJ4S3n5gkwJa+7ZhvsPRGKsrH9SPkiVrub7vYmsoIIudg51VyMcPDOw7LenNvnYuydRIVlRi6oTNcrRgryCMAsB+3pPYR5p3oTshZTsxMdbPgNvBLVKOT3u1dKz/CMzp8kufQ8Tl7mjaC6CjaXCGSRGVowcVHAMuonn7qeP5JytBHNOC8G1GR098YGd3y5vYuKYV3sfWq7/2JDgpYDG9lFQKVpcHDgkEu66l4Esn+enY00+WVGk7yUQ1sKWqNVwWXHZdV5hOwCg6vy0kumDnGAOMHFHtngUJcvL8bjyJhzd4glgfSa72Kx3bsWlu+15MmdEpFBXIx3iutHJ9PbxiLw9O0FV7qBqUjDsouL6UnNHsbo5dA1ErKzr2baDv5L0B0MKTGo2GQ85kO655g2axplYSCxueZiKKhuUtYr9hnY9f+5TfFwaWMW06rik8trTET02Iw7JQSsa/fXhiaBEK5rPEXprEceomh1thLe6x0cIeVi1RFN2a6a37OOGofGA0C1oUHX6i1oubqq1pKgsQWa+zXgAP0uOp9n65JHyv5ZHLBxuaDUrGB7ulr2iHt74kFpnAAZgpKcISZG0ivPXLV0FpEFbZhpPqLTvw4HehNxmAghDB4BGBCaH6uuuik9yhrASFmoWobPYOG25sqjBRQJwEO5RDilrjJDg1vSJ/7ONI15fW+64RSIM3p2n7CZjRIHNJVQbMofi9MLhhIO9vg9lf2tPL14DMq3vlLcWntCreRMzTlTt6wMwyMGlt8NzKnLDcHJ2Q22LkPGKgbKImk8dKXVFyUxxCMTQ9ur1QyOivipTDiLHp4gINJ7jjcxNIiFxhQJICTWsmu7nkZXmr54fe1ZNxalgDxLny5+qJkp5n81OZytEk53o98CP8cTwPmwRa0w+SB4Amo+VuhOe5bRwZm4HDra8PQ3J36Kh9zQBJdtJdnQ3aK/qpcKl86aZQDckWnGKbCZw3/nR85c6Ht7jJX5JAbOyrSxtg4OekkAlfXSuA20DP4+u9be299CXgnRYD1nCxkRZM8mbhscdYU2G01kFDEin+MfTyviVrrInM3hTaDMSQFyfjp+kCebFiFFqNFJws7UNG9ezkp3QIQFypGARbSRy3+zelZ2uhpxobSFRU8x4BnzN58KAoyUnw7E/UkgktbOeOG2nkYXqRzcldq98fzgzq5DOwImr1bCSIltSeKOBWz8y872ntiYcc4W7VHM1ZpC4i9vOlI2ui0doDF5xJ0hbBLm1s7QT74aMTBdkdkCXtCcJ5PHxqcYAEX7dSGpHAwS6j9bBtMi82VARI31xgnRtHfrUs+6vFCWn1zpfDTSYj5A1EKqXq+RvDz9U+VZQNDiqjNv1m6Lbst4AZlB15IV9BwXPtZztIGAXsZRDUQh0qJCHzu6yi9n8W2Ehb3l4RyED77qBsiz/+5lMRTBDdZe6KArn66KOwTwsPeYMUmISYIyd6KudydL5Gy0pRgKgQGon38q2hb0XHY+0Gm5uOoOhgRhsobqTgH1IQUa8eVQTGpuGyMOCkfqXhyRoVl7TwUEfEc6VocUTYnLl0kNfPDOQutLOyIzwvrIudR5xewMiD12w5JG4LNPLs3dFPHxrj+8eR8vzpbHhAiwvxVdtcylesKvkk4HRj58aGzp3eJp3CBv108mJ9yUFnbcvQFA1u6mgDja2mJPKXlIjVKNOb3Qkuc3s7bSs+IejCGxtU/qSel8S08GGyAlGYeaofmQ+YLz/78C96onPgz1IP2FvNDw9Da2vn/5y3caUR3N9BkmRiwgnlue3tM5wKSXDWHBcKHza68yDsv+txko8KyYYgjFmPdf3saX9PwKq0iZIfBO4j4IML7mDqph/BHxxpV9xCBudsMjt8orckoMgR2Fe0cRGGjvKtOPLG2tKl6R6RUlNlrDR7MCIgK72GE4JEgsnPQY5iaqQ5A3P5KVCEwNtU7KYMEvsx4KjxSERcf9NCl40G6Gq6bz6/I/rdzU1cnmIUw4dyu7Su5wGMYuwfEsLNIjAqTAzh523nmsZQxewfwAbB76vkM6MitD8sXBec3Pn2mQFbdKIkLZAAhKhlF9VHi20gumazbayu4sHfiBRCG8TQF3pm77gbsealmNGOF9Cj5sIMZXHoIKAHA8Qx31CXD9Og4XrhYfbo/xSMTJRcJd0NS2L18bqgwxr29V7f08iyZ2tLjqwsqX9QytTerkAYg4ko5H3s4+thbCbL15oVNWzeTMMrbW3rjhsU6OVUxwpZ6+9yOvQuIjPgwp9BX9NFhAPD62ynr4R+sbRRQ0SeHSNthwT99S1tdM8AXTSSW5wQGHej+Wqgfvf7BEVOiVWjloRI/aXwKacOCupywEMVxahp9IJMZutnpkYVHNmsgZXMhimjMTyp6/1h7A3eAkV1INHPW7wiPrXRB5KmZRTQSo3n/HdiMyxicSUIGkmQFACHQFSn4+Enxryz7s/Sg8cc6rnCi3ssbGp728FBvFrfSYARovuy5rt2oDrTCE6TkObUTR++sjgpIRBLqHOMm9qJbmqmzM/sIOE41tXcHi0WlAtP+K41v32t8a9hQg7UgjEnmwzMLaL4PQjbVusiUADM02K+fLJ0Y+9mIsecAwADgEkJh+sibWeDfHDmXgNZVlcuJd+KtKuufzCa0MBskN+cD9NuZqywJfbrpp7LQ5Ff443HAvR4M+K7hE837N/QQMyg6q7HxagounlAlJaceRjQjAbsY/ItK6z0beCEUFVaN+4ZDIp1MfnqAhNcqW4J307bI2ExOTopI+3/AtUIHZTJAExBYiMo5Yuzd+SfHQdWUyKlywuyv+PndJ0KhXOcU1mQk+sqczElqWs2REzBFccj2cxANCTvfGqMiPRzRsMVBvGpLINEYaZvshTICdSvg9eLhSuleC28f3cjtkOO04KpqJNHBXKgqPaUmVSoLVAATNNmIbP0sGz6rCqWz4ECUgvIycHupy17Tzf/Nd8RT8cVPCZew+by7Sx1SoSCbt+YCQ0f9ON6IKw34HjeTEGdVTBay1+juCx8LQGfJ/xcg9tGIabrS82xoWq4mM7RkPhbgsWEaPP8Py5guzxmQJYQ3fBiH0ZM/Khp9cIH0al0kFHP0nnjfPH7ff3kowbZQdWfAIwUyC6isSMKebIu39GGlVglog/Kvewu5XhBVtwvHdtRkdCn6/LwZnI09gbJAhZe7l7KyrL9eim9Cdx0MovUHIGh6qtaiyf5pTsTAImTuBbexAVk7OVtov1+7WBDGV6bM6fexgIxJWl3AkQUIe1TnwSSKue0+rmmOq8vVA1DFdLPR0lUoiIy4xp3eqZWxQ4ZWGPkwZGwMGQt+wUGXC5bHtSMGbFmsTDuvePwlMBVEFYs2hrHYfn54+TFXGs/wpDSzW2m4JpD5+ym5oGJ1xTkAJeC2uetJXHjazb89EsM3J23phuCTr0hoavJWZ0oaFbVg1JnObo0MT0ooHyMEoNeHQ1JFxTmba4lgXl5oF/aTNkfLaqB0uT1Iz12DNcDOJMfS89Sanl2IqHz4ObZSIYTgKucC8F8+bo9a1OB6rhfWlAYYCK3B8Oqqykn3EWXxueXA8sD6+W7M70qeapjjZ4SV7+m3pFJe+4hO0pcXa2hn5fEGnnoIqI9PKil5NQcw9NSjJIHxC9qKasH8PO0H9bHG53iZcaF5P2joj/cVsGxVJIXzlpp73MuZ7ugcUWEC1kBr9xGD7mwum7jxMs0KgnCHYDyK6CCzuhj5nhSwomabJPDSoKnbXW9Ij1+IaBF2ZsW8GoQz4T3J2D3CZ6YrK2IE0QSemuh5r2joGsgC5IMk8NPxofMImQs+A8+NyMZWkDT2vyvzxK5sOjoZk1GnXyDRVcMluv6/if7PqaxFYuM1F/ikAKLMvQtoLqIh6aqDx2CQ2EkaALKbeT6cxgGyNI7ntVFgjmp5DqlJ3YlLsQSlZ7pbZBBSjMuLjpDVtRrJZ3XBdOhpGJxeankrK1QzQRe3g9QQ8J6I6RjRfv89NbWCN2dI2xJDXXy4ag0zJfPe9zSWcVYYSq8Ze81cDgSiQQeAO7QAwHhvnDhrAZPYDIenxJD8GRhCg3h/qSz0YtTRTkUQgsE5O0ybSFnOz1pCJ+SGylhx0lBsq9uskJa0anh1MCSWDt8Y3RsLGkgb5fchEOTREAOj66spiTP5nogHtaIVBZipcDMOLhm4HAJwYIwHVxXR0es4/ck6KyxP1yJDV5RYtGET3V6OebriUCkuwbalYuvIWuBgyLg5n5eFslQZVRSQQZmq3k44Pq3KC+CX9yeaeLczwZzIuf7h9kU5KgYFRKaov57ZW0pr2brD9Acg1NbgQ/Qbfv2Z1209rQWhE3ZmD7pCUfzfGqn9srACX9Dw5yNViAudnEuNjS6mARWkJgtlVvJdXKy/mXRj6b7ScMSmHCrIUrb7u3kZpwTG1rj3wNKB2gueK36oz7g4UDZ3hSzpkAQWqvqrHlH21JsbVzcCBl65DX2tKLkYeiLkYdeE4COgQeuqS5hzTZ/bchFxduXJCpcDfu1vOMzhMaKdxWdFwcQ46/8LTt/6DNc2IqOWSQaRcQ7JPhppYHMaLocnZNb8fZiDAIg5K18QIxUFebRnA1D57IjLGMkpmLgR9ffWulmWpFBcigrfcqWEzh0l90LHHxq9fJ75OPurUEMR17YA8EW1roiZzhB9vMsCNhNA9vuIsfM8DG7oyCHgVs5QB5Ix5drIn5o5HcnoYVEzRgVIw7aC//6NC5tSIvstQDD1NkuNPfLT+l5pfffzBgbp5YfXYpvMuS06K/44aqEXxjA923Qwsd0r6C0TsRW762RngQUYaC1OzBoLWOtT1IAFtpMUhSJJKZl7ES78+ITlgTcA2Yhzo0m+HulMFzOjTEel56SX2wktKjs9OdwG81I1JNmjARJ436wIb8RAjc6DEBYw+gkZ89KqbivP8ZICZSv3YIdT+ozdPcrIPblZgrXA9soatfED7kt7r1MmsRkKYvRD5BjZ2O9O6m8bmgGkMxXWJkHhsBmOS4oBvHn5EjUD5ZXpWIEyTp96SDwRIFcdlJQkQZZ7nl8Jvnz9LoehopfG/XdTsw8/b36oYwLN/ULFRbMrqyrAsQuIWb6lNScEy0BAoRb4im+dKV/YG8vQFDUWyhsHNdC8qqo8xZU3uVyUYGTW2unfLZ95K3gIJRMyRPdi02DAzulIWeG5PDjD8XBgFp9Z8YHfbOmIj0ESEpw214RlpmnZHZmKfIicMINw9cWZZOcWbq77KXoTsPragpbGMaoKSvEgvHkOSaXQVfYLp/XgsUm7Xb9KiH5JOLfloJTrygeF5rr8e97lkfE+zJIAVMMJD68fbBrJfO9i5yLV5OBhITHYaUlLEJxNPTRxc+UnWBtj8k+c2LiPwIIAOzY1VAKWmencSWtvyxkU0kGnUB0zEpIdTazY+fJBy67QNpThzJpqIvb7i7m+h+AX1RoVlCFyebkOvRs/aAsIUWP1hK9LlqAh/Lqv74JEdEktYifRcxmqrklOGy94+WPT4BDlQNB1MJrOzDpgf7nqFHVD1GYemqOgnyz6CI5QBcH79pYCAeXqW48afg/N+YGxAGcmegOjgx1tm3mb80LoDAf1dqA7jEvzEKk+SnnlApQ1WyAloqC5Ou2a6ltOyrvClibUP6nVhZc/aFk6U4WEGZq1lRH02Kr8/Lw6yTg4tabRELVQcdCR6qtIeRL56ezDtzZwJ19+p/LfPnt4/vPFl3s1NyQEBFkInEq7zRxM9nAzUmfpR3anyGz9O5rgEV38sTFlYPtIjTNDXDrezuUwVje/leDyUkoon7zrCtj764ED5xXqS4WBNk8LWirxhORbqEcF0bW6uq59DCuJWCpRtEOgtyJgAtD7eKhZcM6uG6IHRvYQCKtGYTzsynjuEPGgikFmhgN0qMjrawsseg6mAyMFgErUkPLMbt1qL3PwGw0wNrYmS/irA7bpSipZ9YUV1unnBfCBb7iMzxoKvUjq4Ab0hco6ROIj/Hu7PPQGpggrBBHDFMmqjN4uygnc6cWFUfaW0ABEAspOiAsRed4bonaiRxCqeXMx/byJKN8Xw8dcpJQCM3ZJyS5ZODxKrzE2wAYl6QYy8t8/fCqpFPcay0Agh1GZulhS4NkZec3hpQc02xcnwMDoSWz9f5ptKu0CthaG7kpWQnP9O2nss5c2GYo2BZS0W4vNzzzKqGo7c/TAppah8jIVuOkLywP9jEkF1YMQNQoeg6NMuxgPHvJxoXvQFWeR5zurruy5vzju5APi0lWc9POTnm5OaO9Q8puP4HSm4wtriGZReLvKXPQ1ptQY9GUBZv/Ib136qO3ouZCnhJTc+wHQIf1bzn8wZRWpuyYFAdUYqd09Ow97LCjVtXc35OMjYfJqu5m+Up+Z2wd3EObg6yuDA97P+z9JkQAjbBc2pQQRvTqa6V59qD0EYnCVhDk2waPPbhzPD8FwKGwS1/XhKEvIloLYGE5MBkW2Flk1YMdS/mmuXOo4bdgNs9TmFLootaBQrTpbrWBB9h/4F6fTVn8azy4vyN7rWNHk0PAXwaHzMQupHBpQuY/IxxGhRfXaOOH1XXxrSDgg4qCaBXViAmZ4u5/9mk99nvSxA6dW28WxY//fTntqQ9D6qwGHhoH5qt0gpplJ6t2HALTEOfXHMrObCz8cGLhtL3vgF9blvgxF9ZNKW058dfEUS9hXpAQGmPi9fP7Zixgq8CSyBQcDQGOBmxqKeME5zarCEJeX9Ji6lwHJW2qqjhHl915AlWfCEarJDIt+ayk5hTHzJOcpdFOA/wkLaKv0N2g8tkfwgSkqqGLDqAsITHaCh4deJEaS8X8JDFtbH20JOafmh2ec/EGDgKrsTj1h1LZJuxclkge6nw9cW3+Ki5jgJMMQlXfBUEPZu7h4UY3ZrQQEk3YW2KigUS58SmlNEP", K1 = "SMzVbws14nW1hMDUzBaauJh8t9QwbW1x", K2 = "zXJn4MrUfW32zU9sQPeJJQMtDLSfXPpG", IV = "GDFWQa+YVkdy0xwR", K = "PDotNrxXq7RpBMIsnBdiQY6gHXnvtgdxo/PB4bBtkwc=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<a class="skip" href="#app">Skip to catalog</a>
-<nav class="navbar">
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#/" data-link data-nav="home">Home</a></li>
-    <li><a href="#/catalog" data-link data-nav="catalog">Catalog</a></li>
-    <li><a href="#/movies" data-link data-nav="movies">Movies</a></li>
-    <li><a href="#/list" data-link data-nav="list">My List</a></li>
-    <li><a href="#/browse" data-link data-nav="browse">Browse Free</a></li>
-    <li><a href="#/about" data-link data-nav="about">About</a></li>
-  </ul>
-  <div class="nav-search">
-    <span class="search-icon">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
-    </span>
-    <input type="text" id="navSearch" placeholder="Search anime...">
-    <div class="search-drop" id="searchDrop"></div>
-  </div>
-  <button class="nav-burger" id="navBurger" aria-label="Menu">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="2"/><rect x="3" y="11" width="18" height="2"/><rect x="3" y="16" width="18" height="2"/></svg>
-  </button>
-</nav>
-<div id="app"></div>
-
-<footer class="site-footer" id="siteFooter">
-  <div class="foot-grid">
-    <div>
-      <div class="foot-brand">goar<span class="xyz">xyz</span><span class="ps">○□△✕</span></div>
-      <p class="foot-copy">A self-contained anime catalog. Titles and artwork from AniList. Index from Jikan. Episodes play in the goarxyz player. Nothing is hosted here.</p>
-      <p class="site-note">Use official platforms when a title is in your region.</p>
-    </div>
-    <div class="foot-col">
-      <h4>Browse</h4>
-      <a href="#/" data-link>Home</a>
-      <a href="#/catalog" data-link>Catalog</a>
-      <a href="#/movies" data-link>Movies</a>
-      <a href="#/search?sort=TRENDING_DESC" data-link>Trending</a>
-      <a href="#/search?sort=SCORE_DESC" data-link>Top rated</a>
-    </div>
-    <div class="foot-col">
-      <h4>Library</h4>
-      <a href="#/list" data-link>My List</a>
-      <a href="#/history" data-link>Continue watching</a>
-      <a href="#/browse" data-link>Free sites</a>
-      <a href="#/about" data-link>About</a>
-    </div>
-    <div class="foot-col">
-      <h4>Site</h4>
-      <a href="#/privacy" data-link>Privacy</a>
-      <a href="#/terms" data-link>Terms</a>
-      <a href="#/dmca" data-link>Copyright</a>
-      <a href="#/contact" data-link>Contact</a>
-    </div>
-  </div>
-  <div class="foot-base">
-    <span>© <span id="yearNow">2026</span> goarxyz. Metadata © AniList / respective holders.</span>
-    <span>Single-file app · localStorage only · no tracking pixels</span>
-  </div>
-</footer>
-
-
-<script src="/shared/aes.js"></script>
-<script src="/shared/protect.js"></script>
-<script src="anime-data.js"></script>
-<script src="anime.js"></script>
-<script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>
