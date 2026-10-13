@@ -27,6 +27,9 @@ button,input{font-family:inherit;color:inherit}
 .play-bar{position:relative;z-index:2;display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 14px;border-bottom:1px solid #3a3a48;background:#12121a}
 .play-bar b{font-size:15px;font-weight:700}
 .play-bar button{background:#fff;border:0;color:#111;border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700}
-#gameMount{position:relative;min-height:0;background:#000;overflow:hidden}
+#gameMount{position:relative;min-height:0;background:#000;overflow:visible}
+#gameMount::after{content:"";position:absolute;left:0;right:0;bottom:-1mm;height:1mm;background:linear-gradient(90deg,#ffc53d,#ff7a59 50%,#b8ffe4);transform-origin:bottom;animation:riseBar .5s cubic-bezier(.22,1,.36,1) both;pointer-events:none}
+.stage:not(.on) #gameMount::after{display:none}
+@keyframes riseBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 #gameMount iframe{width:100%;height:100%;border:0;background:#000}
 .empty{color:var(--muted);padding:48px 0;text-align:center}
