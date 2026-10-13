@@ -4,20 +4,6 @@
   "compatibility_date": "2026-10-13",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "WISP",
-        "class_name": "WispServer"
-      }
-    ]
-  },
-  "migrations": [
-    {
-      "tag": "v1-wisp",
-      "new_classes": ["WispServer"]
-    }
-  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,

@@ -10,13 +10,7 @@ import {
   renderWebManifest,
 } from "../scripts/grok-pwa-shared.mjs";
 import { handleMediaRequest } from "../server/yt-proxy.mjs";
-import { WispServer } from "../server/wisp";
-export { WispServer };
 
-interface Env {
-  WISP: DurableObjectNamespace;
-  WISP_TOKEN?: string;
-}
 
 const fetchStart = createStartHandler(defaultStreamHandler);
 
@@ -66,16 +60,12 @@ function injectHeadStreaming(response: Response, host: string): Response {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request): Promise<Response> {
     const method = request.method.toUpperCase();
     const url = new URL(request.url);
     const path = url.pathname;
     const urlWithQuery = path + url.search;
     const host = requestHost(request);
-    if (path === "/wisp" || path === "/wisp/") {
-      const stub = env.WISP.get(env.WISP.idFromName("wisp"));
-      return stub.fetch(request);
-    }
 
     if (method !== "GET") {
       return fetchStart(request);

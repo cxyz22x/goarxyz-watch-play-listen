@@ -11,3 +11,5 @@ attachments/
 probe-game.mjs
 dist
 .wrangler
+
+.dev.vars

@@ -26,7 +26,7 @@ interface Socks5Proxy {
   password?: string;
 }
 
-function parseSocks5List(raw: string | undefined): Socks5Proxy[] {
+export function parseSocks5List(raw: string | undefined): Socks5Proxy[] {
   if (!raw) return [];
   return raw
     .split(/[\n,;]+/)
@@ -57,25 +57,25 @@ function parseSocks5List(raw: string | undefined): Socks5Proxy[] {
     .filter((p): p is Socks5Proxy => p !== null);
 }
 
-function pickProxy(proxies: Socks5Proxy[]): Socks5Proxy | null {
+export function pickProxy(proxies: Socks5Proxy[]): Socks5Proxy | null {
   if (proxies.length === 0) return null;
   return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
-function encodeSocks5String(value: string): Uint8Array {
+export function encodeSocks5String(value: string): Uint8Array {
   const bytes = new Uint8Array(value.length);
   for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i) & 0xff;
   return bytes;
 }
 
-function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
+export function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
   if (proxy.username) {
     return new Uint8Array([0x05, 0x02, 0x00, 0x02]);
   }
   return new Uint8Array([0x05, 0x01, 0x00]);
 }
 
-function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
+export function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   const user = encodeSocks5String(proxy.username ?? "");
   const pass = encodeSocks5String(proxy.password ?? "");
   const out = new Uint8Array(3 + user.length + pass.length);
@@ -87,7 +87,7 @@ function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   return out;
 }
 
-function socks5ConnectRequest(
+export function socks5ConnectRequest(
   destination: string,
   port: number,
 ): Uint8Array {
@@ -272,19 +272,30 @@ export class WispServer extends DurableObject<Env> {
           return;
         }
         void (async () => {
-          let socket: Socket;
-          try {
+          let socket: Socket | null = null;
+          let lastError: unknown = null;
+          const attempts = Math.min(proxies.length, 3);
+          for (let attempt = 0; attempt < attempts && !socket; attempt++) {
             const proxy = pickProxy(proxies);
-            if (proxy) {
+            if (!proxy) break;
+            try {
               socket = await dialThroughSocks5(proxy, destination, port);
-            } else {
-              socket = connect({ hostname: destination, port });
+            } catch (err) {
+              lastError = err;
             }
-          } catch (err) {
+          }
+          if (!socket) {
+            try {
+              socket = connect({ hostname: destination, port });
+            } catch (err) {
+              lastError = err;
+            }
+          }
+          if (!socket) {
             send({
               type: "error",
               streamID: id,
-              reason: String((err as Error)?.message ?? err),
+              reason: String((lastError as Error)?.message ?? lastError),
             });
             return;
           }
