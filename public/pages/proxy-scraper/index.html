@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>goarxyz</title>
+<style>
+:root{--bg:#000;--s:#0c0c0c;--b:#1f1f1f;--t:#fff;--d:#8a8a8a;--r:16px}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{color:var(--t);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;max-width:720px;margin:auto;padding:0 16px calc(32px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:calc(14px + env(safe-area-inset-top)) 0 12px;display:flex;justify-content:space-between;align-items:center}
+h1{font-size:26px;font-weight:800;letter-spacing:-1.2px}h1 span{color:var(--d)}
+.live{font-size:13px;font-weight:600;border:1px solid var(--b);background:var(--s);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:7px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--t);display:block}
+.live.on i{animation:p 1s infinite}@keyframes p{50%{opacity:.2}}
+.prog{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;display:none}
+.prog.show{display:block}
+.prog .row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px}
+.prog .row span:last-child{color:var(--d);font-variant-numeric:tabular-nums}
+.track{height:8px;background:#1a1a1a;border-radius:99px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--t);border-radius:99px;transition:width .35s ease}
+.seg{display:flex;background:var(--s);border:1px solid var(--b);border-radius:12px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;color:var(--d);font:inherit;font-size:13px;font-weight:600;padding:9px 0;border-radius:9px;cursor:pointer}
+.seg button.on{background:var(--t);color:var(--bg)}
+.bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.custom{display:none;background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:12px;margin-bottom:12px}
+.custom.show{display:block}
+.custom textarea{width:100%;min-height:120px;resize:vertical;background:#000;color:var(--t);border:1px solid var(--b);border-radius:12px;padding:12px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.custom .row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.custom .row span{color:var(--d);font-size:12.5px;margin-left:auto}
+.file{position:relative;overflow:hidden}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+select{flex:1;min-width:0;appearance:none;-webkit-appearance:none;background:var(--s) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238a8a8a' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center;color:var(--t);border:1px solid var(--b);border-radius:12px;padding:11px 36px 11px 14px;font:inherit;font-size:14px}
+.btn{border:1px solid var(--b);background:var(--s);color:var(--t);font:inherit;font-size:14px;font-weight:600;padding:11px 16px;border-radius:12px;cursor:pointer}
+.btn.pri{background:var(--t);color:var(--bg);border-color:var(--t)}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45}
+.list{display:flex;flex-direction:column;gap:8px}
+.card{display:flex;align-items:center;gap:12px;background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:12px 14px;cursor:pointer}
+.card:active{background:#151515}
+.fl{font-size:24px;width:34px;text-align:center;flex:none}
+.mid{flex:1;min-width:0}
+.ad{font:600 15px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis}
+.sub{color:var(--d);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt{text-align:right;flex:none}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border:1px solid #333;padding:2px 8px;border-radius:99px}
+.ms{display:block;color:var(--d);font-size:12px;margin-top:3px;font-variant-numeric:tabular-nums}
+.isp{color:#5c5c5c;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt .tag+.tag{margin-left:4px}
+.empty{text-align:center;color:var(--d);padding:48px 0}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--t);color:var(--bg);font-weight:600;font-size:13px;padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style></head><body>
+<header><h1>goar<span>xyz</span></h1><div class="live" id="live"><i></i><span id="cnt">0 live</span></div></header>
+
+<div class="bar"><select id="fp" aria-label="Provider"></select><button class="btn pri" id="rf">Start</button><button class="btn" id="stop" disabled>Stop</button><button class="btn" id="ex">Export</button></div>
+<div class="custom" id="custom"><textarea id="paste" placeholder="ip:port · user:pass@host:port · host:port:user:pass · user:pass:host:port · socks5://user:pass@host:port"></textarea><div class="row"><label class="btn file">Attach file<input id="file" type="file" accept=".txt,.csv,.list,text/plain"></label><span id="customn">0 proxies</span></div></div>
+<div class="prog" id="prog"><div class="row"><span id="ptxt">Waiting</span><span id="ppct">0%</span></div><div class="track"><div class="fill" id="fill"></div></div></div>
+<div class="seg" id="seg"><button class="on" data-p="">All</button><button data-p="http">HTTP</button><button data-p="socks4">SOCKS4</button><button data-p="socks5">SOCKS5</button></div>
+<div class="list" id="rows"></div><div class="empty" id="empty">Choose a source and press Start</div>
+<div class="toast" id="toast">Copied</div>
+
+<script type="module">
+/* ---- hidden backend ---- */
+const LIBCURL = "https://cdn.jsdelivr.net/npm/libcurl.js@0.7/libcurl_full.js", LIBCURL_M = LIBCURL.replace(/\.js$/, ".mjs"); // single-file builds (wasm embedded). libcurl needs a CLASSIC worker: it detects its environment via importScripts, which module workers do not have
+const WISP = [...(new URLSearchParams(location.search).get("wisp") || "").split(","), "wss://wisp.mercurywork.shop/"].map(x => x.trim()).filter(Boolean); // ?wisp=wss://a/,wss://b/ overrides; several servers are rotated across workers
+const WORKERS = 4, PER = 2, TIMEOUT = 12000, MAX = 6000, PER_SRC = 2000, REFRESH = 3600e3, SCRAPE_PAR = 6;
+const RECYCLE = 120, STALL = 35000; // recycle a worker after 120 checks, before wasm/wisp degrades; silence > 35 s is killed and replaced
+const IP_GAP = 65000, IP_CAP = 2;   // wtfismyip: max 1 request/min per exit IP. same-IP proxies spaced 65 s, max 2 ports per IP
+const START_GAP = 300;              // global gap between check starts so the relay is never burst-saturated
+const CHECKS = ["http://wtfismyip.com/json", "https://wtfismyip.com/json"]; // one request THROUGH each proxy: liveness + exit ip + country in the same reply. http first, https only if http redirects
+const PROBES = ["http://example.com/", "http://httpbin.org/ip"];   // only used to prove the wisp relay works (never wtfismyip, to respect its rate limit)
+
+const R = "https://raw.githubusercontent.com/", J = "https://cdn.jsdelivr.net/gh/";
+const SOURCES = []; // [url, protocol|"auto", verified, kind]
+// protocol comes from the filename; names with no protocol in them are mixed lists -> "auto" (detected per proxy)
+const g = (pre, files, v = 0) => files.split(" ").forEach(f => SOURCES.push([pre + f, /socks5/i.test(f) ? "socks5" : /socks4/i.test(f) ? "socks4" : /http/i.test(f) ? "http" : "auto", v]));
+g(R+"Thordata/awesome-free-proxy-list/main/proxies/", "http.txt https.txt socks4.txt socks5.txt all.txt", 1);
+g(R+"databay-labs/free-proxy-list/master/", "http.txt socks4.txt socks5.txt", 1);
+g(R+"TheSpeedX/PROXY-List/master/", "http.txt socks4.txt socks5.txt");
+g(R+"ShiftyTR/Proxy-List/master/", "http.txt https.txt socks4.txt socks5.txt");
+g(R+"monosans/proxy-list/main/proxies/", "all.txt http.txt socks4.txt socks5.txt");
+g(R+"monosans/proxy-list/main/proxies_anonymous/", "http.txt socks4.txt socks5.txt");
+g(R+"clarketm/proxy-list/master/", "proxy-list-raw.txt");
+g(R+"roosterkid/openproxylist/main/", "HTTPS_RAW.txt SOCKS4_RAW.txt SOCKS5_RAW.txt");
+g(R+"zloi-user/hideip.me/main/", "http.txt https.txt socks4.txt socks5.txt");
+g(R+"mmpx12/proxy-list/master/", "http.txt https.txt socks4.txt socks5.txt");
+g(R+"dinoz0rg/proxy-list/main/scraped_proxies/", "http.txt socks4.txt socks5.txt");
+g(R+"Skillter/ProxyGather/refs/heads/master/proxies/", "working-proxies-all.txt");
+g(R+"vakhov/fresh-proxy-list/master/", "http.txt https.txt socks4.txt socks5.txt");
+g(R+"dpangestuw/Free-Proxy/refs/heads/main/", "http_proxies.txt socks4_proxies.txt socks5_proxies.txt All_proxies.txt");
+g(R+"jetkai/proxy-list/main/online-proxies/txt/", "proxies-http.txt proxies-https.txt proxies-socks4.txt proxies-socks5.txt");
+g(R+"prxchk/proxy-list/main/", "http.txt socks4.txt socks5.txt all.txt");
+g(R+"ALIILAPRO/Proxy/main/", "http.txt socks4.txt socks5.txt");
+g(R+"ErcinDedeoglu/proxies/main/proxies/", "http.txt https.txt socks4.txt socks5.txt");
+g(R+"rdavydov/proxy-list/main/proxies/", "http.txt socks4.txt socks5.txt");
+g(R+"zevtyardt/proxy-list/main/", "http.txt socks4.txt socks5.txt");
+g(R+"yemixzy/proxy-list/main/proxies/", "http.txt");
+g(R+"proxy4parsing/proxy-list/main/", "http.txt");
+g(R+"UptimerBot/proxy-list/master/proxies/", "http.txt https.txt");
+g(R+"Vann-Dev/proxy-list/main/proxies/", "http.txt https.txt");
+g(R+"officialputuid/KangProxy/KangProxy/", "http/http.txt socks4/socks4.txt socks5/socks5.txt");
+g(R+"manuGMG/proxy-365/main/", "SOCKS5.txt");
+g(R+"mertguvencli/http-proxy-list/main/proxy-list/", "data.txt");
+g(R+"a2u/free-proxy-list/master/", "free-proxy-list.txt");
+g(R+"mishakorzik/Free-Proxy/main/", "proxy.txt");
+g(J+"proxifly/free-proxy-list@main/proxies/", "all/data.txt protocols/http/data.txt protocols/https/data.txt protocols/socks4/data.txt protocols/socks5/data.txt");
+g(J+"proxyscrape/free-proxy-list@main/proxies/", "all/data.txt protocols/http/data.txt protocols/https/data.txt protocols/socks4/data.txt protocols/socks5/data.txt");
+g("https://sunny9577.github.io/proxy-scraper/", "proxies.txt generated/http_proxies.txt generated/socks4_proxies.txt generated/socks5_proxies.txt");
+g("https://proxyspace.pro/", "http.txt https.txt socks4.txt socks5.txt");
+["http", "socks4", "socks5"].forEach(p => SOURCES.push([`https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&protocol=${p}&proxy_format=ipport&format=text`, p, 0]));
+for (let i = 1; i <= 8; i++) SOURCES.push([`https://proxylist.geonode.com/api/proxy-list?limit=500&page=${i}&sort_by=lastChecked&sort_type=desc`, "http", 0, "json"]); // {data:[{ip,port,protocols:[]}]}
+["https://free-proxy-list.net/", "https://www.sslproxies.org/", "https://www.us-proxy.org/", "https://proxy-free.com/proxy-list/"].forEach(u => SOURCES.push([u, "http", 0, "html"])); // <tr> tables
+
+/* providers: every source belongs to one provider (repo owner / site); the dropdown picks ONE to scrape and check per run */
+const provOf = u => { const m = u.match(/raw\.githubusercontent\.com\/([^/]+)\//) || u.match(/\/gh\/([^/@]+)\//); if (m) return m[1]; return new URL(u).hostname.replace(/^(www|api|proxylist)\./, "").replace(/\.github\.io$/, "").replace(/\.(com|net|org|io|pro)$/, ""); };
+SOURCES.forEach(s => s[4] = provOf(s[0]));
+const FIRST = ["Thordata", "databay-labs"], PRETTY = { "databay-labs": "Databay" };
+const PROVS = [...new Set(SOURCES.map(s => s[4]))].sort((a, b) => (FIRST.indexOf(a) + 1 || 99) - (FIRST.indexOf(b) + 1 || 99) || a.localeCompare(b, undefined, { sensitivity: "base" }));
+const pname = p => PRETTY[p] || p;
+
+/* ---- worker: owns libcurl + its own wisp websocket, so the page never blocks ---- */
+function workerMain() {
+  let L; const SCHEME = { http: "http", https: "https", socks4: "socks4a", socks4a: "socks4a", socks5: "socks5h", socks5h: "socks5h", socks: "socks5h" };
+  const bogon = ip => {
+    if (!ip || ip.includes(":")) return ip === "::" || ip === "::1" || ip.startsWith("fe80:") || ip.startsWith("fc") || ip.startsWith("fd");
+    const p = ip.split(".").map(Number);
+    if (p.length !== 4 || p.some(n => Number.isNaN(n) || n > 255)) return true;
+    if (p[0] === 0 || p[0] === 10 || p[0] === 127) return true;
+    if (p[0] === 169 && p[1] === 254) return true;
+    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
+    if (p[0] === 192 && p[1] === 168) return true;
+    if (p[0] >= 224) return true;
+    return false;
+  };
+  const to = (p, ms) => Promise.race([p, new Promise((_, j) => setTimeout(() => j(0), ms))]);
+  // one request through the proxy; live only with a 200 + valid wtfismyip JSON that is NOT our own address
+  async function probe(m, proto) {
+    const ac = new AbortController(), tm = setTimeout(() => ac.abort(), m.ms); let s;
+    try {
+      const sch = SCHEME[proto] || "http", auth = m.user ? encodeURIComponent(m.user) + ":" + encodeURIComponent(m.pass || "") + "@" : "", host = String(m.ip).includes(":") && !String(m.ip).startsWith("[") ? "[" + m.ip + "]" : m.ip;
+      s = new L.HTTPSession({ proxy: sch + "://" + auth + host + ":" + m.port }); // own pool per proxy, closed after
+      const r = await s.fetch(m.url, { signal: ac.signal });
+      if (r.status === 429 || r.status === 503) return { fail: "rate" };
+      if (r.status !== 200) return { fail: "bad" };
+      let j; try { j = JSON.parse((await r.text()).replace(/^\uFEFF/, "").trim()); } catch { return { fail: "bad" }; }   // proxies sometimes inject html / ads
+      if (!j || typeof j !== "object") return { fail: "bad" };
+      const str = v => typeof v === "string" ? v.trim().slice(0, 80) : "", ip = str(j.YourFuckingIPAddress);               // (wtfismyip's real field names)
+      const v4 = /^(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)$/.test(ip), v6 = ip.includes(":") && /^[0-9a-fA-F:.]{2,45}$/.test(ip);
+      if (!v4 && !v6) return { fail: "bad" };
+      if (bogon(ip)) return { fail: "bad" };                                         // private / loopback / non-routable exit is not a live proxy
+      if (m.base && ip === m.base) return { fail: "leak" };                          // proxy did not hide our address
+      const loc = str(j.YourFuckingLocation).split(",").map(x => x.trim()).filter(Boolean), cc = str(j.YourFuckingCountryCode).toUpperCase(); // "Melbourne, VIC, Australia"
+      return { ok: 1, exit: ip, cc: /^[A-Z]{2}$/.test(cc) ? cc : "", country: str(j.YourFuckingCountry) || (loc.length > 1 ? loc[loc.length - 1] : ""), city: str(j.YourFuckingCity) || (loc.length > 1 ? loc[0] : ""), isp: str(j.YourFuckingISP), host: str(j.YourFuckingHostname), tor: j.YourFuckingTorExit === true };
+    } catch { return { fail: "net" }; } finally { clearTimeout(tm); try { s && s.close(); } catch {} }
+  }
+  const q = []; let busy = false;
+  async function handle(m) {
+    if (m.t === "init") {
+      try { importScripts(m.lib); L = self.libcurl; if (!L) throw new Error("libcurl global missing"); await L.load_wasm(); }
+      catch (e1) {
+        try { ({ libcurl: L } = await import(m.libm)); await L.load_wasm(); }
+        catch (e2) { return postMessage({ t: "ready", ok: false, why: "load: " + ((e1 && e1.message) || e1) + " | " + ((e2 && e2.message) || e2) }); }
+      }
+      let tried = "";
+      for (const w of m.wisp) {
+        try {
+          L.set_websocket(w);   // any HTTP response (even an error page) proves the relay works
+          await Promise.any(m.probes.map(u => to(L.fetch(u), 12000).then(r => { if (!r || typeof r.status !== "number") throw 0; })));
+          return postMessage({ t: "ready", ok: true, wisp: w });
+        } catch { tried += " " + w; }
+      }
+      postMessage({ t: "ready", ok: false, why: "wisp:" + tried });
+    } else if (m.t === "base") {                       // our own address as the target sees it (once per run) + does plain http work?
+      let out = { url: "", ip: "" };
+      for (const u of m.urls) {
+        try { const r = await to(L.fetch(u, { redirect: "manual" }), 15000); if (r.status === 200) { const ip = (await r.json()).YourFuckingIPAddress; if (ip) { out = { url: u, ip }; break; } } } catch {}
+      }
+      postMessage({ t: "base", id: m.id, ...out });
+    } else if (m.t === "get") {
+      let text = ""; try { text = await (await to(L.fetch(m.url), m.ms)).text(); } catch {}
+      postMessage({ t: "got", id: m.id, text });
+    } else if (m.t === "chk") {
+      const t0 = performance.now(); let r = null, fail = "net";
+      for (const pr of m.protos) {
+        const x = await probe(m, pr);
+        if (x.ok) { r = { ip: m.ip, port: m.port, proto: pr, user: m.user || "", pass: m.pass || "", exit: x.exit, cc: x.cc, country: x.country, city: x.city, isp: x.isp, host: x.host, tor: x.tor, ms: Math.round(performance.now() - t0), seen: Date.now() }; fail = ""; break; }
+        fail = x.fail || "net";
+        if (fail === "rate" || fail === "leak") break;
+      }
+      postMessage({ t: "res", id: m.id, r, fail, rate: fail === "rate" });
+    }
+  }
+  async function pump() { if (busy) return; busy = true; while (q.length) await handle(q.shift()); busy = false; }
+  self.onmessage = e => { q.push(e.data); pump(); };
+}
+
+/* ---- state ---- */
+const $ = id => document.getElementById(id);
+let running = false, stop = false, customText = "", alive = [], fresh = new Map(), fProto = "", pool = [], jid = 0, WURL = "", checkUrl = CHECKS[0], baseIp = ""; const pending = new Map();
+let store = {}; try { store = JSON.parse(localStorage.getItem("goarxyz_v2") || "{}"); } catch {}   // { provider: { t, a: [live proxies] } }
+let prov = PROVS[0]; try { const p = localStorage.getItem("goarxyz_prov"); if (p === "custom" || PROVS.includes(p)) prov = p; } catch {}
+alive = (store[prov] || {}).a || [];
+const esc = s => String(s).replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");   // proxy replies are untrusted: never put them in html raw
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const flag = cc => cc ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0))) : "🌐";
+const prog = (pct, txt) => { $("prog").classList.add("show"); $("fill").style.width = pct + "%"; $("ppct").textContent = Math.round(pct) + "%"; if (txt) $("ptxt").textContent = txt; };
+const SOCKP = new Set([1080, 1081, 1082, 1085, 1086, 1088, 4145, 4153, 5678, 9050, 9150, 10800, 2080, 1090, 3629]);
+const guess = port => SOCKP.has(port) ? ["socks5", "socks4"] : ["http", "socks5"]; // max 2 attempts per unlabeled proxy
+const rot = (a, k) => a.map((_, j) => a[(j + k) % a.length]);                      // rotate wisp servers across workers
+
+/* ---- worker pool ---- */
+const kill = w => {
+  w.dead = true; try { w.terminate(); } catch {}
+  for (const [id, p] of pending) if (p.w === w) { pending.delete(id); clearTimeout(p.t); p.res(null); } // dead worker must not sit on a 20 s timeout; caller requeues
+};
+function call(w, msg, ms) {
+  if (w.dead) return Promise.resolve(null);
+  return new Promise(res => {
+    const id = ++jid, t = setTimeout(() => { pending.delete(id); res({ t: "timeout", fail: "net" }); }, ms);
+    pending.set(id, { w, t, res: m => { clearTimeout(t); res(m); } });
+    try { w.postMessage({ ...msg, id }); } catch { pending.delete(id); clearTimeout(t); res(null); }
+  });
+}
+function spawn(wisp) {
+  pool = pool.filter(w => !w.dead);
+  return new Promise(res => {
+    WURL ||= URL.createObjectURL(new Blob(["(" + workerMain + ")()"], { type: "text/javascript" }));
+    let w; const fail = why => { clearTimeout(t); if (w) { w.ok = false; w.why = why; } res(w || { ok: false, why }); }, t = setTimeout(() => fail("worker: timed out starting"), 45000);
+    try { w = new Worker(WURL); } catch (e) { return fail("worker: " + e.message); }
+    Object.assign(w, { ok: false, used: 0, inflight: 0, last: Date.now() }); pool.push(w);
+    w.onmessage = e => { const m = e.data; if (m.t === "ready") { w.ok = m.ok; w.why = m.why; w.wisp = m.wisp; clearTimeout(t); res(w); } else { const f = pending.get(m.id); if (f) { pending.delete(m.id); f.res(m); } } };
+    w.onerror = e => fail("load: " + (e.message || "worker script failed"));
+    w.postMessage({ t: "init", lib: LIBCURL, libm: LIBCURL_M, wisp, probes: PROBES });
+  });
+}
+async function startPool() {
+  pool.forEach(kill); pool = [];
+  let saved = ""; try { saved = localStorage.getItem("goarxyz_wisp") || ""; } catch {}
+  const wl = [...new Set([...WISP, saved].filter(Boolean))], first = await spawn(wl);   // one worker finds a working server first...
+  if (!first.ok) return { ok: false, why: first.why || "worker" };
+  try { localStorage.setItem("goarxyz_wisp", first.wisp); } catch {}
+  const b = await call(first, { t: "base", urls: CHECKS }, 40000);                       // ...and measures our own address once per run
+  if (!b || !b.url) return { ok: false, why: "check: wtfismyip.com not reachable through the wisp server" };
+  checkUrl = b.url; baseIp = b.ip;
+  await Promise.all(Array.from({ length: WORKERS - 1 }, (_, k) => spawn(rot(wl, k + 1))));   // the rest rotate across the servers
+  return { ok: true };
+}
+
+/* ---- scrape: scheme + user:pass detected from the line, no format switch ---- */
+const SCHEME_OF = s => { s = String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); if (/^socks5/.test(s) || s === "socks" || s === "sock") return "socks5"; if (/^socks4/.test(s)) return "socks4"; if (s === "http" || s === "https" || s === "proxy" || s === "connect" || s === "httpconnect" || s === "httpsconnect") return "http"; return ""; };
+const portOk = p => /^\d{2,5}$/.test(p) && +p > 0 && +p < 65536;
+const hostOk = h => !!h && (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(h) || /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/i.test(h) || (h.includes(":") && /^[0-9a-f:]+$/i.test(h)));
+function takeAuth(s) {
+  const at = s.lastIndexOf("@"); if (at < 0) return { s, user: "", pass: "" };
+  const auth = s.slice(0, at), rest = s.slice(at + 1), c = auth.indexOf(":");
+  let user = c < 0 ? auth : auth.slice(0, c), pass = c < 0 ? "" : auth.slice(c + 1);
+  try { user = decodeURIComponent(user); pass = decodeURIComponent(pass); } catch {}
+  return { s: rest, user, pass };
+}
+function emit(add, host, port, scheme, user, pass, fallback) {
+  host = String(host || "").replace(/^\[|\]$/g, "");
+  if (!hostOk(host) || !portOk(port)) return;
+  const pr = SCHEME_OF(scheme) || SCHEME_OF(fallback) || "auto";
+  add(host, port, pr, user || "", pass || "");
+}
+function parseLine(line, fallback, add) {
+  let s = String(line || "").trim().replace(/^\uFEFF/, "");
+  if (!s || /^[#;\/]/.test(s)) return;
+  s = s.replace(/\s+#.*$/, "").replace(/^['"]|['"]$/g, "").trim();
+  if (!s.includes("://") && /\s/.test(s)) {
+    const hp = s.match(/^(\S+):(\d{2,5})\s+([^:\s]+):(.+)$/);
+    if (hp) return emit(add, hp[1], hp[2], "", hp[3], hp[4], fallback);
+    const up = s.match(/^([^:\s]+):(\S+)\s+(\S+):(\d{2,5})$/);
+    if (up && hostOk(up[3])) return emit(add, up[3], up[4], "", up[1], up[2], fallback);
+  }
+  if (!s.includes("://") && /\s/.test(s) && !/:\d{2,5}/.test(s)) {
+    const bits = s.split(/\s+/), sch = bits.find(x => SCHEME_OF(x)), pi = bits.findIndex(portOk), hi = bits.findIndex(x => hostOk(x) && !SCHEME_OF(x));
+    if (hi >= 0 && pi >= 0) {
+      const rest = bits.filter((_, i) => i !== hi && i !== pi && !SCHEME_OF(bits[i]));
+      return emit(add, bits[hi], bits[pi], sch, rest[0] || "", rest[1] || "", fallback);
+    }
+  }
+  if (/[,\t|]/.test(s) && !s.includes("://")) {
+    const c = s.split(/[,\t|]/).map(x => x.trim().replace(/^['"]|['"]$/g, "")).filter(Boolean);
+    const sch = c.find(x => SCHEME_OF(x));
+    const pi = c.findIndex(x => portOk(x));
+    const hi = c.findIndex(x => hostOk(x) && !SCHEME_OF(x));
+    if (hi >= 0 && pi >= 0) {
+      const rest = c.filter((_, i) => i !== hi && i !== pi && !SCHEME_OF(c[i]));
+      return emit(add, c[hi], c[pi], sch, rest[0] || "", rest[1] || "", fallback);
+    }
+  }
+  let scheme = "";
+  const pre = s.match(/^([^\s/]+@)([a-z][a-z0-9+.-]*:\/\/)/i); // user:pass@scheme://host
+  if (pre) s = pre[2] + pre[1] + s.slice(pre[0].length);
+  const sm = s.match(/^([a-z][a-z0-9+.-]*):\/\//i);
+  if (sm) { scheme = sm[1]; s = s.slice(sm[0].length); }
+  else { const w = s.match(/^(socks5h|socks5|socks4a|socks4|socks|https|http|proxy)\b\s*[:\s]\s*/i); if (w && SCHEME_OF(w[1])) { scheme = w[1]; s = s.slice(w[0].length); } }
+  const authEarly = takeAuth(s); s = authEarly.s.split(/[/?#]/)[0];
+  if (!s.includes(":") && /\s/.test(s)) {
+    const bits = s.split(/\s+/);
+    if (bits.length >= 4 && portOk(bits[1])) emit(add, bits[0], bits[1], scheme, bits[2], bits[3], fallback);
+    else if (bits.length >= 2 && portOk(bits[1])) emit(add, bits[0], bits[1], scheme, "", "", fallback);
+    return;
+  }
+  const auth = authEarly.user || authEarly.pass ? authEarly : takeAuth(s); s = auth.s;
+  let user = auth.user, pass = auth.pass, host = "", port = "";
+  const v6 = s.match(/^\[([^\]]+)\]:(\d{2,5})$/);
+  if (v6) { host = v6[1]; port = v6[2]; }
+  else {
+    const b = s.split(":");
+    if (b.length === 2 && portOk(b[1])) { host = b[0]; port = b[1]; }
+    else if (b.length === 3 && portOk(b[1])) { host = b[0]; port = b[1]; scheme = scheme || b[2]; }
+    else if (b.length === 3 && portOk(b[2])) { scheme = scheme || b[0]; host = b[1]; port = b[2]; }
+    else if (b.length >= 4 && portOk(b[1])) { host = b[0]; port = b[1]; user = user || b[2]; pass = pass || b.slice(3).join(":"); }
+    else if (b.length >= 4 && portOk(b[b.length - 1]) && hostOk(b[b.length - 2])) { user = user || b[0]; pass = pass || b.slice(1, -2).join(":"); host = b[b.length - 2]; port = b[b.length - 1]; }
+    else if (b.length >= 4 && portOk(b[3])) { user = user || b[0]; pass = pass || b[1]; host = b[2]; port = b[3]; }
+  }
+  if (!host && /\s/.test(s)) {
+    const ws = s.split(/\s+/).filter(Boolean), hp = ws.find(x => /:\d{2,5}$/.test(x));
+    if (hp) {
+      const cut = hp.lastIndexOf(":"), rest = ws.filter(x => x !== hp && !SCHEME_OF(x)), sch = ws.find(x => SCHEME_OF(x));
+      return emit(add, hp.slice(0, cut), hp.slice(cut + 1), scheme || sch, user || rest[0] || "", pass || rest[1] || "", fallback);
+    }
+  }
+  emit(add, host, port, scheme, user, pass, fallback);
+}
+function parse(t, proto, kind, add) {
+  if (kind === "json") {
+    try {
+      for (const x of JSON.parse(t).data || []) {
+        const user = x.username || x.user || "", pass = x.password || x.pass || "";
+        for (const pr of x.protocols || []) add(x.ip, x.port, SCHEME_OF(pr) || "http", user, pass);
+      }
+    } catch {}
+    return;
+  }
+  if (kind === "html") {
+    for (const row of t.split(/<tr[\s>]/i)) {
+      const tok = row.replace(/<[^>]*>/g, "|").split("|").map(s => s.trim()).filter(Boolean), i = tok.findIndex(s => hostOk(s));
+      if (i < 0 || !portOk(tok[i + 1] || "")) continue;
+      const pr = tok.find(s => SCHEME_OF(s));
+      const rest = tok.filter((s, j) => j !== i && j !== i + 1 && !SCHEME_OF(s) && !/^(elite|anonymous|transparent|yes|no)$/i.test(s));
+      add(tok[i], tok[i + 1], pr ? SCHEME_OF(pr) : "http", rest[0] || "", rest[1] || "");
+    }
+    return;
+  }
+  for (const line of String(t || "").split(/\r?\n/)) {
+    const bits = line.trim().split(/\s+/);
+    if (bits.length > 1 && bits.filter(x => /:\d{2,5}\b/.test(x)).length > 1) bits.forEach(b => parseLine(b, proto, add));
+    else parseLine(line, proto, add);
+  }
+}
+function keep(seen, ip, port, pr, user, pass, v) {
+  const auto = !pr || pr === "auto", k = ip + ":" + port + ":" + (user || "");
+  const o = seen.get(k);
+  if (!o || (o.auto && !auto) || (v > o.v && !auto)) seen.set(k, { ip, port: +port, protos: auto ? guess(+port) : [pr], auto, v, user: user || "", pass: pass || "" });
+}
+function fromText(t) {
+  const seen = new Map();
+  parse(t || "", "auto", "", (ip, port, pr, user, pass) => keep(seen, ip, port, pr, user, pass, 1));
+  return [...seen.values()];
+}
+async function scrape() {
+  const seen = new Map(), ws = pool.filter(w => w.ok), srcs = SOURCES.filter(x => x[4] === prov); let done = 0, i = 0;
+  const one = async ([u, proto, v, kind], w) => {
+    const m = await call(w, { t: "get", url: u, ms: 25000 }, 30000); let n = 0;
+    if (m && m.text) parse(m.text, proto, kind, (ip, port, pr, user, pass) => {
+      if (n++ >= PER_SRC) return;
+      keep(seen, ip, port, pr, user, pass, v);
+    });
+    prog(++done / srcs.length * 15, `Scraping ${pname(prov)} · list ${done}/${srcs.length}`);
+  };
+  await Promise.all(Array.from({ length: SCRAPE_PAR }, async (_, k) => { while (i < srcs.length) await one(srcs[i++], ws[k % ws.length]); }));
+  return [...seen.values()];
+}
+
+const REG = new Intl.DisplayNames(["en"], { type: "region" }), nm = cc => { try { return REG.of(cc) || cc; } catch { return cc; } };
+async function refresh() {
+  if (running) return;
+  if (prov === "custom" && !fromText(customText).length) { toast("Paste a list or attach a file"); return; }
+  const P = prov; stop = false; running = true; $("rf").disabled = $("fp").disabled = true; $("stop").disabled = false; $("live").classList.add("on"); prog(0, "Starting workers");
+  const wd = setInterval(() => { const now = Date.now(); pool.forEach(w => { if (!w.dead && w.inflight > 0 && now - w.last > STALL) kill(w); }); }, 5000); // watchdog: stalled worker -> replaced
+  let ui = 0;
+  try {
+    const st = await startPool();
+    if (!st.ok) {
+      console.warn("goarxyz start failed:", st.why);
+      prog(0, st.why.startsWith("wisp") ? "Wisp unreachable · add ?wisp=wss://yourserver/ to the URL" : st.why.startsWith("load") ? "Couldn't load libcurl.js · check connection / serve over localhost or https" : st.why.startsWith("check") ? "wtfismyip.com unreachable through Wisp · try again later" : "Worker failed to start");
+      throw 0;
+    }
+    if (stop) throw 0;
+    let list = prov === "custom" ? fromText(customText) : await scrape();
+    if (stop) throw 0;
+    for (let i = list.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [list[i], list[j]] = [list[j], list[i]]; }
+    list.sort((a, b) => b.v - a.v);                                    // pre-verified sources first
+    const per = new Map(); list = list.filter(p => { const c = per.get(p.ip) || 0; per.set(p.ip, c + 1); return c < IP_CAP; }).slice(0, MAX);
+    const known = new Set(list.map(p => p.ip + ":" + p.port + ":" + (p.user || "")));
+    list = [...alive.filter(p => !known.has(p.ip + ":" + p.port + ":" + (p.user || ""))).map(p => ({ ip: p.ip, port: p.port, protos: [p.proto], user: p.user || "", pass: p.pass || "", v: 1 })), ...list]; // re-verify last run
+    // round-robin by IP so the first wave is unique exits, not a burst of ports on the same address
+    { const buckets = new Map(); for (const p of list) { if (!buckets.has(p.ip)) buckets.set(p.ip, []); buckets.get(p.ip).push(p); }
+      const groups = [...buckets.values()], out = []; let more = true;
+      while (more) { more = false; for (const g of groups) if (g.length) { out.push(g.shift()); more = true; } } list = out; }
+    fresh = new Map();
+    const total = list.length || 1, lastHit = new Map(), defer = [], WAIT = {}; let i = 0, n = 0, active = 0, nextStart = 0;
+    const rateAt = [];
+    const ready = p => { const now = Date.now(); return now >= (p.notBefore || 0) && now - (lastHit.get(p.ip) || 0) >= IP_GAP; };
+    const requeue = (p, delay, keepGap) => { p.notBefore = Date.now() + (delay || 0); if (!keepGap) lastHit.delete(p.ip); defer.push(p); }; // rate keeps the IP gap; infra retry does not
+    const take = () => {
+      const k = defer.findIndex(ready);
+      if (k >= 0) { const p = defer.splice(k, 1)[0]; lastHit.set(p.ip, Date.now()); return p; }
+      while (i < list.length) { const p = list[i++]; if (ready(p)) { lastHit.set(p.ip, Date.now()); return p; } defer.push(p); }
+      return (defer.length || active) ? WAIT : null;
+    };
+    const pace = async () => { const now = Date.now(), wait = Math.max(0, nextStart - now); nextStart = Math.max(nextStart, now) + START_GAP; if (wait) await sleep(wait); };
+    const note = () => prog(15 + Math.min(n / total, 1) * 85, `Checking ${n.toLocaleString()} / ${total.toLocaleString()} · ${fresh.size} live · ${defer.length} wait · ${active} up`);
+    ui = setInterval(note, 1000);
+    // one shared queue. n increments only on a real probe result. null = worker died / call aborted → requeue, do not count.
+    const lane = async w => {
+      while (!stop && !w.dead && w.used < RECYCLE) {
+        const p = take(); if (p === null) return; if (p === WAIT) { await sleep(700); continue; }
+        await pace();
+        if (w.dead) { requeue(p, 1000); return; }
+        w.used++; w.inflight++; active++;
+        const m = await call(w, { t: "chk", ip: p.ip, port: p.port, protos: p.protos, user: p.user || "", pass: p.pass || "", ms: TIMEOUT, url: checkUrl, base: baseIp }, TIMEOUT * p.protos.length + 5000);
+        w.inflight = Math.max(0, w.inflight - 1); active = Math.max(0, active - 1); w.last = Date.now();
+        if (m && m.r) {
+          fresh.set(p.ip + ":" + p.port + ":" + (p.user || ""), m.r); n++;
+          if (fresh.size % 25 === 0) { store[P] = { t: Date.now(), a: [...fresh.values()] }; save(); }
+        } else if (m && (m.fail === "rate" || m.rate)) {
+          const now = Date.now(); rateAt.push(now);
+          while (rateAt.length && now - rateAt[0] > 10000) rateAt.shift();
+          const burst = rateAt.length >= 3;
+          if (burst) nextStart = Math.max(nextStart, now + 60000);
+          p.rates = (p.rates || 0) + 1;
+          if (p.rates < 4) requeue(p, burst ? 60000 : IP_GAP, true); // rate is not a dead proxy; keep the IP gap
+          else n++;
+        } else if (!m) {
+          requeue(p, 1500, false);                                  // dead worker: not a probe, never counted
+        } else if ((m.fail === "net" || m.t === "timeout") && (p.tries || 0) < 1) {
+          p.tries = 1; requeue(p, 12000, true);                     // one real retry for a timeout, gap held
+        } else n++;                                                 // bad / leak / exhausted net: terminal
+        if (n % 5 === 0 || n >= total) { note(); sched(); }
+      }
+    };
+    const slot = async k => {                                       // rolling recycle: one worker at a time, queue is never abandoned on a dead socket
+      let w = pool.filter(x => x.ok && !x.dead)[k] || null, fails = 0;
+      while (!stop && (i < list.length || defer.length || active)) {
+        if (!w || w.dead) {
+          w = await spawn(rot(WISP, k));
+          if (!w.ok) { kill(w); w = null; fails++; note(); await sleep(Math.min(2000 * fails, 20000)); continue; }
+          fails = 0;
+        }
+        await Promise.all(Array.from({ length: PER }, () => lane(w)));
+        if (w && !w.dead) kill(w);
+        w = null;
+      }
+    };
+    await Promise.all(Array.from({ length: WORKERS }, (_, k) => slot(k)));
+    clearInterval(ui);
+    store[P] = { t: Date.now(), a: fresh.size ? [...fresh.values()] : (store[P] || {}).a || [] };
+    alive = store[P].a; save();
+    const halted = stop;
+    if (!halted && n >= total) prog(100, `Done · ${pname(P)} · ${fresh.size} live · ${n.toLocaleString()} checked`);
+    else prog(15 + Math.min(n / total, 1) * 85, `${halted ? "Stopped" : "Holding"} · ${n.toLocaleString()} / ${total.toLocaleString()} checked · ${fresh.size} live · ${defer.length} wait`);
+  } catch {}
+  clearInterval(wd); if (ui) clearInterval(ui);
+  if (!(store[P] && Date.now() - store[P].t < 5000)) { store[P] = { t: Date.now(), a: (store[P] || {}).a || [] }; save(); }   // failed run: keep old list, still wait an hour
+  pool.forEach(kill); pool = [];
+  running = false; stop = false; $("rf").disabled = $("fp").disabled = false; $("stop").disabled = true; $("live").classList.remove("on"); fillProviders(); render();
+  setTimeout(() => { if (!running) $("prog").classList.remove("show"); }, 3500);
+}
+
+/* ---- view (throttled so the UI never stalls) ---- */
+let rq = 0; const sched = () => { if (!rq) rq = setTimeout(() => { rq = 0; render(); }, 600); };
+const uri = p => { const sch = p.proto === "socks5" ? "socks5" : p.proto === "socks4" ? "socks4" : "http", host = String(p.ip).includes(":") ? "[" + p.ip + "]" : p.ip, auth = p.user ? encodeURIComponent(p.user) + ":" + encodeURIComponent(p.pass || "") + "@" : ""; return auth ? sch + "://" + auth + host + ":" + p.port : p.ip + ":" + p.port; };
+const merged = () => running ? [...new Map([...alive.map(p => [p.ip + ":" + p.port + ":" + (p.user || ""), p]), ...fresh]).values()] : alive;
+const view = () => merged().filter(p => !fProto || p.proto === fProto).sort((a, b) => a.ms - b.ms);
+function render() {
+  const v = view();
+  $("cnt").textContent = v.length.toLocaleString() + " live";
+  $("rows").innerHTML = v.slice(0, 300).map(p => `<div class="card" data-c="${esc(uri(p))}"><div class="fl">${flag(p.cc)}</div>
+    <div class="mid"><div class="ad">${p.user ? esc(p.user) + "@" : ""}${esc(p.ip)}:${p.port}</div><div class="sub">${esc(p.country || (p.cc ? nm(p.cc) : "Unknown country"))}${p.city ? " · " + esc(p.city) : ""}${p.user ? " · auth" : ""}</div>${p.isp ? `<div class="isp">${esc(p.isp)}</div>` : ""}</div>
+    <div class="rt"><span class="tag">${p.proto}</span>${p.user ? '<span class="tag">auth</span>' : ""}${p.tor ? '<span class="tag">tor</span>' : ""}<span class="ms">${p.ms} ms</span></div></div>`).join("");
+  $("empty").style.display = v.length ? "none" : "block";
+  $("empty").textContent = running ? "Gathering live proxies…" : "Choose a source and press Start";
+}
+const save = () => { try { localStorage.setItem("goarxyz_v2", JSON.stringify(store)); } catch {} };
+const fillProviders = () => { $("fp").innerHTML = `<option value="custom">Custom${(store.custom || {}).a ? " · " + store.custom.a.length : ""}</option>` + PROVS.map(p => `<option value="${esc(p)}">${esc(pname(p))}${(store[p] || {}).a ? " · " + store[p].a.length : ""}</option>`).join(""); $("fp").value = prov; };
+const showCustom = () => { $("custom").classList.toggle("show", prov === "custom"); const n = fromText(customText).length; $("customn").textContent = n.toLocaleString() + " proxies"; };
+const toast = t => { const e = $("toast"); e.textContent = t; e.classList.add("show"); setTimeout(() => e.classList.remove("show"), 1100); };
+
+$("fp").onchange = () => {
+  prov = $("fp").value; try { localStorage.setItem("goarxyz_prov", prov); } catch {}
+  alive = (store[prov] || {}).a || []; fresh = new Map(); showCustom(); render();
+};
+$("paste").oninput = () => { customText = $("paste").value; showCustom(); };
+$("file").onchange = async () => { const f = $("file").files && $("file").files[0]; if (!f) return; customText = await f.text(); $("paste").value = customText; showCustom(); toast("Loaded " + f.name); };
+$("rf").onclick = refresh;
+$("stop").onclick = () => { if (!running) return; stop = true; pool.forEach(kill); prog($("fill").style.width ? parseFloat($("fill").style.width) : 0, "Stopping"); };
+$("seg").onclick = e => { const b = e.target.closest("button"); if (!b) return; fProto = b.dataset.p; [...$("seg").children].forEach(x => x.classList.toggle("on", x === b)); render(); };
+$("rows").onclick = e => { const c = e.target.closest(".card"); if (c) { try { navigator.clipboard.writeText(c.dataset.c); } catch {} toast("Copied " + c.dataset.c); } };
+$("ex").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([view().map(uri).join("\n")])); a.download = "goarxyz.txt"; a.click(); };
+
+fillProviders(); showCustom(); render();
+</script>
+</body></html>
