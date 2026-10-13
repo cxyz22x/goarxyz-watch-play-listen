@@ -455,6 +455,33 @@
     <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, minimal-ui"/>
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="stylesheet" type="text/css" href="${css}">
+    <script>
+      (function () {
+        function killAds() {
+          try {
+            ["Preroll", "Preroll2", "Preroll3", "Header", "Header2", "Header3", "Footer", "Footer2", "Footer3", "End", "End2", "End3"].forEach(function (slot) {
+              var el = document.getElementById("MobileAdInGame" + slot);
+              if (el && el.parentNode) el.parentNode.removeChild(el);
+            });
+            var sd = document.getElementById("scrollDown");
+            if (sd && sd.parentNode) sd.parentNode.removeChild(sd);
+          } catch (e) {}
+        }
+        window.MobileAdInGamePreroll = { Close: function () { killAds(); }, Show: function () {}, Prepare: function () {} };
+        window.MobileAdInGameEnd = { Close: function () { killAds(); }, Show: function () {}, Prepare: function () {} };
+        window.MobileAdInGameHeader = { Show: function () {}, Hide: function () {} };
+        window.MobileAdInGameFooter = { Show: function () {}, Hide: function () {} };
+        document.addEventListener("DOMContentLoaded", killAds);
+        window.addEventListener("load", killAds);
+        setTimeout(killAds, 1000);
+        setInterval(killAds, 2000);
+        try {
+          var st = document.createElement("style");
+          st.textContent = '[id^="MobileAd"]{display:none!important;visibility:hidden!important;pointer-events:none!important}#scrollDown{display:none!important}';
+          document.head.appendChild(st);
+        } catch (e) {}
+      })();
+    </script>
     <script type="text/javascript" src="${js}"><\/script>
 <!-- AnalyticsCode -->
 <!-- APICode -->
@@ -465,60 +492,18 @@
             <div id="game"><canvas id="canvas"></canvas></div>
             <div id="orientate"><img src="${o}media/graphics/orientate/portrait.jpg" /></div>
             <div id="play" class="play" onclick=""></div>
-            <div id="MobileAdInGamePreroll">
-                <div id="MobileAdInGamePreroll-Box">
-                    <div id="MobileAdInGamePreroll-Box-Header"></div>
-                    <a id="MobileAdInGamePreroll-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
-                    <div id="MobileAdInGamePreroll-Box-Body"><center><!-- MobileAdInGamePreroll --></center></div>
-                    <div id="MobileAdInGamePreroll-Box-Footer"></div>
-                </div>
-            </div>
-            <div id="MobileAdInGamePreroll2">
-                <div id="MobileAdInGamePreroll2-Box">
-                    <div id="MobileAdInGamePreroll2-Box-Header"></div>
-                    <a id="MobileAdInGamePreroll2-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
-                    <div id="MobileAdInGamePreroll2-Box-Body"><center><!-- MobileAdInGamePreroll2 --></center></div>
-                    <div id="MobileAdInGamePreroll2-Box-Footer"></div>
-                </div>
-            </div>
-            <div id="MobileAdInGamePreroll3">
-                <div id="MobileAdInGamePreroll3-Box">
-                    <div id="MobileAdInGamePreroll3-Box-Header"></div>
-                    <a id="MobileAdInGamePreroll3-Box-Close" onclick="MobileAdInGamePreroll.Close();"></a>
-                    <div id="MobileAdInGamePreroll3-Box-Body"><center><!-- MobileAdInGamePreroll3 --></center></div>
-                    <div id="MobileAdInGamePreroll3-Box-Footer"></div>
-                </div>
-            </div>
-            <div id="MobileAdInGameHeader"><!-- MobileAdInGameHeader --></div>
-            <div id="MobileAdInGameHeader2"><!-- MobileAdInGameHeader2 --></div>
-            <div id="MobileAdInGameHeader3"><!-- MobileAdInGameHeader3 --></div>
-            <div id="MobileAdInGameFooter"><!-- MobileAdInGameFooter --></div>
-            <div id="MobileAdInGameFooter2"><!-- MobileAdInGameFooter2 --></div>
-            <div id="MobileAdInGameFooter3"><!-- MobileAdInGameFooter3 --></div>
-            <div id="MobileAdInGameEnd">
-                <div id="MobileAdInGameEnd-Box">
-                    <div id="MobileAdInGameEnd-Box-Header"></div>
-                    <a id="MobileAdInGameEnd-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
-                    <div id="MobileAdInGameEnd-Box-Body"><center><!-- MobileAdInGameEnd --></center></div>
-                    <div id="MobileAdInGameEnd-Box-Footer"></div>
-                </div>
-            </div>
-            <div id="MobileAdInGameEnd2">
-                <div id="MobileAdInGameEnd2-Box">
-                    <div id="MobileAdInGameEnd2-Box-Header"></div>
-                    <a id="MobileAdInGameEnd2-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
-                    <div id="MobileAdInGameEnd2-Box-Body"><center><!-- MobileAdInGameEnd2 --></center></div>
-                    <div id="MobileAdInGameEnd2-Box-Footer"></div>
-                </div>
-            </div>
-            <div id="MobileAdInGameEnd3">
-                <div id="MobileAdInGameEnd3-Box">
-                    <div id="MobileAdInGameEnd3-Box-Header"></div>
-                    <a id="MobileAdInGameEnd3-Box-Close" onclick="MobileAdInGameEnd.Close();"></a>
-                    <div id="MobileAdInGameEnd3-Box-Body"><center><!-- MobileAdInGameEnd3 --></center></div>
-                    <div id="MobileAdInGameEnd3-Box-Footer"></div>
-                </div>
-            </div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
         </div>
     <!-- APICode2 -->
 </body>
