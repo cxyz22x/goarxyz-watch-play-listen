@@ -37,11 +37,10 @@ GUARD_JS = r"""
     try { localStorage.clear(); } catch (e) {}
     try { location.replace('about:blank'); } catch (e) {}
   }
-  var threshold = 170;
   function sizeDiff() {
     var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
     var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
-    return w > threshold || h > threshold;
+    return (w > 200 && h > 100) || (h > 200 && w > 60);
   }
   function timingLoop() {
     var start = performance.now();
@@ -53,34 +52,11 @@ GUARD_JS = r"""
     timingLoop();
   }, 1500);
   timingLoop();
-  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
-  var lastFire = 0;
-  fire.forEach(function (k) {
-    try {
-      console[k] = function () {
-        var now = Date.now();
-        if (now - lastFire < 5) wipe();
-        lastFire = now;
-      };
-    } catch (e) {}
-  });
-  var reportCount = 0;
-  setInterval(function () {
-    reportCount++;
-    if (reportCount % 7 === 0) wipe();
-  }, 2000);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
     if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
   });
   document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
-  window.addEventListener('beforeprint', wipe);
-  var _toStr = Function.prototype.toString;
-  Function.prototype.toString = function () {
-    var s = _toStr.call(this);
-    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
-    return s;
-  };
 })();
 """
 
