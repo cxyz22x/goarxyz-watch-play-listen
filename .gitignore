@@ -13,3 +13,4 @@ dist
 .wrangler
 
 .dev.vars
+.page-src/

@@ -1,30 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>goarxyz — Games</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="games.css" /><link rel="stylesheet" href="/shared/brand.css" />
-<link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "B358v1hsFTdHOh50WeK68XBiTRqa10aF", K2 = "TlTgksp2OTu2lluiF4wNOFnNdcq9iMva", IV = "1fsa3E976z5u1rap", K = "BXtLPZXIXP62f5fDvr5KCbkEcMxXzVUWNT08XUi6Gjs=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<header class="top"><a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a></header>
-<main class="games-wrap">
-  <div class="games-bar">
-    <input id="gq" placeholder="Search games" autocomplete="off" />
-    <div class="chips" id="gchips"></div>
-  </div>
-  <div class="ggrid" id="ggrid"><div class="empty">Loading games…</div></div>
-</main>
-<section class="stage" id="gameStage">
-  <div class="play-bar"><button type="button" id="playClose">← Games</button><b id="playTitle">Game</b></div>
-  <div id="gameMount"><iframe id="playFrame" title="Game"></iframe></div>
-</section>
-<script src="/shared/aes.js"></script>
-<script src="/shared/protect.js"></script>
-<script src="games.js?v=9"></script>
-<script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>

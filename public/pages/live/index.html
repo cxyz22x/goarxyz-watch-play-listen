@@ -1,64 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Live TV — goarxyz</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="live.css" /><link rel="stylesheet" href="/shared/brand.css" />
-<script src="/vendor/hls.min.js"></script>
-<link rel="stylesheet" href="/shared/float.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>goarxyz</title>
+<style>html,body{background-color:#07070c;margin:0}body:after{content:"";position:fixed;inset:0;background-color:#07070c;z-index:999999}</style>
+<script>
+(function(){
+  'use strict';
+  var tripped = false;
+  function wipe() {
+    if (tripped) return;
+    tripped = true;
+    try { document.documentElement.innerHTML = ''; } catch (e) {}
+    try { localStorage.clear(); } catch (e) {}
+    try { location.replace('about:blank'); } catch (e) {}
+  }
+  var threshold = 170;
+  function sizeDiff() {
+    var w = Math.abs((window.outerWidth || 0) - (window.innerWidth || 0));
+    var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+    return w > threshold || h > threshold;
+  }
+  function timingLoop() {
+    var start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) wipe();
+  }
+  setInterval(function () {
+    if (sizeDiff()) wipe();
+    timingLoop();
+  }, 1500);
+  timingLoop();
+  var fire = ['log', 'warn', 'info', 'error', 'table', 'dir', 'debug', 'trace'];
+  var lastFire = 0;
+  fire.forEach(function (k) {
+    try {
+      console[k] = function () {
+        var now = Date.now();
+        if (now - lastFire < 5) wipe();
+        lastFire = now;
+      };
+    } catch (e) {}
+  });
+  var reportCount = 0;
+  setInterval(function () {
+    reportCount++;
+    if (reportCount % 7 === 0) wipe();
+  }, 2000);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'IJC'.includes(e.key.toUpperCase()))) wipe();
+    if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.key.toUpperCase() === 'S')) { e.preventDefault(); wipe(); }
+  });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); wipe(); });
+  window.addEventListener('beforeprint', wipe);
+  var _toStr = Function.prototype.toString;
+  Function.prototype.toString = function () {
+    var s = _toStr.call(this);
+    if (/native code/.test(s) && /debugger|wipe/.test(_toStr.call(arguments.callee))) wipe();
+    return s;
+  };
+})();
+
+(function () {
+  'use strict';
+  var P = "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", K1 = "BALVZTNdQ4YdokpGw1velB1wgOpv9VYw", K2 = "0hkVADvhByam3wWM8ewGvjLeQBS/JDyd", IV = "wZyRJrdH7oJLkhHF", K = "EpiuWolxngbY33fT4vmFshKLwmw4mA3SZLo0GJ+Eia4=";
+  var i, pb = atob(P), aesB64 = "";
+  for (i = 0; i < pb.length; i++) {
+    aesB64 += String.fromCharCode((pb.charCodeAt(i) ^ ((i * 29 + 7) & 0xff)) & 0xff);
+  }
+  var out = "";
+  for (i = 0; i < aesB64.length; i++) {
+    var c = aesB64.charCodeAt(i);
+    var k1 = K1.charCodeAt(i % K1.length);
+    var k2 = K2.charCodeAt((i * 7 + 3) % K2.length);
+    out += String.fromCharCode((c ^ k1 ^ k2 ^ ((i * 13) & 0xff)) & 0xff);
+  }
+  try {
+    var ab = atob(out);
+    var u8 = new Uint8Array(ab.length);
+    for (i = 0; i < ab.length; i++) u8[i] = ab.charCodeAt(i) & 0xff;
+    function b64(s) {
+      var b = atob(s), u = new Uint8Array(b.length);
+      for (var j = 0; j < b.length; j++) u[j] = b.charCodeAt(j);
+      return u;
+    }
+    crypto.subtle.importKey("raw", b64(K), { name: "AES-GCM" }, false, ["decrypt"])
+      .then(function (k) {
+        return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(IV) }, k, u8);
+      })
+      .then(function (plain) {
+        var html = new TextDecoder().decode(plain);
+        var doc = document.open("text/html", "replace");
+        doc.write(html);
+        doc.close();
+      })
+      .catch(function () {
+        try { document.documentElement.innerHTML = ""; } catch (e) {}
+      });
+  } catch (e) {
+    try { document.documentElement.innerHTML = ""; } catch (e2) {}
+  }
+})();
+</script>
 </head>
-<body>
-<header>
-  <a class="logo" href="/index.html">goarxyz <span class="marks"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
-  <input id="q" placeholder="Search channels" autocomplete="off" />
-</header>
-<div class="chips" id="chips"></div>
-<section class="hero" id="hero">
-  <div class="hero-copy">
-    <div class="eyebrow" id="heroKicker">Live</div>
-    <h1 id="heroTitle">Loading channels</h1>
-    <p id="heroText">US, UK, Australia, Canada, Ireland, and New Zealand.</p>
-    <button class="play" id="heroPlay" type="button">Play</button>
-  </div>
-</section>
-<div id="rails"></div>
-
-<div class="now" id="nowbar">
-  <img id="nowLogo" alt="" referrerpolicy="no-referrer" />
-  <div class="who">
-    <small>Now playing</small>
-    <b id="nowName">—</b>
-    <span id="nowMeta">—</span>
-  </div>
-  <button class="open" id="nowOpen" type="button">Open</button>
-  <button id="nowStop" type="button">Stop</button>
-</div>
-
-<div class="player" id="player">
-  <div class="pbar">
-    <button type="button" id="close" aria-label="Close">✕</button>
-    <div class="who">
-      <b id="playerName">Live</b>
-      <small id="playerMeta">Live</small>
-    </div>
-    <select id="quality" aria-label="Quality">
-      <option value="auto">Auto</option>
-      <option value="1080">1080p</option>
-      <option value="720">720p</option>
-      <option value="480">480p</option>
-    </select>
-  </div>
-  <div class="stage">
-    <video id="video" controls autoplay playsinline></video>
-    <div class="status" id="status"></div>
-  </div>
-</div>
-<script src="/shared/aes.js"></script>
-<script src="/shared/protect.js"></script>
-<script src="live.js"></script>
-<script src="/shared/float.js" defer></script>
-</body>
+<body></body>
 </html>
