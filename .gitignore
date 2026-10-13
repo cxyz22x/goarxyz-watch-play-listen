@@ -9,3 +9,5 @@ attachments/
 .grok/
 .vercel/
 probe-game.mjs
+dist
+.wrangler
