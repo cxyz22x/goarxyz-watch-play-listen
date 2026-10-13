@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>ip.info — goarxyz</title>
+<link rel="stylesheet" href="/shared/brand.css" />
+<link rel="stylesheet" href="/shared/float.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+:root{--bg:#000;--s:#0c0c0c;--b:#1f1f1f;--t:#fff;--d:#8a8a8a;--r:16px;--red:#e11d1d;--grn:#22c55e;--amb:#fbbf24}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{color:var(--t);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;max-width:720px;margin:auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom))}
+a.logo{margin-bottom:24px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--d);display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.lbl::before{content:'';width:6px;height:6px;background:var(--red);border-radius:50%;box-shadow:0 0 8px var(--red)}
+.lbl .src{margin-left:auto;font-size:10px;color:#555;font-weight:600;letter-spacing:.12em}
+.score{text-align:center;padding:14px 0 6px}
+.score .n{font:700 76px/0.9 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-3px}
+.score .n.hot{color:var(--red);text-shadow:0 0 40px rgba(225,29,29,.25)}
+.score .n .d{font-size:20px;color:var(--d);font-weight:400;margin-left:6px;letter-spacing:0}
+.score .cap{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--d);margin-top:14px}
+.score .badge{display:inline-block;margin-top:14px;padding:6px 14px;font:700 11px ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;border:1px solid var(--b);border-radius:99px;color:var(--d)}
+.score .badge.low{color:var(--grn);border-color:#14532d}
+.score .badge.med{color:var(--amb);border-color:#78350f}
+.score .badge.hi{color:var(--red);border-color:#7f1010}
+.score .badge.vhi{color:#fff;background:var(--red);border-color:var(--red)}
+.desc{font-size:12.5px;line-height:1.6;color:#b8b8b8;margin-top:16px;padding-top:16px;border-top:1px solid var(--b);display:none;text-align:left}
+.desc.show{display:block}
+.desc b{color:#e6e6e6;font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:8px 0;border-bottom:1px solid var(--b);font-size:14px}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row:first-child{padding-top:0}
+.row .k{color:var(--d);flex:none}
+.row .v{font:500 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;text-align:right;word-break:break-all;max-width:66%}
+.row .v.ok{color:var(--grn)}
+.row .v.bad{color:var(--red)}
+.row .v.warn{color:var(--amb)}
+.row .v.hl{color:#fff;font-weight:600}
+.subrow{font:700 10px ui-monospace,monospace;letter-spacing:.2em;text-transform:uppercase;color:#555;padding:14px 0 6px;display:flex;align-items:center;gap:8px}
+.subrow:first-child{padding-top:0}
+.subrow::before{content:'';width:14px;height:1px;background:var(--b)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0}
+.chip{font:600 10.5px ui-monospace,monospace;padding:5px 9px;border-radius:7px;background:#111;border:1px solid #1f1f1f;color:#a0a0a8;white-space:nowrap}
+.chip.ok{color:var(--grn);border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.06)}
+.chip.bad{color:var(--red);border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.06)}
+.chip.warn{color:var(--amb);border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.06)}
+#map{height:300px;border-radius:12px;border:1px solid var(--b);background:#0c0c0c}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#161616;color:#fff;border:1px solid #2a2a2a;border-radius:8px}
+.leaflet-popup-content{font:12px ui-monospace,monospace;margin:8px 12px;color:#fff}
+.leaflet-popup-content b{color:#fff}
+.leaflet-container a.leaflet-popup-close-button{color:var(--red)}
+.leaflet-bar a,.leaflet-bar a:hover{background:#161616;color:#fff;border-color:#2a2a2a}
+.leaflet-bar a:hover{background:#1f1f1f}
+.leaflet-control-attribution{display:none!important}
+.loc{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font:500 12px ui-monospace,monospace;color:var(--d);flex-wrap:wrap}
+.loc .pin{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;box-shadow:0 0 8px var(--red);margin-right:6px;vertical-align:middle}
+.loc .co{color:var(--t)}
+.load{color:var(--d);font:500 12px ui-monospace,monospace;letter-spacing:.06em}
+.load::after{content:'';animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+.err{color:var(--red);font:500 12px ui-monospace,monospace}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+canvas{display:none}
+footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--b);display:flex;justify-content:space-between;font:600 10.5px ui-monospace,monospace;color:var(--d);letter-spacing:.18em;text-transform:uppercase}
+#fip{color:var(--t)}
+</style>
+</head>
+<body>
+
+<a class="logo" href="/index.html">goarxyz <span class="marks" aria-hidden="true"><span>○</span><span>□</span><span>△</span><span>✕</span></span></a>
+
+<div class="card">
+  <div class="lbl">Fraud Score <span class="src">scamalytics</span></div>
+  <div class="score" id="fraud"><div class="load">Analyzing</div></div>
+  <div class="desc" id="frauddesc"></div>
+</div>
+
+<div class="card">
+  <div class="lbl">Location <span class="src">scamalytics · osm</span></div>
+  <div id="map"><div class="load" style="padding:20px">Locating</div></div>
+  <div class="loc" id="locmeta"></div>
+</div>
+
+<div class="grid">
+  <div class="card"><div class="lbl">Operator <span class="src">scamalytics</span></div><div id="opinfo"><div class="load">Fetching</div></div></div>
+  <div class="card"><div class="lbl">Geo Detail <span class="src">scamalytics</span></div><div id="geoinfo"><div class="load">Resolving</div></div></div>
+</div>
+
+<div class="card"><div class="lbl">Security &amp; Blacklists <span class="src">scamalytics</span></div><div id="secinfo"><div class="load">Scanning</div></div></div>
+
+<div class="card"><div class="lbl">Proxy Analysis <span class="src">scamalytics</span></div><div id="proxyinfo"><div class="load">Checking</div></div></div>
+
+<div class="grid">
+  <div class="card"><div class="lbl">Fingerprint</div><div id="fpinfo"><div class="load">Collecting</div></div></div>
+  <div class="card"><div class="lbl">Network</div><div id="netinfo"><div class="load">Reading</div></div></div>
+</div>
+
+<div class="card"><div class="lbl">User Agent</div><div id="uainfo"><div class="load">Parsing</div></div></div>
+
+<footer><span>goarxyz</span><span id="fip">—</span></footer>
+<canvas id="fp" width="220" height="50"></canvas>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     WORKER — libcurl over WISP
+     ============================================================ */
+  function workerMain() {
+    let L;
+    const to = (p, ms) => Promise.race([p, new Promise((_, j) => setTimeout(() => j(0), ms))]);
+
+    self.onmessage = async e => {
+      const m = e.data;
+      if (m.t === "init") {
+        try {
+          importScripts(m.lib);
+          L = self.libcurl;
+          if (!L) throw new Error("libcurl global missing");
+          await L.load_wasm();
+        } catch (e1) {
+          try {
+            ({ libcurl: L } = await import(m.libm));
+            await L.load_wasm();
+          } catch (e2) {
+            return postMessage({ t: "ready", ok: false, why: "load: " + ((e1 && e1.message) || e1) + " | " + ((e2 && e2.message) || e2) });
+          }
+        }
+        let tried = "";
+        for (const w of m.wisp) {
+          try {
+            L.set_websocket(w);
+            await Promise.any(m.probes.map(u =>
+              to(L.fetch(u), 12000).then(r => { if (!r || typeof r.status !== "number") throw 0; })
+            ));
+            return postMessage({ t: "ready", ok: true, wisp: w });
+          } catch { tried += " " + w; }
+        }
+        return postMessage({ t: "ready", ok: false, why: "wisp:" + tried });
+      }
+      if (m.t === "fetch") {
+        let status = 0, text = "";
+        try {
+          const r = await to(L.fetch(m.url, { headers: m.headers || {} }), m.ms || 25000);
+          status = r.status;
+          text = await r.text();
+        } catch {}
+        postMessage({ t: "res", id: m.id, status, text });
+      }
+    };
+  }
+
+  const LIBCURL = "https://cdn.jsdelivr.net/npm/libcurl.js@0.7/libcurl_full.js";
+  const LIBCURL_M = LIBCURL.replace(/\.js$/, ".mjs");
+  const WISP = [
+    ...(new URLSearchParams(location.search).get("wisp") || "").split(","),
+    "wss://wisp.mercurywork.shop/",
+  ].map(x => x.trim()).filter(Boolean);
+  const PROBES = ["http://example.com/", "http://httpbin.org/ip"];
+  const UAS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  ];
+  const ua = () => UAS[(Math.random() * UAS.length) | 0];
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  const riskClass = v => {
+    const s = String(v == null ? "" : v).toLowerCase().trim();
+    if (s === "yes" || s === "true") return "bad";
+    if (s === "no" || s === "false") return "ok";
+    if (s === "unknown" || s === "n/a") return "warn";
+    return "";
+  };
+  const boolToYesNo = v => {
+    const s = String(v == null ? "" : v).toLowerCase().trim();
+    if (s === "yes" || s === "true") return "yes";
+    if (s === "no" || s === "false") return "no";
+    return v;
+  };
+  function row(k, v, cls) {
+    const empty = v == null || v === "" || /^n\/?a$/i.test(String(v).trim());
+    const c = empty ? "" : (cls || "");
+    return `<div class="row"><span class="k">${esc(k)}</span><span class="v ${c}">${empty ? "—" : esc(v)}</span></div>`;
+  }
+  function subrow(k) { return `<div class="subrow">${esc(k)}</div>`; }
+  function chip(label, kind) {
+    return `<span class="chip ${kind || ""}">${esc(label)}</span>`;
+  }
+  function setCard(id, html) { const el = $(id); if (el) el.innerHTML = html; }
+
+  /* ============================================================
+     WORKER POOL
+     ============================================================ */
+  let worker = null;
+  let jid = 0;
+  const pending = new Map();
+
+  function call(msg, ms) {
+    return new Promise(res => {
+      const id = ++jid;
+      const t = setTimeout(() => { pending.delete(id); res({ t: "timeout" }); }, ms);
+      pending.set(id, { t, res: m => { clearTimeout(t); res(m); } });
+      try { worker.postMessage({ ...msg, id }); }
+      catch { pending.delete(id); clearTimeout(t); res(null); }
+    });
+  }
+
+  function spawnWorker() {
+    const url = URL.createObjectURL(new Blob(["(" + workerMain + ")()"], { type: "text/javascript" }));
+    const w = new Worker(url);
+    return new Promise(res => {
+      let done = false;
+      const finish = v => { if (!done) { done = true; clearTimeout(timer); res(v); } };
+      const timer = setTimeout(() => finish({ w, ok: false, why: "init timeout" }), 25000);
+      w.addEventListener("message", e => {
+        const m = e.data;
+        if (m.t === "ready") return finish({ w, ok: m.ok, why: m.why, wisp: m.wisp });
+        const f = pending.get(m.id);
+        if (f) { pending.delete(m.id); f.res(m); }
+      });
+      w.addEventListener("error", e => finish({ w, ok: false, why: "worker error: " + (e.message || "script failed") }));
+      w.postMessage({ t: "init", lib: LIBCURL, libm: LIBCURL_M, wisp: WISP, probes: PROBES });
+    });
+  }
+
+  async function tunnelFetch(url) {
+    const m = await call({ t: "fetch", url, headers: { "User-Agent": ua() } }, 30000);
+    if (!m || m.t === "timeout") throw new Error("tunnel timeout");
+    return { status: m.status, text: m.text };
+  }
+
+  /* ============================================================
+     FINGERPRINT — local, no network
+     ============================================================ */
+  function canvasFp() {
+    const c = $("fp"), x = c.getContext("2d");
+    x.textBaseline = "top";
+    x.font = "14px monospace";
+    x.fillStyle = "#e11d1d"; x.fillRect(0, 0, 220, 50);
+    x.fillStyle = "#0a0a0a"; x.fillText("goarxyz", 4, 16);
+    x.fillStyle = "rgba(255,255,255,.7)"; x.fillText("goarxyz", 6, 22);
+    return c.toDataURL();
+  }
+  function h32(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h = h & h; }
+    return "fp_" + Math.abs(h).toString(16);
+  }
+
+  function renderFingerprint() {
+    const uaStr = navigator.userAgent;
+    const fp = [
+      ["User Agent", uaStr],
+      ["Platform", navigator.platform],
+      ["Language", navigator.language],
+      ["Languages", (navigator.languages || []).join(", ")],
+      ["Cookies", navigator.cookieEnabled ? "enabled" : "disabled"],
+      ["Do Not Track", navigator.doNotTrack ?? "unset"],
+      ["Cores", navigator.hardwareConcurrency ?? "—"],
+      ["Memory (GB)", navigator.deviceMemory ?? "—"],
+      ["Touch Points", navigator.maxTouchPoints ?? "—"],
+      ["Screen", screen.width + "×" + screen.height],
+      ["Avail Screen", screen.availWidth + "×" + screen.availHeight],
+      ["Color Depth", screen.colorDepth + " bit"],
+      ["Pixel Ratio", window.devicePixelRatio],
+      ["Timezone", Intl.DateTimeFormat().resolvedOptions().timeZone],
+      ["TZ Offset", new Date().getTimezoneOffset() + " min"],
+    ];
+    try { fp.push(["Canvas Hash", h32(canvasFp())]); }
+    catch { fp.push(["Canvas Hash", "blocked"]); }
+    try {
+      const gl = document.createElement("canvas").getContext("webgl");
+      const info = gl.getExtension("WEBGL_debug_renderer_info");
+      if (info) {
+        fp.push(["GPU Vendor", gl.getParameter(info.UNMASKED_VENDOR_WEBGL)]);
+        fp.push(["GPU Renderer", gl.getParameter(info.UNMASKED_RENDERER_WEBGL)]);
+      } else fp.push(["WebGL", "restricted"]);
+    } catch { fp.push(["WebGL", "unavailable"]); }
+    try {
+      const plugins = Array.from(navigator.plugins || []).map(p => p.name).join(", ");
+      fp.push(["Plugins", plugins || "none"]);
+    } catch { fp.push(["Plugins", "—"]); }
+    setCard("fpinfo", fp.map(([k, v]) => row(k, v)).join(""));
+
+    const net = [];
+    const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (c) {
+      net.push(["Effective Type", c.effectiveType ?? "—"]);
+      net.push(["Downlink", (c.downlink ?? "—") + " Mbps"]);
+      net.push(["RTT", (c.rtt ?? "—") + " ms"]);
+      net.push(["Save Data", c.saveData ? "on" : "off"]);
+      net.push(["Connection Type", c.type ?? "—"]);
+    } else net.push(["Network API", "not supported"]);
+    net.push(["Online", navigator.onLine ? "yes" : "no"]);
+    net.push(["Protocol", location.protocol.replace(":", "")]);
+    net.push(["Host", location.host || "—"]);
+    setCard("netinfo", net.map(([k, v]) => row(k, v)).join(""));
+
+    const up = [["Raw", uaStr]];
+    let br = "unknown";
+    if (uaStr.includes("Firefox/")) br = "Firefox " + uaStr.split("Firefox/")[1];
+    else if (uaStr.includes("Edg/")) br = "Edge " + uaStr.split("Edg/")[1];
+    else if (uaStr.includes("Chrome/") && !uaStr.includes("Edg/")) br = "Chrome " + uaStr.split("Chrome/")[1].split(" ")[0];
+    else if (uaStr.includes("Safari/") && !uaStr.includes("Chrome/")) br = "Safari " + (uaStr.split("Version/")[1] || "").split(" ")[0];
+    let os = "unknown";
+    if (uaStr.includes("Windows NT 10.0")) os = "Windows 10/11";
+    else if (uaStr.includes("Windows NT 6.1")) os = "Windows 7";
+    else if (uaStr.includes("Mac OS X")) os = "macOS " + (uaStr.split("Mac OS X ")[1] || "").split(";")[0].replace(/_/g, ".");
+    else if (uaStr.includes("Linux")) os = "Linux";
+    else if (uaStr.includes("Android")) os = "Android " + (uaStr.split("Android ")[1] || "").split(";")[0];
+    else if (uaStr.includes("iPhone") || uaStr.includes("iPad")) os = "iOS " + (uaStr.split("OS ")[1] || "").split(" ")[0].replace(/_/g, ".");
+    let dev = "Desktop";
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(uaStr)) dev = "Mobile";
+    up.push(["Browser", br]);
+    up.push(["OS", os]);
+    up.push(["Device", dev]);
+    up.push(["Vendor", navigator.vendor || "—"]);
+    setCard("uainfo", up.map(([k, v]) => row(k, v)).join(""));
+  }
+  renderFingerprint();
+
+  /* ============================================================
+     SCAMALYTICS PARSER — full dataset
+     ============================================================ */
+  function parseScamalytics(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const out = {
+      score: null, risk: null, is_blacklisted_external: null, description: null,
+      operator: { hostname: null, asn: null, isp: null, org: null, connection_type: null },
+      location: { country: null, country_code: null, state: null, district: null,
+                  city: null, postal: null, latitude: null, longitude: null },
+      datacenter: null,
+      blacklists: {},
+      proxies: {},
+      residential_proxy: null,
+    };
+
+    // JSON snippet — most reliable
+    const pre = doc.querySelector("pre");
+    if (pre) {
+      const t = pre.textContent;
+      const s = t.match(/"score"\s*:\s*"?(\d+)"?/);
+      const k = t.match(/"risk"\s*:\s*"([^"]+)"/);
+      const b = t.match(/"is_blacklisted_external"\s*:\s*(true|false)/);
+      if (s) out.score = Number(s[1]);
+      if (k) out.risk = k[1];
+      if (b) out.is_blacklisted_external = b[1] === "true";
+    }
+
+    // Score bar
+    const scoreEl = doc.querySelector(".score_bar .score");
+    if (!out.score && scoreEl) { const m = scoreEl.textContent.match(/(\d+)/); if (m) out.score = Number(m[1]); }
+
+    // Risk panel title
+    const pt = doc.querySelector(".panel_title");
+    if (!out.risk && pt) {
+      const t = pt.textContent.trim().replace(/\s*risk\s*$/i, "").trim();
+      if (t) out.risk = t.toLowerCase();
+    }
+
+    // Description
+    const pb = doc.querySelector(".panel_body");
+    if (pb) out.description = pb.textContent.replace(/\s+/g, " ").trim();
+
+    // Sectioned rows
+    let section = null;
+    doc.querySelectorAll("table tr").forEach(tr => {
+      const title = tr.querySelector("th.title");
+      if (title) { section = title.textContent.trim().toLowerCase(); return; }
+      const th = tr.querySelector("th"), td = tr.querySelector("td");
+      if (!th || !td) return;
+      if (td.classList.contains("subtitle")) return;
+      if (!section) return;
+      const key = th.textContent.trim();
+      const riskEl = td.querySelector(".risk");
+      const value = (riskEl ? riskEl.textContent : td.textContent).trim();
+
+      if (section.includes("operator")) {
+        if (/hostname/i.test(key)) out.operator.hostname = value;
+        else if (/^asn$/i.test(key)) out.operator.asn = value;
+        else if (/isp/i.test(key)) out.operator.isp = value;
+        else if (/organization/i.test(key)) out.operator.org = value;
+        else if (/connection type/i.test(key)) out.operator.connection_type = value;
+      } else if (section.includes("location")) {
+        if (/country name/i.test(key)) out.location.country = value;
+        else if (/country code/i.test(key)) out.location.country_code = value;
+        else if (/state/i.test(key)) out.location.state = value;
+        else if (/district/i.test(key)) out.location.district = value;
+        else if (/^city$/i.test(key)) out.location.city = value;
+        else if (/postal/i.test(key)) out.location.postal = value;
+        else if (/latitude/i.test(key)) out.location.latitude = parseFloat(value) || null;
+        else if (/longitude/i.test(key)) out.location.longitude = parseFloat(value) || null;
+      } else if (section.includes("datacenter")) {
+        if (/datacenter/i.test(key)) out.datacenter = value;
+      } else if (section.includes("blacklist")) {
+        out.blacklists[key] = value;
+      } else if (section.includes("proxies")) {
+        out.proxies[key] = value;
+      } else if (section.includes("residential")) {
+        if (/residential proxy/i.test(key)) out.residential_proxy = value;
+      }
+    });
+
+    return out;
+  }
+
+  function renderFraud(s) {
+    const score = s.score;
+    const risk = (s.risk || "").toLowerCase();
+    let cls = "badge", hot = "";
+    if (risk === "very high") cls += " vhi";
+    else if (risk === "high") { cls += " hi"; hot = " hot"; }
+    else if (risk === "medium") cls += " med";
+    else if (risk === "low") cls += " low";
+    if (score == null) {
+      setCard("fraud", '<div class="err">Score unavailable</div>');
+    } else {
+      setCard("fraud", `
+        <div class="n${hot}">${esc(score)}<span class="d">/100</span></div>
+        <div class="cap">Scamalytics Fraud Score</div>
+        <div class="${cls}">${esc((s.risk || "unknown").toUpperCase())}</div>`);
+    }
+    if (s.description) {
+      const el = $("frauddesc");
+      el.textContent = s.description;
+      el.classList.add("show");
+    }
+  }
+
+  function renderOperator(s) {
+    const o = s.operator || {};
+    setCard("opinfo",
+      row("Hostname", o.hostname) +
+      row("ASN", o.asn ? "AS" + o.asn : null, "hl") +
+      row("ISP", o.isp) +
+      row("Organization", o.org) +
+      row("Connection Type", o.connection_type)
+    );
+  }
+
+  function renderGeoDetail(s) {
+    const g = s.location || {};
+    setCard("geoinfo",
+      row("Country", g.country ? `${g.country} (${g.country_code || "—"})` : null) +
+      row("State / Province", g.state) +
+      row("District / County", g.district) +
+      row("City", g.city) +
+      row("Postal Code", g.postal) +
+      row("Latitude", g.latitude) +
+      row("Longitude", g.longitude)
+    );
+  }
+
+  function renderSecurity(s) {
+    let html = "";
+    html += row("Datacenter", s.datacenter || "unknown", riskClass(s.datacenter) || "warn");
+    if (s.is_blacklisted_external != null) {
+      html += row("Blacklisted (external)", s.is_blacklisted_external ? "yes" : "no",
+                  s.is_blacklisted_external ? "bad" : "ok");
+    }
+
+    const blacklistKeys = Object.keys(s.blacklists || {});
+    if (blacklistKeys.length) {
+      html += subrow("External Blacklists");
+      html += '<div class="chips">';
+      blacklistKeys.forEach(k => {
+        const v = s.blacklists[k];
+        html += chip(`${k}: ${boolToYesNo(v)}`, riskClass(v));
+      });
+      html += "</div>";
+    }
+    setCard("secinfo", html);
+  }
+
+  function renderProxies(s) {
+    let html = "";
+
+    const proxyKeys = Object.keys(s.proxies || {});
+    if (proxyKeys.length) {
+      html += subrow("Proxy Detection");
+      html += '<div class="chips">';
+      proxyKeys.forEach(k => {
+        const v = s.proxies[k];
+        html += chip(`${k}: ${boolToYesNo(v)}`, riskClass(v));
+      });
+      html += "</div>";
+    } else {
+      html += row("Proxies", "no data", "");
+    }
+
+    if (s.residential_proxy != null) {
+      html += subrow("Residential Proxy");
+      html += row("Residential Proxy", boolToYesNo(s.residential_proxy),
+                  riskClass(s.residential_proxy));
+    }
+
+    setCard("proxyinfo", html);
+  }
+
+  /* ============================================================
+     IP LOOKUP + MAP — native fetch, real visitor IP
+     ============================================================ */
+  let map = null;
+  async function getRealIP() {
+    const eps = [
+      "https://api.ipify.org?format=json",
+      "https://api64.ipify.org?format=json",
+      "https://ipapi.co/json/",
+    ];
+    for (const url of eps) {
+      try {
+        const r = await fetch(url, { cache: "no-store" });
+        if (!r.ok) continue;
+        const d = await r.json();
+        const ip = d && (d.ip || d.query);
+        if (ip && /^[0-9a-fA-F:.]+$/.test(String(ip).trim())) return String(ip).trim();
+      } catch {}
+    }
+    return null;
+  }
+
+  function renderMap(s) {
+    const g = s.location || {};
+    if (g.latitude == null || g.longitude == null) {
+      setCard("map", '<div class="err" style="padding:20px">Coordinates unavailable</div>');
+      setCard("locmeta", "");
+      return;
+    }
+    const where = [g.city, g.state, g.country].filter(Boolean).join(", ");
+    setCard("locmeta",
+      `<span><span class="pin"></span>${esc(where || "—")}</span>` +
+      `<span class="co">${esc(g.latitude)}, ${esc(g.longitude)}</span>`);
+
+    if (map) map.remove();
+    map = L.map("map", { zoomControl: true, attributionControl: false })
+      .setView([g.latitude, g.longitude], 10);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+
+    L.circleMarker([g.latitude, g.longitude], {
+      radius: 8, color: "#e11d1d", weight: 3,
+      fillColor: "#e11d1d", fillOpacity: 0.35,
+    }).addTo(map).bindPopup(
+      `<b>${esc(g.city || "—")}</b><br>${esc(g.state || "—")}, ${esc(g.country || "—")}<br><small>${esc(g.postal || "")}</small>`
+    ).openPopup();
+  }
+
+  /* ============================================================
+     MAIN
+     ============================================================ */
+  (async () => {
+    // 1. Boot tunnel + resolve real IP in parallel
+    const ipPromise = getRealIP();
+
+    const tunnelPromise = (async () => {
+      try {
+        const spawned = await spawnWorker();
+        if (!spawned.ok) throw new Error(spawned.why || "worker failed");
+        worker = spawned.w;
+        return true;
+      } catch (e) {
+        console.error("[goarxyz] tunnel failed:", e);
+        return false;
+      }
+    })();
+
+    const [realIP, tunnelOk] = await Promise.all([ipPromise, tunnelPromise]);
+
+    $("fip").textContent = realIP || "—";
+
+    if (!realIP) {
+      setCard("fraud", '<div class="err">Could not determine IP</div>');
+      setCard("map", '<div class="err" style="padding:20px">No IP</div>');
+      return;
+    }
+
+    if (!tunnelOk) {
+      setCard("fraud", '<div class="err">Tunnel unavailable — cannot reach Scamalytics</div>');
+      setCard("opinfo", '<div class="err">—</div>');
+      setCard("geoinfo", '<div class="err">—</div>');
+      setCard("secinfo", '<div class="err">—</div>');
+      setCard("proxyinfo", '<div class="err">—</div>');
+      setCard("map", '<div class="err" style="padding:20px">Map unavailable</div>');
+      return;
+    }
+
+    // 2. Fetch full Scamalytics page through tunnel
+    try {
+      const res = await tunnelFetch("https://scamalytics.com/ip/" + encodeURIComponent(realIP));
+      if (res.status >= 400) throw new Error("HTTP " + res.status);
+      const scam = parseScamalytics(res.text);
+      if (scam.score == null && !scam.operator.asn) throw new Error("no data parsed");
+
+      renderFraud(scam);
+      renderOperator(scam);
+      renderGeoDetail(scam);
+      renderSecurity(scam);
+      renderProxies(scam);
+      renderMap(scam);
+    } catch (e) {
+      setCard("fraud", `<div class="err">Could not fetch — ${esc(e.message)}</div>`);
+      setCard("opinfo", `<div class="err">${esc(e.message)}</div>`);
+      setCard("geoinfo", `<div class="err">${esc(e.message)}</div>`);
+      setCard("secinfo", `<div class="err">${esc(e.message)}</div>`);
+      setCard("proxyinfo", `<div class="err">${esc(e.message)}</div>`);
+      setCard("map", `<div class="err" style="padding:20px">${esc(e.message)}</div>`);
+    }
+  })();
+})();
+</script>
+<script src="/shared/float.js" defer></script>
+</body>
+</html>
