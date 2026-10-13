@@ -559,7 +559,10 @@ function rangedAudio(buf, type, rangeHeader) {
 export async function handleMediaRequest(url, requestHeaders) {
   const path = url.pathname;
   if (path.startsWith("/gcdn/")) {
-    const target = GAME_ORIGIN + path.slice("/gcdn".length) + url.search;
+    const tail = path.slice("/gcdn".length);
+    const target = tail.startsWith("/game/")
+      ? "https://cdn-consumer.marketjs.com" + tail + url.search
+      : GAME_ORIGIN + tail + url.search;
     const upstream = await fetch(target, {
       headers: {
         "user-agent": "Mozilla/5.0",
