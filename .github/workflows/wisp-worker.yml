@@ -23,12 +23,13 @@ jobs:
           npm install --no-save typescript @cloudflare/workers-types
           npx tsc --noEmit --project wisp-worker
       - name: Sync SOCKS5 proxy list
-        if: ${{ secrets.WISP_SOCKS5 != '' }}
+        if: env.WISP_SOCKS5_SET == 'true'
         run: printf '%s' "${{ secrets.WISP_SOCKS5 }}" | npx wrangler secret put WISP_SOCKS5
         working-directory: wisp-worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WISP_SOCKS5_SET: ${{ secrets.WISP_SOCKS5 != '' }}
       - name: Deploy goarxyz-wisp
         run: npx wrangler deploy
         working-directory: wisp-worker
