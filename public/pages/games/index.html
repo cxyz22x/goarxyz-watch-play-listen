@@ -542,15 +542,18 @@
 
     function openGame(g) {
       const url = proxyUrl(g.file || g.remote || "");
+      if (!url) return;
       pendingGameUrl = url;
-      const go = function () { window.location.assign(url); };
-      const root = document.documentElement;
-      const req = root.requestFullscreen || root.webkitRequestFullscreen || root.msRequestFullscreen;
-      if (req) {
-        Promise.resolve(req.call(root)).then(go).catch(go);
-      } else {
-        go();
-      }
+      const titleEl = document.getElementById("theater-title");
+      if (titleEl) titleEl.textContent = g.title || "Game";
+      if (frameLaunchLabel) frameLaunchLabel.textContent = "Play " + (g.title || "game");
+      gameRequestId++;
+      theater.classList.add("open");
+      document.documentElement.classList.add("is-game-locked");
+      document.body.style.overflow = "hidden";
+      frameLaunch.hidden = false;
+      frameLaunchButton.disabled = false;
+      frame.srcdoc = buildShellDoc(url, g.title || "Game");
     }
 
     frameLaunchButton.addEventListener("click", () => {
