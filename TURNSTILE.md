@@ -30,7 +30,7 @@ wrangler secret put TURNSTILE_SECRET
 | Variable | Purpose |
 | --- | --- |
 | `TURNSTILE_SECRET` | Widget secret from the Cloudflare dashboard (Turnstile → widget). Required to enforce. |
-| `TURNSTILE_HOSTNAMES` | Comma-separated frontend hostnames siteverify must match, e.g. `goarxyz.com,www.goarxyz.com`. Do not include `localhost` in a production allowlist. |
+| `TURNSTILE_HOSTNAMES` | Comma-separated frontend hostnames siteverify must match, defaults to `goar.app,www.goar.app`; override for other hostnames. Do not include `localhost` in a production allowlist. |
 | `TURNSTILE_ENFORCE` | `1`/`true` to fail closed (including on siteverify network errors). Default: fail open. |
 | `TURNSTILE_ACTION` | Optional expected widget action; only set if the frontend always passes `data-action`/`action`. |
 

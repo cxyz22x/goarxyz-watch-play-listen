@@ -26,8 +26,10 @@ function envFlag(name) {
   return v === "1" || v === "true";
 }
 
+const DEFAULT_HOSTNAMES = "goar.app,www.goar.app";
+
 function expectedHostnames() {
-  const list = (process.env.TURNSTILE_HOSTNAMES ?? "")
+  const list = (process.env.TURNSTILE_HOSTNAMES ?? DEFAULT_HOSTNAMES)
     .split(",")
     .map((h) => h.trim().toLowerCase())
     .filter(Boolean);
