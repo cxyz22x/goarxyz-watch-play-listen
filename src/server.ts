@@ -73,7 +73,7 @@ export default {
 
     if (wantsMediaProxy(path)) {
       try {
-        const response = await handleMediaRequest(url, request.headers);
+        const response = await handleMediaRequest(url, request.headers, request);
         if (response) return response;
       } catch {
         return new Response("proxy failed", { status: 502 });

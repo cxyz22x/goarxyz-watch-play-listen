@@ -556,7 +556,7 @@ function rangedAudio(buf, type, rangeHeader) {
   return new Response(buf, { status: 200, headers: Object.assign(headers, { "content-length": String(total) }) });
 }
 
-export async function handleMediaRequest(url, requestHeaders) {
+export async function handleMediaRequest(url, requestHeaders, request) {
   const path = url.pathname;
   if (path.startsWith("/gcdn/")) {
     const tail = path.slice("/gcdn".length);
@@ -587,6 +587,20 @@ export async function handleMediaRequest(url, requestHeaders) {
     return new Response(upstream.body, { status: upstream.status, headers: passthroughHeaders(upstream) });
   }
 
+  const turnstilePaths = [
+    "/yt/search",
+    "/yt/audio",
+    "/spotify/search",
+    "/spotify/hits",
+    "/spotify/file",
+    "/spotify/audio",
+    "/spotify/preview",
+  ];
+  if (turnstilePaths.includes(path)) {
+    const { verifyTurnstile } = await import("./turnstile.mjs");
+    const gate = await verifyTurnstile(request);
+    if (gate) return gate;
+  }
   if (path === "/spotify/search") {
     const q = (url.searchParams.get("q") || "").trim().slice(0, 120);
     if (!q) return Response.json([]);
