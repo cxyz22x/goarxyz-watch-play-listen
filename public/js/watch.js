@@ -620,6 +620,7 @@ function sectionEl(id, title, sub, seeAllFn){
      5. Load the rewritten HTML as a blob URL.
    ============================================================ */
 let playerToken = 0;
+let videoRecovery = null;
 const playerState = { id:null, type:"movie", title:"", item:null, seasons:[], season:1, episode:1, sources:[], sourceName:null, hls:null };
 window.playerState = playerState;
 
@@ -902,6 +903,25 @@ class WispHlsLoader {
   }
 }
 
+function waitForMedia(video, timeoutMs){
+  return new Promise((resolve, reject) => {
+    let timer = null;
+    const cleanup = () => {
+      if (timer) clearTimeout(timer);
+      video.removeEventListener("loadeddata", ok);
+      video.removeEventListener("canplay", ok);
+      video.removeEventListener("error", bad);
+      video.removeEventListener("stalled", bad);
+    };
+    const ok = () => { cleanup(); resolve(true); };
+    const bad = () => { cleanup(); reject(new Error("media failed")); };
+    timer = setTimeout(() => { cleanup(); reject(new Error("media timeout")); }, timeoutMs || 20000);
+    video.addEventListener("loadeddata", ok, { once: true });
+    video.addEventListener("canplay", ok, { once: true });
+    video.addEventListener("error", bad, { once: true });
+    if (video.readyState >= 2){ ok(); return; }
+  });
+}
 async function playSource(source){
   const video = document.getElementById("playerVideo");
   destroyHls();
@@ -921,6 +941,7 @@ async function playSource(source){
       });
     }
     setPlayerStatus(source.height ? (source.height + "p") : "");
+    await waitForMedia(video, 20000);
     try { await video.play(); } catch(e){}
     return;
   }
@@ -928,6 +949,7 @@ async function playSource(source){
   if (canNative && !window.Hls){
     video.src = source.url;
     setPlayerStatus("");
+    await waitForMedia(video, 20000);
     try { await video.play(); } catch(e){}
     return;
   }
@@ -1039,11 +1061,26 @@ async function openPlayer(id, type, title, itemData){
       }
       let lastErr = null;
       const order = [prefer].concat(sources.filter(s => s !== prefer));
-      for (const src of order){
+      for (let idx = 0; idx < order.length; idx++){
+        const src = order[idx];
         try {
           const row = document.querySelector("#playerPicker .srv-row");
           if (row) row.querySelectorAll(".srv").forEach(b => b.classList.toggle("on", b.getAttribute("data-srv") === src.name));
           await playSource(src);
+          const next = order[idx + 1];
+          if (next){
+            videoRecovery = () => {
+              if (myToken !== playerToken) return;
+              videoRecovery = null;
+              const v = document.getElementById("playerVideo");
+              if (v) v.removeEventListener("error", videoRecovery);
+              if (playerState.sourceName !== src.name) return;
+              console.warn("[goarxyz] mid-play failure, auto-switching", src.name, "->", next.name);
+              playSource(next).catch(e => setPlayerStatus(e && e.message ? e.message : String(e), true));
+            };
+            const v0 = document.getElementById("playerVideo");
+            if (v0) v0.addEventListener("error", videoRecovery, { once: true });
+          }
           lastErr = null;
           break;
         } catch(e){
