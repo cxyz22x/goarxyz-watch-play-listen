@@ -1,5 +1,4 @@
 import { WispServer } from "./wisp";
-
 export { WispServer };
 
 interface Env {
@@ -13,7 +12,7 @@ export default {
     const path = url.pathname.replace(/\/+$/, "") || "/";
     if (path === "/wisp" || path === "/") {
       if (request.headers.get("upgrade") !== "websocket") {
-        return new Response("wisp over websocket — see /health", {
+        return new Response("wisp over websocket \u2014 see /health", {
           status: 426,
         });
       }
