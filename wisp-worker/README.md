@@ -48,3 +48,7 @@ cd wisp-worker
 echo 'WISP_SOCKS5=' > .dev.vars   # or leave unset for direct dial
 npx wrangler dev
 ```
+
+## Deployment
+
+Deployed via the `Deploy WISP Worker` GitHub Actions workflow (`.github/workflows/wisp-worker.yml`) using repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
