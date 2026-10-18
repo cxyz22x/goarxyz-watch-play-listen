@@ -1,7 +1,0 @@
-.logo{font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;font-weight:700;font-size:24px;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em;line-height:1;color:#eceef1;text-decoration:none;text-decoration-line:none}
-a.logo:visited{color:#eceef1}
-.logo .marks{display:flex;gap:6px;font-size:14px;line-height:1;letter-spacing:2px}
-.logo .marks span:nth-child(1){color:#e8b64c}
-.logo .marks span:nth-child(2){color:#5b8def}
-.logo .marks span:nth-child(3){color:#e05d5d}
-.logo .marks span:nth-child(4){color:#5fd6a4}

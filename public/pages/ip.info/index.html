@@ -5,8 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>ip.info — goarxyz</title>
-<link rel="stylesheet" href="/shared/brand.css" />
-<link rel="stylesheet" href="/shared/float.css" />
+<style>
+.logo{font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;font-weight:700;font-size:24px;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em;line-height:1;color:#eceef1;text-decoration:none;text-decoration-line:none}
+a.logo:visited{color:#eceef1}
+.logo .marks{display:flex;gap:6px;font-size:14px;line-height:1;letter-spacing:2px}
+.logo .marks span:nth-child(1){color:#e8b64c}
+.logo .marks span:nth-child(2){color:#5b8def}
+.logo .marks span:nth-child(3){color:#e05d5d}
+.logo .marks span:nth-child(4){color:#5fd6a4}
+
+</style>
+<style>
+#goarFloat{
+  position:fixed;z-index:1000;width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:grab;touch-action:none;box-shadow:none;padding:0;opacity:.55;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#goarFloat:hover{opacity:.95;background:rgba(255,255,255,.16)}
+#goarFloat svg{width:20px;height:20px;opacity:.9}
+#goarFloat:active{cursor:grabbing}
+#goarFloat:active{cursor:grabbing}
+#goarFloatMenu{
+  position:fixed;z-index:1000;display:flex;flex-direction:column;gap:2px;
+  min-width:148px;padding:8px;border-radius:16px;background:#101018f2;
+  border:1px solid #262633;box-shadow:0 16px 40px #000a;
+}
+#goarFloatMenu[hidden]{display:none}
+#goarFloatMenu a{
+  color:#c8c9d4;text-decoration:none;font:600 14px Inter,system-ui,sans-serif;
+  padding:10px 12px;border-radius:10px;
+}
+#goarFloatMenu a.on,#goarFloatMenu a:hover{background:#fff;color:#07070c}
+
+</style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
 :root{--bg:#000;--s:#0c0c0c;--b:#1f1f1f;--t:#fff;--d:#8a8a8a;--r:16px;--red:#e11d1d;--grn:#22c55e;--amb:#fbbf24}
@@ -623,6 +656,88 @@ footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--b);display:fl
   })();
 })();
 </script>
-<script src="/shared/float.js" defer></script>
+<script>
+(function(){
+  const LINKS = [
+    ["Home", "/index.html"],
+    ["Movies", "/pages/watch/index.html?tab=movie"],
+    ["TV", "/pages/watch/index.html?tab=tv"],
+    ["Music", "/pages/music/index.html"],
+    ["Games", "/pages/games/index.html"],
+    ["Live", "/pages/live/index.html"],
+    ["Anime", "/pages/anime/index.html"],
+    ["Proxy Scraper", "/pages/proxy-scraper/index.html"],
+    ["Agents", "/pages/agents/index.html"],
+    ["ip.info", "/pages/ip.info/index.html"],
+    ["Privacy", "/legal/privacy.html"],
+    ["Contact", "/legal/contact.html"]
+  ];
+  const btn = document.createElement("button");
+  btn.id = "goarFloat";
+  btn.type = "button";
+  btn.setAttribute("aria-label", "Menu");
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+  const menu = document.createElement("nav");
+  menu.id = "goarFloatMenu";
+  menu.hidden = true;
+  const here = location.pathname;
+  LINKS.forEach(function(pair){
+    const a = document.createElement("a");
+    a.href = pair[1];
+    a.textContent = pair[0];
+    const path = pair[1].split("?")[0].replace(/index\.html$/, "");
+    if (here.indexOf(path) === 0) a.className = "on";
+    menu.appendChild(a);
+  });
+  document.body.appendChild(menu);
+  document.body.appendChild(btn);
+  const KEY = "goar-float";
+  function place(x, y){
+    const w = 56, h = 56;
+    x = Math.max(8, Math.min(x, innerWidth - w - 8));
+    y = Math.max(8, Math.min(y, innerHeight - h - 8));
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+    const mw = menu.offsetWidth || 160;
+    const mh = menu.offsetHeight || 300;
+    let mx = x - mw - 10;
+    if (mx < 8) mx = x + w + 10;
+    let my = y;
+    if (my + mh > innerHeight - 8) my = innerHeight - mh - 8;
+    menu.style.left = mx + "px";
+    menu.style.top = Math.max(8, my) + "px";
+  }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+  place(saved && typeof saved.x === "number" ? saved.x : innerWidth - 72, saved && typeof saved.y === "number" ? saved.y : innerHeight - 88);
+  let dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  btn.addEventListener("pointerdown", function(e){
+    dragging = true;
+    moved = false;
+    btn.setPointerCapture(e.pointerId);
+    const r = btn.getBoundingClientRect();
+    sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
+  });
+  btn.addEventListener("pointermove", function(e){
+    if (!dragging) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+    place(ox + dx, oy + dy);
+  });
+  btn.addEventListener("pointerup", function(){
+    if (!dragging) return;
+    dragging = false;
+    const r = btn.getBoundingClientRect();
+    try { localStorage.setItem(KEY, JSON.stringify({ x: r.left, y: r.top })); } catch (e) {}
+    if (!moved) menu.hidden = !menu.hidden;
+  });
+  btn.addEventListener("pointercancel", function(){ dragging = false; });
+  addEventListener("resize", function(){
+    const r = btn.getBoundingClientRect();
+    place(r.left, r.top);
+  });
+})();
+
+</script>
 <script src="https://cdn.staticdelivr.com/gh/cxyz22x/analytics.js/refs/heads/main/analytics.js" defer></script></body>
 </html>
