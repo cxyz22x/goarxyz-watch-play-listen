@@ -15,7 +15,7 @@
   "migrations": [
     {
       "tag": "v1-wisp",
-      "new_classes": ["WispServer"]
+      "new_sqlite_classes": ["WispServer"]
     }
   ],
   "observability": {

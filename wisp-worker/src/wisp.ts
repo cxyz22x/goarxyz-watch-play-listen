@@ -6,24 +6,39 @@ interface Env {
   WISP_SOCKS5?: string;
 }
 
-interface WispMessage {
-  type: string;
-  destination: string;
-  port?: number;
-  data?: string;
-  streamID?: number;
-  reason?: string;
-}
+const STREAM_ID_HANDSHAKE = 0;
+const MAX_BUFFER = 64;
 
-interface StreamState {
-  socket: Socket;
-}
+const PACKET_CONNECT = 0x01;
+const PACKET_DATA = 0x02;
+const PACKET_CONTINUE = 0x03;
+const PACKET_CLOSE = 0x04;
+const PACKET_INFO = 0x05;
+
+const STREAM_TCP = 0x01;
+const STREAM_UDP = 0x02;
+
+const EXTENSION_UDP = 0x01;
+
+const CLOSE_UNKNOWN = 0x01;
+const CLOSE_NETWORK_ERROR = 0x03;
+const CLOSE_INVALID_INFO = 0x41;
+const CLOSE_UNREACHABLE = 0x42;
+const CLOSE_REFUSED = 0x44;
+const CLOSE_THROTTLED = 0x49;
 
 interface Socks5Proxy {
   host: string;
   port: number;
   username?: string;
   password?: string;
+}
+
+interface Stream {
+  socket: Socket;
+  pending: Uint8Array[];
+  writing: boolean;
+  closed: boolean;
 }
 
 export function parseSocks5List(raw: string | undefined): Socks5Proxy[] {
@@ -62,20 +77,20 @@ export function pickProxy(proxies: Socks5Proxy[]): Socks5Proxy | null {
   return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
-export function encodeSocks5String(value: string): Uint8Array {
+function encodeSocks5String(value: string): Uint8Array {
   const bytes = new Uint8Array(value.length);
   for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i) & 0xff;
   return bytes;
 }
 
-export function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
+function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
   if (proxy.username) {
     return new Uint8Array([0x05, 0x02, 0x00, 0x02]);
   }
   return new Uint8Array([0x05, 0x01, 0x00]);
 }
 
-export function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
+function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   const user = encodeSocks5String(proxy.username ?? "");
   const pass = encodeSocks5String(proxy.password ?? "");
   const out = new Uint8Array(3 + user.length + pass.length);
@@ -87,7 +102,7 @@ export function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   return out;
 }
 
-export function socks5ConnectRequest(
+function socks5ConnectRequest(
   destination: string,
   port: number,
 ): Uint8Array {
@@ -107,19 +122,93 @@ export function socks5ConnectRequest(
     addrBytes[0] = name.length;
     addrBytes.set(name, 1);
   }
-  const out = new Uint8Array(
-    4 + addrBytes.length + 2,
-  );
+  const out = new Uint8Array(4 + addrBytes.length + 2);
   out[0] = 0x05;
   out[1] = 0x01;
   out[2] = 0x00;
   out[3] = addrType;
   out.set(addrBytes, 4);
-  const portHi = (port >> 8) & 0xff;
-  const portLo = port & 0xff;
-  out[4 + addrBytes.length] = portHi;
-  out[5 + addrBytes.length] = portLo;
+  out[4 + addrBytes.length] = (port >> 8) & 0xff;
+  out[5 + addrBytes.length] = port & 0xff;
   return out;
+}
+
+class ByteReader {
+  private buffer: Uint8Array;
+
+  constructor(payload: Uint8Array) {
+    this.buffer = payload;
+  }
+
+  private take(length: number): Uint8Array {
+    if (this.buffer.length < length) throw new Error("payload too short");
+    const out = this.buffer.subarray(0, length);
+    this.buffer = this.buffer.subarray(length);
+    return out;
+  }
+
+  u8(): number {
+    return this.take(1)[0];
+  }
+
+  u16(): number {
+    const b = this.take(2);
+    return b[0] | (b[1] << 8);
+  }
+
+  rest(): Uint8Array {
+    return this.take(this.buffer.length);
+  }
+
+  string(): string {
+    return new TextDecoder().decode(this.rest());
+  }
+}
+
+class PacketBuilder {
+  private bytes: number[] = [];
+
+  constructor(type: number, streamId: number) {
+    this.bytes.push(type & 0xff);
+    this.bytes.push(streamId & 0xff);
+    this.bytes.push((streamId >>> 8) & 0xff);
+    this.bytes.push((streamId >>> 16) & 0xff);
+    this.bytes.push((streamId >>> 24) & 0xff);
+  }
+
+  u8(value: number): this {
+    this.bytes.push(value & 0xff);
+    return this;
+  }
+
+  u16(value: number): this {
+    this.bytes.push(value & 0xff);
+    this.bytes.push((value >> 8) & 0xff);
+    return this;
+  }
+
+  u32(value: number): this {
+    this.bytes.push(value & 0xff);
+    this.bytes.push((value >> 8) & 0xff);
+    this.bytes.push((value >> 16) & 0xff);
+    this.bytes.push((value >>> 24) & 0xff);
+    return this;
+  }
+
+  bytesFromArray(data: Uint8Array): this {
+    for (const byte of data) this.bytes.push(byte);
+    return this;
+  }
+
+  string(value: string): this {
+    return this.bytesFromArray(
+      new TextEncoder().encode(value),
+    );
+  }
+
+  build(): Uint8Array {
+    return new Uint8Array(this.bytes);
+  }
 }
 
 async function readExact(
@@ -132,9 +221,10 @@ async function readExact(
     const { done, value } = await reader.read();
     if (done) throw new Error("socks5 proxy closed early");
     if (!value) continue;
-    out.set(value.subarray(0, Math.min(value.length, length - filled)), filled);
-    filled += value.length;
-    if (filled > length) {
+    const copy = Math.min(value.length, length - filled);
+    out.set(value.subarray(0, copy), filled);
+    filled += copy;
+    if (value.length > copy) {
       throw new Error("socks5 proxy sent more than expected");
     }
   }
@@ -184,8 +274,7 @@ async function dialThroughSocks5(
 }
 
 export class WispServer extends DurableObject<Env> {
-  private streams = new Map<number, StreamState>();
-  private nextStreamId = 1;
+  private streams = new Map<number, Stream>();
 
   private authorized(request: Request): boolean {
     const expected = this.env.WISP_TOKEN?.trim();
@@ -203,20 +292,42 @@ export class WispServer extends DurableObject<Env> {
     return diff === 0;
   }
 
-  private bytesToBase64(bytes: Uint8Array): string {
-    let bin = "";
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  private async flushStream(stream: Stream): Promise<void> {
+    if (stream.writing || stream.closed) return;
+    stream.writing = true;
+    try {
+      while (stream.pending.length > 0 && !stream.closed) {
+        const chunk = stream.pending.shift()!;
+        const writer = stream.socket.writable.getWriter();
+        try {
+          await writer.write(chunk);
+        } finally {
+          writer.releaseLock();
+        }
+      }
+    } catch {
+      stream.closed = true;
+    } finally {
+      stream.writing = false;
     }
-    return btoa(bin);
   }
 
-  private base64ToBytes(b64: string): Uint8Array {
-    const bin = atob(b64);
-    const out = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
+  private async closeStream(
+    send: (data: Uint8Array) => void,
+    id: number,
+    reason: number,
+  ): Promise<void> {
+    const stream = this.streams.get(id);
+    if (stream) {
+      stream.closed = true;
+      this.streams.delete(id);
+      try {
+        await stream.socket.close();
+      } catch {
+        /* already closed */
+      }
+    }
+    send(new PacketBuilder(PACKET_CLOSE, id).u8(reason).build());
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -228,50 +339,86 @@ export class WispServer extends DurableObject<Env> {
     }
 
     const proxies = parseSocks5List(this.env.WISP_SOCKS5);
+    const v2 = request.headers.get("sec-websocket-protocol") !== null;
     const { 0: client, 1: server } = new WebSocketPair();
     server.accept();
 
-    const send = (msg: Record<string, unknown>) => {
+    const send = (data: Uint8Array) => {
       try {
-        server.send(JSON.stringify(msg));
+        server.send(data);
       } catch {
         /* connection gone */
       }
     };
 
-    const cleanupStream = async (id: number) => {
-      const state = this.streams.get(id);
-      if (!state) return;
-      this.streams.delete(id);
-      try {
-        await state.socket.close();
-      } catch {
-        /* already closed */
-      }
-    };
+    if (v2) {
+      const info = new PacketBuilder(PACKET_INFO, STREAM_ID_HANDSHAKE)
+        .u8(2)
+        .u8(1)
+        .build();
+      send(info);
+    } else {
+      send(
+        new PacketBuilder(PACKET_CONTINUE, STREAM_ID_HANDSHAKE)
+          .u32(MAX_BUFFER)
+          .build(),
+      );
+    }
 
     server.addEventListener("message", (event) => {
-      let msg: WispMessage;
-      try {
-        msg = JSON.parse(String(event.data)) as WispMessage;
-      } catch {
-        return;
+      void (async () => {
+      const raw = event.data as unknown;
+      let data: Uint8Array;
+      if (typeof raw === "string") {
+        data = new TextEncoder().encode(raw);
+      } else if (raw instanceof ArrayBuffer) {
+        data = new Uint8Array(raw);
+      } else if (raw instanceof Uint8Array) {
+        data = raw;
+      } else {
+        data = new Uint8Array(await (raw as Blob).arrayBuffer());
       }
+      if (data.length < 5) return;
+      const type = data[0];
+      const streamId =
+        data[1] | (data[2] << 8) | (data[3] << 16) | (data[4] << 24);
+      const payload = data.subarray(5);
 
-      if (msg.type === "connect") {
-        const id = this.nextStreamId++;
-        const destination = String(msg.destination ?? "");
-        const port = Number(msg.port ?? 443);
-        if (
-          !destination ||
-          !Number.isInteger(port) ||
-          port < 1 ||
-          port > 65535
-        ) {
-          send({ type: "error", streamID: id, reason: "invalid destination" });
-          return;
-        }
+      if (type === PACKET_CONNECT) {
         void (async () => {
+          let port: number;
+          let destination: string;
+          let streamType: number;
+          try {
+            const reader = new ByteReader(payload);
+            streamType = reader.u8();
+            port = reader.u16();
+            destination = reader.string();
+          } catch (err) {
+            send(
+              new PacketBuilder(PACKET_CLOSE, streamId)
+                .u8(CLOSE_INVALID_INFO)
+                .build(),
+            );
+            return;
+          }
+          if (streamType !== STREAM_TCP || !destination) {
+            send(
+              new PacketBuilder(PACKET_CLOSE, streamId)
+                .u8(CLOSE_INVALID_INFO)
+                .build(),
+            );
+            return;
+          }
+          if (this.streams.has(streamId)) {
+            send(
+              new PacketBuilder(PACKET_CLOSE, streamId)
+                .u8(CLOSE_THROTTLED)
+                .build(),
+            );
+            return;
+          }
+
           let socket: Socket | null = null;
           let lastError: unknown = null;
           const attempts = Math.min(proxies.length, 3);
@@ -292,61 +439,96 @@ export class WispServer extends DurableObject<Env> {
             }
           }
           if (!socket) {
-            send({
-              type: "error",
-              streamID: id,
-              reason: String((lastError as Error)?.message ?? lastError),
-            });
+            const message = String((lastError as Error)?.message ?? lastError);
+            let reason = CLOSE_UNREACHABLE;
+            if (/refus|reset/i.test(message)) reason = CLOSE_REFUSED;
+            else if (/timed?\s?out/i.test(message)) reason = CLOSE_REFUSED;
+            else if (/more than expected|not a socks5|auth/i.test(message)) {
+              reason = CLOSE_NETWORK_ERROR;
+            }
+            send(
+              new PacketBuilder(PACKET_CLOSE, streamId).u8(reason).build(),
+            );
             return;
           }
-          this.streams.set(id, { socket });
-          send({ type: "connected", streamID: id });
-          const reader = socket.readable.getReader();
-          try {
-            for (;;) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              if (value) {
-                send({
-                  type: "data",
-                  streamID: id,
-                  data: this.bytesToBase64(value as Uint8Array),
-                });
+
+          const stream: Stream = {
+            socket,
+            pending: [],
+            writing: false,
+            closed: false,
+          };
+          this.streams.set(streamId, stream);
+          void (async () => {
+            const reader = stream.socket.readable.getReader();
+            try {
+              for (;;) {
+                const { done, value } = await reader.read();
+                if (done || stream.closed) break;
+                if (value) {
+                  send(
+                    new PacketBuilder(PACKET_DATA, streamId)
+                      .bytesFromArray(value as Uint8Array)
+                      .build(),
+                  );
+                }
               }
+            } catch {
+              /* read error */
             }
-          } catch {
-            /* read error */
-          }
-          send({ type: "close", streamID: id, reason: "stream ended" });
-          await cleanupStream(id);
+            await this.closeStream(send, streamId, CLOSE_UNKNOWN);
+          })();
         })();
         return;
       }
 
-      if (msg.type === "data" || msg.type === "continue") {
-        if (msg.type === "data") {
-          const state = this.streams.get(msg.streamID ?? -1);
-          if (state && msg.data) {
-            const writer = state.socket.writable.getWriter();
-            void writer
-              .write(this.base64ToBytes(msg.data))
-              .catch(() => {})
-              .finally(() => writer.releaseLock());
-          }
+      if (type === PACKET_DATA) {
+        const stream = this.streams.get(streamId);
+        if (stream && !stream.closed && payload.length > 0) {
+          stream.pending.push(payload);
+          void this.flushStream(stream);
         }
+        send(
+          new PacketBuilder(PACKET_CONTINUE, streamId).u32(MAX_BUFFER).build(),
+        );
         return;
       }
 
-      if (msg.type === "close" || msg.type === "disconnect") {
-        const id = msg.streamID ?? -1;
-        void cleanupStream(id).then(() => {
-          send({ type: "close", streamID: id, reason: msg.reason ?? "closed" });
-        });
+      if (type === PACKET_CONTINUE) {
+        return;
       }
+
+      if (type === PACKET_CLOSE) {
+        const reason = payload.length > 0 ? payload[0] : CLOSE_UNKNOWN;
+        void this.closeStream(send, streamId, reason);
+        return;
+      }
+
+      if (type === PACKET_INFO) {
+        if (v2 && streamId === STREAM_ID_HANDSHAKE) {
+          send(
+            new PacketBuilder(PACKET_CONTINUE, STREAM_ID_HANDSHAKE)
+              .u32(MAX_BUFFER)
+              .build(),
+          );
+        }
+        return;
+      }
+      })();
     });
 
     server.addEventListener("close", () => {
-      for (const id of [...this.streams.keys()]) void cleanupStream(id);
+      for (const id of [...this.streams.keys()]) {
+        const stream = this.streams.get(id);
+        if (!stream) continue;
+        stream.closed = true;
+        this.streams.delete(id);
+        try {
+          void stream.socket.close();
+        } catch {
+          /* already closed */
+        }
+      }
     });
 
     return new Response(null, { status: 101, webSocket: client });
