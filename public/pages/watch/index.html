@@ -1614,7 +1614,7 @@ function destroyHls(){
   if (playerState.hls){ try { playerState.hls.destroy(); } catch(e){} playerState.hls = null; }
   playerState.levels = [];
   const v = document.getElementById("playerVideo");
-  if (v){ try { v.pause(); } catch(e){} v.removeAttribute("src"); v.load(); }
+  if (v){ try { v.pause(); } catch(e){} v.onerror = null; v.removeAttribute("src"); v.load(); }
 }
 class WispHlsLoader {
   constructor(config){
@@ -1691,26 +1691,80 @@ async function attachHls(video, source, useWispLoader){
     try { hls.startLoad(); } catch(e){}
   });
 }
+function verifyPlayback(video, timeoutMs){
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const cleanup = () => {
+      clearTimeout(t);
+      video.removeEventListener("playing", onOk);
+      video.removeEventListener("error", onErr);
+    };
+    const t = setTimeout(() => {
+      if (settled) return;
+      settled = true; cleanup(); reject(new Error("playback stalled"));
+    }, timeoutMs || 15000);
+    const onOk = () => { if (settled) return; settled = true; cleanup(); resolve(); };
+    const onErr = () => { if (settled) return; settled = true; cleanup(); reject(new Error("media error")); };
+    video.addEventListener("playing", onOk);
+    video.addEventListener("error", onErr);
+    video.play().then(onOk, (e) => {
+      if (settled) return;
+      if (e && e.name === "NotAllowedError"){ settled = true; cleanup(); resolve(); return; }
+      onErr();
+    }).catch(()=>{});
+  });
+}
+function armPlaybackFailover(source){
+  const video = document.getElementById("playerVideo");
+  if (!video) return;
+  video.onerror = () => {
+    console.warn("[goarxyz] source died mid-play:", source.name);
+    const idx = playerState.sources.findIndex(s => s.name === source.name);
+    if (idx < 0) return;
+    const remaining = playerState.sources.slice(idx + 1).concat(playerState.sources.slice(0, idx));
+    (async () => {
+      for (const next of remaining){
+        try {
+          await playSource(next);
+          const sel = document.getElementById("selServer");
+          if (sel) sel.value = next.name;
+          const picker = document.getElementById("playerPicker");
+          if (picker){
+            const oldQ = picker.querySelector("#selQuality");
+            if (oldQ) oldQ.remove();
+            const qHtml = buildQualitySelectHtml();
+            if (qHtml){ picker.insertAdjacentHTML("beforeend", qHtml); wireQualitySelect(); }
+          }
+          return;
+        } catch(e){ console.warn("[goarxyz] source failed", next.name, e); }
+      }
+      setPlayerStatus("All sources failed", true);
+    })();
+  };
+}
 async function playSource(source){
   const video = document.getElementById("playerVideo");
   destroyHls();
   playerState.sourceName = source.name;
   setPlayerStatus("Starting " + source.name + "…");
-  if (source.format === "mp4"){
-    video.src = source.url;
-    setPlayerStatus("");
-    try { await video.play(); } catch(e){}
-    return;
-  }
-  const canNative = video.canPlayType && video.canPlayType("application/vnd.apple.mpegurl");
   const attempts = [];
-  if (tunnelState.status === "ok") attempts.push(() => attachHls(video, source, true));
-  if (typeof Hls !== "undefined") attempts.push(() => attachHls(video, source, false));
-  if (canNative) attempts.push(async () => { video.src = source.url; try { await video.play(); } catch(e){} });
+  if (source.format === "mp4"){
+    attempts.push(async () => { video.src = source.url; await verifyPlayback(video); });
+  } else {
+    const canNative = video.canPlayType && video.canPlayType("application/vnd.apple.mpegurl");
+    if (tunnelState.status === "ok") attempts.push(async () => { await attachHls(video, source, true); await verifyPlayback(video); });
+    if (typeof Hls !== "undefined") attempts.push(async () => { await attachHls(video, source, false); await verifyPlayback(video); });
+    if (canNative) attempts.push(async () => { video.src = source.url; await verifyPlayback(video); });
+  }
   let lastErr = null;
   for (const fn of attempts){
-    try { await fn(); setPlayerStatus(""); try { await video.play(); } catch(e){} return; }
-    catch(e){ lastErr = e; destroyHls(); console.warn("[goarxyz] playback attempt failed:", e); }
+    try {
+      await fn();
+      setPlayerStatus("");
+      try { await video.play(); } catch(e){}
+      armPlaybackFailover(source);
+      return;
+    } catch(e){ lastErr = e; destroyHls(); console.warn("[goarxyz] playback attempt failed:", e); }
   }
   throw lastErr || new Error("no playback method available");
 }
@@ -2003,7 +2057,16 @@ async function downloadTitle(id, type, season, episode, displayTitle){
       const bScore = (bP.directPlayable ? 2 : 0) + (bP.normalize ? 1 : 0);
       return bScore - aScore;
     });
-    const source = mp4[0];
+    let source = null;
+    let lastDlErr = null;
+    for (const cand of mp4){
+      try {
+        const probe = await mediaFetch(cand.url, { headers: playHeaders() });
+        if (!probe.ok){ lastDlErr = new Error(cand.name + " HTTP " + probe.status); probe.body && probe.body.cancel && probe.body.cancel().catch(()=>{}); throw lastDlErr; }
+        source = cand; break;
+      } catch(e){ lastDlErr = e; console.warn("[goarxyz] download source failed", cand.name, e); }
+    }
+    if (!source) throw lastDlErr || new Error("no downloadable sources");
     const filename = sanitizeFilename(displayTitle + (type === "tv" ? " S" + String(season).padStart(2,"0") + "E" + String(episode).padStart(2,"0") : "")) + ".mp4";
 
     _downloadAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
