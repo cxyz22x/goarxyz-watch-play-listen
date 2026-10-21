@@ -1,0 +1,33 @@
+
+> preview
+> node scripts/with-app-env.mjs vite preview
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProcessing dist/server/wrangler.json configuration:[0m
+
+    - Unexpected fields found in observability field: "issue_detection"
+
+
+There is a newer version of Wrangler available (current: 4.149.0, latest: 4.151.3). Try upgrading, as it might support this configuration option.
+  ➜  Local:   http://127.0.0.1:8081/
+  ➜  Debug:   http://127.0.0.1:8081/__debug
+✨ Parsed 8 valid redirect rules.
+✨ Parsed 3 valid header rules.
+GET / 200 OK (10ms)
+GET / 200 OK (3ms)
+GET /index.html 307 Temporary Redirect (2ms)
+GET / 200 OK (5ms)
+GET /pages/games/index.html 307 Temporary Redirect (1ms)
+GET /pages/games/ 200 OK (2ms)
+GET /pages/watch/index.html 307 Temporary Redirect (1ms)
+GET /pages/watch/ 200 OK (1ms)
+GET /shared/brand.css 200 OK (1ms)
+GET /shared/float.css 200 OK (2ms)
+GET /shared/float.js 200 OK (1ms)
+GET /shared/aes.js 200 OK (2ms)
+GET /shared/protect.js 200 OK (1ms)
+GET /sw.js 200 OK (1ms)
+GET /vendor/hls.min.js 200 OK (1ms)
+GET /games.json 200 OK (2ms)
+GET /gcdn/en/sprinters/index.html 200 OK (387ms)
+GET /gcdn/en/sprinters/game.js 200 OK (57ms)
+GET /gcdn/game/drift-boss-advanced/ 200 OK (111ms)
