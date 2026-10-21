@@ -1,0 +1,29 @@
+name: Align game assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/line-game-assets.mjs
+      - name: Commit aligned paths
+        run: |
+          git config user.name "goarxyz"
+          git config user.email "admin@goarxyz.com"
+          git add public/games.json public/data/asset-paths.json public/games/pack
+          if git diff --cached --quiet; then
+            echo "No path changes"
+          else
+            git commit -m "Align each game asset to its own folder"
+            git push
+          fi

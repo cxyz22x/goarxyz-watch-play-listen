@@ -1,0 +1,48 @@
+name: Fetch games
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: How many games to fetch this run
+        required: false
+        default: "690"
+      offset:
+        description: Start index in the catalog
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Download game files into the repo
+        env:
+          FETCH_LIMIT: ${{ inputs.limit }}
+          FETCH_OFFSET: ${{ inputs.offset }}
+          FETCH_COMMIT_EVERY: "25"
+        run: node scripts/fetch-games.mjs
+
+      - name: Commit local game packs
+        run: |
+          git config user.name "goarxyz"
+          git config user.email "admin@goarxyz.com"
+          git add public/games/pack public/games.json public/data/games-fetch.json public/pages/games || true
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Vendor local copies of MarketJS games"
+            git push
+          fi
