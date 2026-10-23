@@ -77,20 +77,20 @@ export function pickProxy(proxies: Socks5Proxy[]): Socks5Proxy | null {
   return proxies[Math.floor(Math.random() * proxies.length)];
 }
 
-function encodeSocks5String(value: string): Uint8Array {
+export function encodeSocks5String(value: string): Uint8Array {
   const bytes = new Uint8Array(value.length);
   for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i) & 0xff;
   return bytes;
 }
 
-function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
+export function socks5Greeting(proxy: Socks5Proxy): Uint8Array {
   if (proxy.username) {
     return new Uint8Array([0x05, 0x02, 0x00, 0x02]);
   }
   return new Uint8Array([0x05, 0x01, 0x00]);
 }
 
-function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
+export function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   const user = encodeSocks5String(proxy.username ?? "");
   const pass = encodeSocks5String(proxy.password ?? "");
   const out = new Uint8Array(3 + user.length + pass.length);
@@ -102,7 +102,7 @@ function socks5AuthRequest(proxy: Socks5Proxy): Uint8Array {
   return out;
 }
 
-function socks5ConnectRequest(
+export function socks5ConnectRequest(
   destination: string,
   port: number,
 ): Uint8Array {
