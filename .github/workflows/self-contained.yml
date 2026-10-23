@@ -1,0 +1,32 @@
+name: Self-contained project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch libraries and clean the tree
+        run: node scripts/make-self-contained.mjs
+
+      - name: Commit the cleaned project
+        run: |
+          git config user.name "goarxyz"
+          git config user.email "admin@goarxyz.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Clean the tree into a self-contained site"
+            git push
+          fi
